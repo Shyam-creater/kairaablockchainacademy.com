@@ -1,0 +1,17 @@
+import React from 'react';
+export const HomeOutlinedIcon = () => null;
+export const ExitToAppIcon = () => null;
+export const SettingsIcon = () => null;
+export const ManageHistoryIcon = () => null;
+export const WysiwygIcon = () => null;
+export const QuizIcon = () => null;
+export const WebIcon = () => null;
+export const VideoCallIcon = () => null;
+export const OndemandVideoIcon = () => null;
+export const GroupsIcon = () => null;
+export const MapOutlinedIcon = () => null;
+export const BarChartOutlinedIcon = () => null;
+export const ReceiptOutlinedIcon = () => null;
+export const PeopleOutlineRoundedIcon = () => null;
+export const ArrowBackIosRoundedIcon = () => null;
+export const ArrowForwardIosRoundedIcon = () => null;

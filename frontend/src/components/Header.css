@@ -1,0 +1,280 @@
+/* Ultra Premium Header Styling */
+.premium-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  display: flex;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.premium-header-content {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  height: 105px; /* Accommodates much larger logo */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.premium-logo {
+  height: 85px; /* Restored to the massive, premium size you liked */
+  max-width: 320px;
+  object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.04));
+}
+
+.premium-logo:hover {
+  opacity: 0.95;
+  transform: scale(1.04);
+}
+
+.premium-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Force override index.css harsh styling for NavItems */
+.desktop-nav .menus {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important; /* Force it to stay on one line */
+  white-space: nowrap !important;
+}
+
+.desktop-nav .menu-items {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  margin: 0 !important;
+}
+
+.desktop-nav .menu-items > a,
+.desktop-nav .menu-items > button {
+  padding: 8px 14px !important; /* Reduced padding to save horizontal space */
+  color: #334155 !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  transition: all 0.3s ease !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+}
+
+.desktop-nav .menu-items > a:hover,
+.desktop-nav .menu-items > button:hover {
+  color: #0876DB !important;
+}
+
+.desktop-nav .menu-items > button > a {
+  padding: 0 !important;
+  color: inherit !important;
+}
+.desktop-nav .menu-items > button > a:hover {
+  background: transparent !important;
+}
+
+/* Premium Animated Dropdown Styling */
+.desktop-nav .dropdown {
+  /* Override brutal display toggling for smooth 60fps animations */
+  display: block !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(15px) scale(0.98) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  pointer-events: none;
+  
+  box-shadow: 0 35px 60px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  padding: 12px !important;
+  margin-top: 25px !important;
+  min-width: 260px !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.desktop-nav .dropdown.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
+  pointer-events: auto;
+}
+
+/* Elegant little pointer arrow on top of dropdown */
+.desktop-nav .dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 30px;
+  width: 14px;
+  height: 14px;
+  background-color: #ffffff;
+  transform: rotate(45deg);
+  border-top: 1px solid rgba(0,0,0,0.04);
+  border-left: 1px solid rgba(0,0,0,0.04);
+  border-top-left-radius: 3px;
+}
+
+/* Invisible bridge to prevent hover gap dropping */
+.desktop-nav .dropdown::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+}
+
+/* Premium links inside dropdown */
+.desktop-nav .dropdown .menu-items {
+  margin: 4px 0 !important;
+}
+
+.desktop-nav .dropdown .menu-items > a,
+.desktop-nav .dropdown .menu-items > button {
+  padding: 14px 20px !important;
+  border-radius: 10px !important;
+  width: 100% !important;
+  font-weight: 500 !important;
+  font-size: 14.5px !important;
+  color: #475569 !important;
+  position: relative;
+  overflow: hidden;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.desktop-nav .dropdown .menu-items > a:hover,
+.desktop-nav .dropdown .menu-items > button:hover {
+  background-color: #f8fafc !important;
+  color: #0876DB !important;
+  transform: translateX(6px);
+}
+
+/* Left Accent Line Animation on Hover */
+.desktop-nav .dropdown .menu-items > a::before,
+.desktop-nav .dropdown .menu-items > button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 18px;
+  background-color: #0876DB;
+  border-radius: 0 4px 4px 0;
+  transition: transform 0.2s ease;
+}
+
+.desktop-nav .dropdown .menu-items > a:hover::before,
+.desktop-nav .dropdown .menu-items > button:hover::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+/* Adjust nested submenus to fly out sideways elegantly */
+.desktop-nav .dropdown .dropdown-submenu {
+  margin-top: -20px !important;
+  right: calc(100% + 15px) !important;
+  left: auto !important;
+}
+
+.desktop-nav .dropdown .dropdown-submenu::before {
+  display: none !important; /* Hide arrow on submenus */
+}
+
+/* Elegant Profile Image Hover Pattern */
+.premium-profile-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Removed margin-left to rely completely on the container's gap for perfect mathematical alignment */
+}
+
+@keyframes subtlePulse {
+  0% { box-shadow: 0 0 0 0 rgba(8, 118, 219, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(8, 118, 219, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(8, 118, 219, 0); }
+}
+
+.premium-profile-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+  padding: 2px;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  cursor: pointer;
+  animation: subtlePulse 2.5s infinite ease-in-out;
+}
+
+.premium-profile-img:hover {
+  border-color: #0876DB;
+  box-shadow: 0 4px 15px rgba(8, 118, 219, 0.3) !important;
+  transform: translateY(-3px) scale(1.05);
+  animation-play-state: paused;
+}
+
+/* Solid Premium Login Button instead of basic icon */
+.premium-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #0876DB;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(8, 118, 219, 0.15);
+}
+
+.premium-login-btn:hover {
+  background-color: #065baf;
+  box-shadow: 0 6px 18px rgba(8, 118, 219, 0.3);
+  transform: translateY(-1px);
+}
+
+.premium-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #334155;
+  cursor: pointer;
+  padding: 8px; /* Added proper padding around the icon */
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.premium-mobile-toggle:hover {
+  color: #0876DB;
+  background-color: #f1f5f9; /* Soft hover background for the mobile icon */
+}
+
+@media (max-width: 960px) {
+  .premium-mobile-toggle {
+    display: flex; /* Changed from block to flex for perfect vertical alignment */
+    align-items: center;
+    justify-content: center;
+  }
+}

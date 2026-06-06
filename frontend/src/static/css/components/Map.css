@@ -1,0 +1,7 @@
+.map-container {
+    height: calc(100vh - 80px); /* Adjust the height based on your layout */
+    width: 100%;
+    position: relative;
+    z-index: 10;
+  }
+  
