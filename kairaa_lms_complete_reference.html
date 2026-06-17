@@ -1,0 +1,827 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#7F77DD;--t2:#1D9E75;--o:#D85A30;--y:#BA7517;--r:#E24B4A;--pk:#D4537E}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:transparent}
+h2{font-size:18px;font-weight:500;margin-bottom:12px;color:var(--color-text-primary)}
+h3{font-size:15px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary)}
+p,li{font-size:13px;line-height:1.7;color:var(--color-text-secondary)}
+li{margin-left:16px}
+.nav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 16px}
+.nav button{font-size:12px;padding:6px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.nav button.active{background:var(--color-background-primary);border-color:var(--color-border-primary);color:var(--color-text-primary);font-weight:500}
+.section{display:none}
+.section.active{display:block}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px}
+.card-sm{background:var(--color-background-secondary);border-radius:8px;padding:12px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 10px;border-radius:20px;margin-bottom:8px}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-teal{background:#E1F5EE;color:#085041}
+.b-coral{background:#FAECE7;color:#712B13}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-pink{background:#FBEAF0;color:#72243E}
+.b-green{background:#EAF3DE;color:#27500A}
+.b-gray{background:#F1EFE8;color:#444441}
+.role-card{border-left:3px solid var(--accent,#7F77DD);background:var(--color-background-primary);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px}
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.flow-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 12px;font-size:12px;white-space:nowrap}
+.flow-arrow{color:var(--color-text-tertiary);font-size:14px}
+.tech-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tech-row:last-child{border-bottom:none}
+.tech-label{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:140px}
+.tech-val{font-size:12px;color:var(--color-text-secondary);flex:1}
+.tag{display:inline-block;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 7px;margin:2px 2px 0 0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--color-text-tertiary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;color:var(--color-text-secondary);font-size:12px}
+tr:last-child td{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-p{background:#7F77DD}.dot-t{background:#1D9E75}.dot-o{background:#D85A30}.dot-a{background:#BA7517}.dot-r{background:#E24B4A}.dot-b{background:#378ADD}
+.section-title{font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--color-text-tertiary);text-transform:uppercase;margin:20px 0 10px}
+.stat{background:var(--color-background-secondary);border-radius:8px;padding:12px;text-align:center}
+.stat-n{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+</style>
+
+<h2 style="sr-only">Kairaa Academy — Complete LMS Reference Document</h2>
+
+<div class="nav" id="nav">
+<button class="active" onclick="show('overview')">Overview</button>
+<button onclick="show('roles')">Roles</button>
+<button onclick="show('admin')">Admin</button>
+<button onclick="show('user')">User</button>
+<button onclick="show('staff')">Staff</button>
+<button onclick="show('modules')">Modules</button>
+<button onclick="show('flows')">Flows</button>
+<button onclick="show('tech')">Tech stack</button>
+<button onclick="show('db')">Data models</button>
+<button onclick="show('api')">API routes</button>
+<button onclick="show('theme')">Theme</button>
+<button onclick="show('impl')">Build order</button>
+</div>
+
+<div id="overview" class="section active">
+<div class="grid3" style="margin-bottom:16px">
+<div class="stat"><div class="stat-n">3</div><div class="stat-l">User roles</div></div>
+<div class="stat"><div class="stat-n">12</div><div class="stat-l">Core modules</div></div>
+<div class="stat"><div class="stat-n">6</div><div class="stat-l">3rd party services</div></div>
+<div class="stat"><div class="stat-n">40+</div><div class="stat-l">API endpoints</div></div>
+<div class="stat"><div class="stat-n">DRM</div><div class="stat-l">Video protection</div></div>
+<div class="stat"><div class="stat-n">INR</div><div class="stat-l">Razorpay payments</div></div>
+</div>
+<h2>What is Kairaa Academy LMS?</h2>
+<p style="margin-bottom:12px">A blockchain-focused e-learning platform where students discover, purchase, and complete DRM-protected video courses. Admins control all content and operations; staff manage student support and live sessions; users learn at their own pace and earn certificates.</p>
+<div class="grid2">
+<div class="card">
+<div class="badge b-purple">Core purpose</div>
+<h3>Sell & deliver courses</h3>
+<ul style="margin-top:6px">
+<li>Blockchain / crypto education niche</li>
+<li>Paid courses gated behind Razorpay</li>
+<li>DRM video via VdoCipher (no download)</li>
+<li>Certificates on 100% completion</li>
+<li>Live sessions via scheduled links</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-teal">Business model</div>
+<h3>Revenue streams</h3>
+<ul style="margin-top:6px">
+<li>One-time course purchase (primary)</li>
+<li>Coupon / discount codes (admin-issued)</li>
+<li>Bundle deals (group of courses)</li>
+<li>Live workshop tickets (optional)</li>
+<li>Affiliate referral codes (future)</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-coral">Platform scope</div>
+<h3>What gets built</h3>
+<ul style="margin-top:6px">
+<li>Public marketing site + course catalogue</li>
+<li>Student learning portal (protected)</li>
+<li>Admin control panel (full CMS)</li>
+<li>Staff support dashboard</li>
+<li>REST API + real-time Socket.io layer</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-amber">Key constraints</div>
+<h3>Non-negotiables</h3>
+<ul style="margin-top:6px">
+<li>Video URLs never exposed to browser</li>
+<li>Payment verified server-side only</li>
+<li>JWT in httpOnly cookies (no localStorage)</li>
+<li>Role middleware on every protected route</li>
+<li>OTP email verification before access</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="roles" class="section">
+<h2>The 3 roles at a glance</h2>
+<div class="grid3">
+<div class="card" style="border-top:3px solid #7F77DD">
+<div class="badge b-purple">Super user</div>
+<h3>Admin</h3>
+<p style="margin-top:6px">Full system access. Creates courses, manages users, views all revenue, controls site appearance. Cannot be created from signup — only promoted in DB.</p>
+</div>
+<div class="card" style="border-top:3px solid #D85A30">
+<div class="badge b-coral">Operations</div>
+<h3>Staff / Instructor</h3>
+<p style="margin-top:6px">Creates and manages their own courses and live sessions. Views their own analytics. Can respond to Q&amp;A in their courses. Cannot see other instructors' revenue.</p>
+</div>
+<div class="card" style="border-top:3px solid #1D9E75">
+<div class="badge b-teal">Learner</div>
+<h3>User / Student</h3>
+<p style="margin-top:6px">Browses free content, purchases courses, watches videos, completes quizzes, downloads certificates. Profile management and purchase history.</p>
+</div>
+</div>
+<div class="section-title">Role permission matrix</div>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>Capability</th><th>Admin</th><th>Staff</th><th>User</th></tr></thead>
+<tbody>
+<tr><td>Create / delete courses</td><td>All courses</td><td>Own courses</td><td>No</td></tr>
+<tr><td>Upload videos (VdoCipher)</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>View all users</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>Change user roles</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>View all orders / revenue</td><td>Yes</td><td>Own only</td><td>Own purchases</td></tr>
+<tr><td>Create coupons</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>Edit homepage / CMS</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>Send platform notifications</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>View analytics charts</td><td>All</td><td>Own courses</td><td>No</td></tr>
+<tr><td>Answer Q&amp;A</td><td>Yes</td><td>In own courses</td><td>Yes</td></tr>
+<tr><td>Post reviews</td><td>No</td><td>No</td><td>Purchased courses</td></tr>
+<tr><td>Download certificate</td><td>No</td><td>No</td><td>100% complete</td></tr>
+<tr><td>Manage live sessions</td><td>Yes</td><td>Own sessions</td><td>Join only</td></tr>
+<tr><td>Delete reviews</td><td>Yes</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="admin" class="section">
+<h2>Admin responsibilities</h2>
+<div class="section-title">Dashboard home</div>
+<div class="grid3">
+<div class="card-sm"><strong style="font-size:12px">Metrics strip</strong><p style="margin-top:4px">Total users, total courses, total revenue (MTD), active sessions, new signups today</p></div>
+<div class="card-sm"><strong style="font-size:12px">Revenue chart</strong><p style="margin-top:4px">12-month bar chart (Recharts). Orders by month with INR values</p></div>
+<div class="card-sm"><strong style="font-size:12px">Recent activity</strong><p style="margin-top:4px">Last 10 purchases, new user signups, unread notifications bell</p></div>
+</div>
+<div class="section-title">Course management</div>
+<div class="role-card" style="--accent:#7F77DD">
+<strong style="font-size:13px">Create course</strong>
+<p style="margin-top:4px">Title, description, price, estimated price (shows strike-through), thumbnail (Cloudinary upload), demo video URL, tags, level (Beginner/Intermediate/Advanced), prerequisites[], benefits[]. Add sections → each section has title + lessons. Each lesson: title, video upload to VdoCipher (stores videoId), description, PDF resources[].</p>
+</div>
+<div class="role-card" style="--accent:#7F77DD">
+<strong style="font-size:13px">Edit / delete course</strong>
+<p style="margin-top:4px">Update any field. Reorder sections drag-and-drop. Delete removes course from DB and un-enrolls no one — already enrolled users keep access (store snapshot). Soft-delete preferred.</p>
+</div>
+<div class="role-card" style="--accent:#7F77DD">
+<strong style="font-size:13px">Video upload flow</strong>
+<p style="margin-top:4px">Admin uploads video file → backend calls VdoCipher API with VIDEOCIPHER_API_SECRET → VdoCipher returns videoId → stored in lesson doc. On playback, backend generates OTP per-request. Video URL never in frontend code.</p>
+</div>
+<div class="section-title">User management</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">All users table</strong><p style="margin-top:4px">Search, filter by role. View enrolled courses, purchase history. Paginated. Export CSV.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Role management</strong><p style="margin-top:4px">Promote user → staff/admin. Demote. Delete account (soft delete preferred). Manual password reset.</p></div>
+</div>
+<div class="section-title">Orders & coupons</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Orders table</strong><p style="margin-top:4px">All orders with Razorpay payment IDs, status, amount, user, course, date. Filter by date range. Revenue totals.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Coupon CRUD</strong><p style="margin-top:4px">Create code, discount %, expiry date, usage limit, per-user limit, applicable courses. Auto-applied at checkout.</p></div>
+</div>
+<div class="section-title">CMS / Customization</div>
+<div class="grid3">
+<div class="card-sm"><strong style="font-size:12px">Hero banner</strong><p style="margin-top:4px">Title, subtitle, CTA button text, background image (Cloudinary)</p></div>
+<div class="card-sm"><strong style="font-size:12px">FAQ editor</strong><p style="margin-top:4px">Add/edit/reorder FAQ items. Accordion on frontend.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Categories</strong><p style="margin-top:4px">Add/rename/delete course categories. Used for filtering in catalogue.</p></div>
+</div>
+<div class="section-title">Notifications & analytics</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Notification center</strong><p style="margin-top:4px">Real-time bell (Socket.io). Events: new purchase, new user, new review, Q&amp;A question. Mark read, delete. Can broadcast announcements to all users.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Analytics</strong><p style="margin-top:4px">User growth (area chart), revenue by month (bar), top courses by enrollment (horizontal bar), conversion rate, average order value.</p></div>
+</div>
+</div>
+
+<div id="user" class="section">
+<h2>User (student) responsibilities & journey</h2>
+<div class="section-title">Onboarding</div>
+<div class="flow-row">
+<div class="flow-box">Visit site</div><div class="flow-arrow">→</div>
+<div class="flow-box">Browse catalogue</div><div class="flow-arrow">→</div>
+<div class="flow-box">Click Register</div><div class="flow-arrow">→</div>
+<div class="flow-box">Enter OTP</div><div class="flow-arrow">→</div>
+<div class="flow-box">Account active</div>
+</div>
+<div class="section-title">Pre-purchase experience</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Course catalogue page</strong><p style="margin-top:4px">Grid of cards. Filter by category, level, price range. Search by keyword. Sort by newest/popular/price. Wishlist (heart icon) saves for later.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Course detail page</strong><p style="margin-top:4px">Instructor info, curriculum accordion, demo video (public), reviews, star rating, benefits, prerequisites, enroll button with price. Coupon code input field.</p></div>
+</div>
+<div class="section-title">Purchase & enrollment</div>
+<div class="flow-row">
+<div class="flow-box">Click Enroll</div><div class="flow-arrow">→</div>
+<div class="flow-box">Apply coupon</div><div class="flow-arrow">→</div>
+<div class="flow-box">Razorpay modal</div><div class="flow-arrow">→</div>
+<div class="flow-box">Payment success</div><div class="flow-arrow">→</div>
+<div class="flow-box">Email receipt</div><div class="flow-arrow">→</div>
+<div class="flow-box">Course unlocked</div>
+</div>
+<div class="section-title">Learning experience</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Video player (VdoCipher)</strong><p style="margin-top:4px">DRM-protected. OTP fetched on play. No download option. Watermark with username. Resume from last position. Speed controls (0.75x–2x). Subtitles if uploaded.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Course room layout</strong><p style="margin-top:4px">75% video area. Right sidebar: lesson list with checkmarks, progress bar (%). Tabs below video: Overview, Q&amp;A, Reviews, Resources (PDF downloads).</p></div>
+<div class="card-sm"><strong style="font-size:12px">Progress tracking</strong><p style="margin-top:4px">Each lesson marked complete on finish. Overall % in sidebar. Section-level completion badges. Dashboard shows all enrolled courses with progress bars.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Quizzes</strong><p style="margin-top:4px">Multiple choice per section. Pass mark configurable. Score shown after submit. Retry allowed. Quiz result stored; required for cert if configured.</p></div>
+</div>
+<div class="section-title">Community & profile</div>
+<div class="grid3">
+<div class="card-sm"><strong style="font-size:12px">Q&amp;A</strong><p style="margin-top:4px">Ask question per lesson. Admin/staff reply. Upvote questions. Mark answered.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Reviews</strong><p style="margin-top:4px">1–5 star rating + text review. One per purchased course. Edit own review. Shown on course page.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Certificate</strong><p style="margin-top:4px">Auto-generated PDF on 100% completion. Name, course, date, unique ID. Download from dashboard.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Profile page</strong><p style="margin-top:4px">Avatar (Cloudinary), name, email, bio, change password, delete account.</p></div>
+<div class="card-sm"><strong style="font-size:12px">My courses</strong><p style="margin-top:4px">All enrolled courses, progress, certificates earned, continue learning button.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Purchase history</strong><p style="margin-top:4px">Order list with dates, amounts, Razorpay IDs, invoice download.</p></div>
+</div>
+</div>
+
+<div id="staff" class="section">
+<h2>Staff / instructor responsibilities</h2>
+<p style="margin-bottom:16px">Staff sit between admin and user. They create and manage their own courses but cannot touch platform settings, other instructors' courses, or financial records beyond their own.</p>
+<div class="section-title">Course authoring</div>
+<div class="role-card" style="--accent:#D85A30">
+<strong style="font-size:13px">Create & edit own courses</strong>
+<p style="margin-top:4px">Same course builder as admin but scoped to their own courses. Upload videos to VdoCipher, add PDF resources, write lesson descriptions. Submit for admin review before publishing (optional workflow).</p>
+</div>
+<div class="role-card" style="--accent:#D85A30">
+<strong style="font-size:13px">Live session management</strong>
+<p style="margin-top:4px">Schedule live classes: title, date/time, Zoom/Meet link, max participants, description. Students enrolled in the course get notified (Socket.io + email). Staff can cancel/reschedule. Session recording URL added after class.</p>
+</div>
+<div class="role-card" style="--accent:#D85A30">
+<strong style="font-size:13px">Student Q&A moderation</strong>
+<p style="margin-top:4px">See all questions in their course lessons. Reply, mark as answered, delete inappropriate content. Get Socket.io notification when new question is posted.</p>
+</div>
+<div class="section-title">Analytics (own courses only)</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Enrollment stats</strong><p style="margin-top:4px">Total enrolled per course, enrollment over time, country breakdown if available, completion rate.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Revenue stats</strong><p style="margin-top:4px">Revenue from own courses. Payout calculation if revenue sharing enabled. Download report.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Student progress</strong><p style="margin-top:4px">See which students are at which lesson. Identify stuck students. Can send nudge notification.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Review dashboard</strong><p style="margin-top:4px">All reviews on own courses. Average rating. Flag inappropriate reviews for admin action.</p></div>
+</div>
+<div class="section-title">Profile & settings</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Instructor profile</strong><p style="margin-top:4px">Public-facing bio, avatar, expertise tags, social links. Shown on course detail page as instructor card.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Notification preferences</strong><p style="margin-top:4px">Email alerts for new enrollments, new Q&amp;A, new reviews. Toggle per event type.</p></div>
+</div>
+</div>
+
+<div id="modules" class="section">
+<h2>12 core system modules</h2>
+<div class="grid2">
+<div class="card">
+<div class="badge b-purple">Module 1</div>
+<h3>Authentication & authorization</h3>
+<ul style="margin-top:6px">
+<li>Register with email + password</li>
+<li>6-digit OTP via Gmail SMTP (5 min TTL)</li>
+<li>JWT access token (100 min) + refresh (3 days)</li>
+<li>Tokens in httpOnly sameSite cookies</li>
+<li>Silent refresh on expiry</li>
+<li>Social login (Google via next-auth)</li>
+<li>Role-based middleware: isAuthenticated, authorizeRoles</li>
+<li>Password reset via email link</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-teal">Module 2</div>
+<h3>Course management</h3>
+<ul style="margin-top:6px">
+<li>Course CRUD with full schema</li>
+<li>Sections & lessons with ordering</li>
+<li>Thumbnail via Cloudinary</li>
+<li>Demo video (public) + lesson videos (DRM)</li>
+<li>Prerequisites & benefits arrays</li>
+<li>Course publish/draft toggle</li>
+<li>Search, filter, sort, pagination</li>
+<li>Related courses recommendation</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-coral">Module 3</div>
+<h3>Video delivery (VdoCipher)</h3>
+<ul style="margin-top:6px">
+<li>Upload video → VdoCipher stores & encodes</li>
+<li>Backend calls VdoCipher API for OTP per play</li>
+<li>OTP + playbackInfo sent to frontend</li>
+<li>VdoCipher iframe player renders video</li>
+<li>Username watermark on all videos</li>
+<li>No direct video URL ever in browser</li>
+<li>Supports subtitles / captions upload</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-amber">Module 4</div>
+<h3>Payment (Razorpay)</h3>
+<ul style="margin-top:6px">
+<li>POST /order/create → Razorpay order_id</li>
+<li>Frontend opens Razorpay checkout modal</li>
+<li>On success: payment_id + signature sent to BE</li>
+<li>BE verifies HMAC signature</li>
+<li>Only on verify: user enrolled, Order doc saved</li>
+<li>Webhook endpoint as backup verify</li>
+<li>Coupon discount applied before order creation</li>
+<li>Email receipt via SMTP after enrollment</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-blue">Module 5</div>
+<h3>User management</h3>
+<ul style="margin-top:6px">
+<li>Profile CRUD (name, bio, avatar)</li>
+<li>Avatar upload to Cloudinary</li>
+<li>Change password (verify current first)</li>
+<li>Admin: get all users, change role, delete</li>
+<li>User courses[] array references</li>
+<li>Account deactivation (soft delete)</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-pink">Module 6</div>
+<h3>Progress & completion</h3>
+<ul style="margin-top:6px">
+<li>LessonProgress doc per user per course</li>
+<li>Mark lesson watched (POST)</li>
+<li>Calculate % completion per course</li>
+<li>Section completion badges</li>
+<li>Quiz attempt storage & scoring</li>
+<li>Certificate trigger at 100%</li>
+<li>Resume from last watched lesson</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-green">Module 7</div>
+<h3>Quiz & assessment</h3>
+<ul style="margin-top:6px">
+<li>MCQ questions per section</li>
+<li>Configurable pass mark (default 70%)</li>
+<li>Time limit per quiz (optional)</li>
+<li>Submit → score stored in DB</li>
+<li>Show correct answers after submit</li>
+<li>Retry allowed (configurable attempts)</li>
+<li>Quiz required for cert: yes/no toggle</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-purple">Module 8</div>
+<h3>Certificate generation</h3>
+<ul style="margin-top:6px">
+<li>Triggered when progress = 100%</li>
+<li>PDF generated server-side (pdfkit / puppeteer)</li>
+<li>Contains: name, course, date, unique UUID</li>
+<li>Uploaded to Cloudinary, URL stored</li>
+<li>Downloadable from My Courses dashboard</li>
+<li>Shareable public URL for LinkedIn</li>
+<li>Verification page: enter cert ID to verify</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-teal">Module 9</div>
+<h3>Notifications (real-time)</h3>
+<ul style="margin-top:6px">
+<li>Socket.io server on backend</li>
+<li>Admin room: new purchase, new user, new review</li>
+<li>Student: course published, live session scheduled</li>
+<li>Staff: new Q&amp;A in own course</li>
+<li>Notification doc: title, message, status, userId</li>
+<li>Bell icon with unread count in navbar</li>
+<li>Mark all read, delete, clear all</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-coral">Module 10</div>
+<h3>Q&A & reviews</h3>
+<ul style="margin-top:6px">
+<li>Question per lesson (authenticated users)</li>
+<li>Threaded replies (admin/staff)</li>
+<li>Upvote questions</li>
+<li>Mark question as answered</li>
+<li>Review: 1–5 stars + text per purchased course</li>
+<li>Average rating updated on course doc</li>
+<li>Admin can delete inappropriate reviews</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-amber">Module 11</div>
+<h3>Analytics & reporting</h3>
+<ul style="margin-top:6px">
+<li>Last 12 months: users, orders, revenue</li>
+<li>Top courses by enrollment</li>
+<li>Avg order value, conversion rate</li>
+<li>Recharts: AreaChart, BarChart, LineChart</li>
+<li>Date range filter</li>
+<li>Staff sees own course analytics only</li>
+<li>CSV export for orders</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-blue">Module 12</div>
+<h3>CMS / Layout editor</h3>
+<ul style="margin-top:6px">
+<li>Hero section: title, subtitle, CTA, image</li>
+<li>FAQ manager: CRUD + reorder</li>
+<li>Course categories manager</li>
+<li>Homepage sections toggle (show/hide)</li>
+<li>Email template editor (HTML preview)</li>
+<li>Announcement banner (site-wide)</li>
+<li>Stored in Layout collection in MongoDB</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="flows" class="section">
+<h2>Key system flows</h2>
+<div class="section-title">1 — User registration & activation</div>
+<div class="flow-row">
+<div class="flow-box">POST /auth/register</div><div class="flow-arrow">→</div>
+<div class="flow-box">Hash password (bcrypt)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Generate 6-digit OTP</div><div class="flow-arrow">→</div>
+<div class="flow-box">Sign activationToken (JWT + ACTIVATION_SECRET, 5m)</div><div class="flow-arrow">→</div>
+<div class="flow-box">SMTP sends OTP email</div>
+</div>
+<div class="flow-row" style="margin-top:4px">
+<div class="flow-box">User submits OTP</div><div class="flow-arrow">→</div>
+<div class="flow-box">POST /auth/activate</div><div class="flow-arrow">→</div>
+<div class="flow-box">Verify token + OTP match</div><div class="flow-arrow">→</div>
+<div class="flow-box">isVerified = true</div><div class="flow-arrow">→</div>
+<div class="flow-box">Issue access + refresh JWT</div><div class="flow-arrow">→</div>
+<div class="flow-box">Set httpOnly cookies</div>
+</div>
+
+<div class="section-title" style="margin-top:20px">2 — Course purchase flow</div>
+<div class="flow-row">
+<div class="flow-box">User clicks Enroll</div><div class="flow-arrow">→</div>
+<div class="flow-box">Apply coupon (optional)</div><div class="flow-arrow">→</div>
+<div class="flow-box">POST /order/create</div><div class="flow-arrow">→</div>
+<div class="flow-box">Razorpay creates order_id</div>
+</div>
+<div class="flow-row" style="margin-top:4px">
+<div class="flow-box">Frontend opens Razorpay modal</div><div class="flow-arrow">→</div>
+<div class="flow-box">User pays (UPI/card/netbanking)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Razorpay returns payment_id + signature</div>
+</div>
+<div class="flow-row" style="margin-top:4px">
+<div class="flow-box">POST /order/verify</div><div class="flow-arrow">→</div>
+<div class="flow-box">HMAC verify (secret)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Save Order doc</div><div class="flow-arrow">→</div>
+<div class="flow-box">Push courseId to user.courses[]</div><div class="flow-arrow">→</div>
+<div class="flow-box">Send receipt email</div>
+</div>
+
+<div class="section-title" style="margin-top:20px">3 — DRM video playback</div>
+<div class="flow-row">
+<div class="flow-box">User clicks play</div><div class="flow-arrow">→</div>
+<div class="flow-box">Check: user owns course?</div><div class="flow-arrow">→</div>
+<div class="flow-box">GET /course/video-otp/:videoId</div><div class="flow-arrow">→</div>
+<div class="flow-box">Backend calls VdoCipher API</div><div class="flow-arrow">→</div>
+<div class="flow-box">Returns OTP + playbackInfo</div>
+</div>
+<div class="flow-row" style="margin-top:4px">
+<div class="flow-box">Frontend initialises VdoCipher player</div><div class="flow-arrow">→</div>
+<div class="flow-box">Video streams (DRM encrypted)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Username watermark overlaid</div>
+</div>
+
+<div class="section-title" style="margin-top:20px">4 — Certificate generation</div>
+<div class="flow-row">
+<div class="flow-box">User completes last lesson</div><div class="flow-arrow">→</div>
+<div class="flow-box">Progress = 100%</div><div class="flow-arrow">→</div>
+<div class="flow-box">POST /course/complete</div><div class="flow-arrow">→</div>
+<div class="flow-box">Generate PDF (puppeteer)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Upload to Cloudinary</div><div class="flow-arrow">→</div>
+<div class="flow-box">Store cert URL in user doc</div><div class="flow-arrow">→</div>
+<div class="flow-box">Notify user (email + socket)</div>
+</div>
+
+<div class="section-title" style="margin-top:20px">5 — Real-time admin notification</div>
+<div class="flow-row">
+<div class="flow-box">Any trigger event (purchase / signup / review)</div><div class="flow-arrow">→</div>
+<div class="flow-box">Backend emits socket event to "admin" room</div><div class="flow-arrow">→</div>
+<div class="flow-box">Admin bell count increments</div><div class="flow-arrow">→</div>
+<div class="flow-box">Notification saved to DB</div>
+</div>
+</div>
+
+<div id="tech" class="section">
+<h2>Complete technology stack</h2>
+<div class="section-title">Frontend</div>
+<div class="tech-row"><span class="tech-label">Framework</span><span class="tech-val">Next.js 14 (App Router, TypeScript) — SSR for SEO on public pages, CSR for dashboard</span></div>
+<div class="tech-row"><span class="tech-label">Styling</span><span class="tech-val">Tailwind CSS 3 + shadcn/ui component library</span></div>
+<div class="tech-row"><span class="tech-label">State management</span><span class="tech-val">Redux Toolkit (auth state, cart) + React Query (@tanstack/react-query) for server state</span></div>
+<div class="tech-row"><span class="tech-label">Forms</span><span class="tech-val">React Hook Form + Zod schema validation</span></div>
+<div class="tech-row"><span class="tech-label">Charts</span><span class="tech-val">Recharts — AreaChart (users), BarChart (revenue), LineChart (enrollments)</span></div>
+<div class="tech-row"><span class="tech-label">Animations</span><span class="tech-val">Framer Motion — page transitions, card hover, skeleton loaders</span></div>
+<div class="tech-row"><span class="tech-label">Icons</span><span class="tech-val">Lucide React</span></div>
+<div class="tech-row"><span class="tech-label">Theme</span><span class="tech-val">next-themes (light/dark toggle, system default)</span></div>
+<div class="tech-row"><span class="tech-label">HTTP client</span><span class="tech-val">RTK Query (built into Redux Toolkit) for all API calls</span></div>
+<div class="tech-row"><span class="tech-label">Real-time</span><span class="tech-val">socket.io-client connected to backend</span></div>
+<div class="tech-row"><span class="tech-label">Video player</span><span class="tech-val">VdoCipher React SDK (@vdocipher/vdo-player)</span></div>
+<div class="tech-row"><span class="tech-label">Auth (social)</span><span class="tech-val">next-auth (Google provider)</span></div>
+
+<div class="section-title" style="margin-top:16px">Backend</div>
+<div class="tech-row"><span class="tech-label">Runtime</span><span class="tech-val">Node.js 20 + Express.js 4 (TypeScript)</span></div>
+<div class="tech-row"><span class="tech-label">Database ORM</span><span class="tech-val">Mongoose 8 on MongoDB Atlas</span></div>
+<div class="tech-row"><span class="tech-label">Auth</span><span class="tech-val">jsonwebtoken (access + refresh), bcryptjs (passwords), cookie-parser (httpOnly)</span></div>
+<div class="tech-row"><span class="tech-label">Email</span><span class="tech-val">Nodemailer with Gmail SMTP (SMTP_HOST, SMTP_PORT=465, SMTP_SERVICE=Gmail)</span></div>
+<div class="tech-row"><span class="tech-label">File uploads</span><span class="tech-val">Multer (memory storage) → Cloudinary SDK (images, PDFs, certificates)</span></div>
+<div class="tech-row"><span class="tech-label">Real-time</span><span class="tech-val">socket.io attached to HTTP server, rooms: "admin", "user:{id}"</span></div>
+<div class="tech-row"><span class="tech-label">Security</span><span class="tech-val">helmet, cors (origin whitelist), express-rate-limit, express-mongo-sanitize</span></div>
+<div class="tech-row"><span class="tech-label">PDF generation</span><span class="tech-val">Puppeteer (headless Chrome) for certificates — renders HTML template to PDF</span></div>
+<div class="tech-row"><span class="tech-label">Cache (optional)</span><span class="tech-val">ioredis → Upstash Redis (already in env). Cache: course list, user session</span></div>
+<div class="tech-row"><span class="tech-label">Env & config</span><span class="tech-val">dotenv, ts-node, nodemon (dev), tsx (prod compile)</span></div>
+
+<div class="section-title" style="margin-top:16px">Third-party services</div>
+<div class="tech-row"><span class="tech-label">MongoDB Atlas</span><span class="tech-val">Cloud database. Connection string in MONGODB_URI. Use mongoose.connect() with retry logic.</span></div>
+<div class="tech-row"><span class="tech-label">Cloudinary</span><span class="tech-val">CLOUD_NAME + CLOUD_API_KEY + CLOUD_SECRET_KEY. Stores: avatars, thumbnails, certificates, PDF resources.</span></div>
+<div class="tech-row"><span class="tech-label">VdoCipher</span><span class="tech-val">VIDEOCIPHER_API_SECRET. Upload endpoint + OTP endpoint. Protects all lesson videos.</span></div>
+<div class="tech-row"><span class="tech-label">Razorpay</span><span class="tech-val">RAZORPAY_PUBLISHABLE_KEY (FE) + RAZORPAY_SECRET_KEY (BE). Orders + webhook verification.</span></div>
+<div class="tech-row"><span class="tech-label">Gmail SMTP</span><span class="tech-val">SMTP_MAIL + SMTP_PASSWORD (app password). OTP emails, receipts, password reset.</span></div>
+</div>
+
+<div id="db" class="section">
+<h2>MongoDB data models</h2>
+<div class="grid2">
+<div class="card">
+<div class="badge b-purple">User</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">name</span><span class="tech-val">String, required</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">email</span><span class="tech-val">String, unique, required</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">password</span><span class="tech-val">String, hashed (bcrypt, select:false)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">avatar</span><span class="tech-val">{ url, public_id } (Cloudinary)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">role</span><span class="tech-val">"user" | "staff" | "admin"</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">isVerified</span><span class="tech-val">Boolean, default false</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">courses</span><span class="tech-val">[{ courseId: ObjectId ref }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">certificates</span><span class="tech-val">[{ courseId, url, issuedAt }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">activationToken</span><span class="tech-val">String (temporary)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">refreshToken</span><span class="tech-val">String (hashed)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">bio</span><span class="tech-val">String (instructor public bio)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">socialLinks</span><span class="tech-val">{ twitter, linkedin, website }</span></div>
+</div>
+<div class="card">
+<div class="badge b-teal">Course</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">name</span><span class="tech-val">String, required</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">description</span><span class="tech-val">String (rich text)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">price</span><span class="tech-val">Number, required</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">estimatedPrice</span><span class="tech-val">Number (strike-through display)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">thumbnail</span><span class="tech-val">{ url, public_id }</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">demoUrl</span><span class="tech-val">String (public video URL)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">tags</span><span class="tech-val">[String]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">level</span><span class="tech-val">"Beginner"|"Intermediate"|"Advanced"</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">benefits</span><span class="tech-val">[{ title: String }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">prerequisites</span><span class="tech-val">[{ title: String }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">sections</span><span class="tech-val">[Section] (see below)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">ratings</span><span class="tech-val">Number (avg, updated on review)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">purchased</span><span class="tech-val">Number (total enrollments)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">instructorId</span><span class="tech-val">ObjectId ref User</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">isPublished</span><span class="tech-val">Boolean (draft/live toggle)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">category</span><span class="tech-val">String ref Category</span></div>
+</div>
+<div class="card">
+<div class="badge b-coral">Section (embedded in Course)</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">title</span><span class="tech-val">String</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">order</span><span class="tech-val">Number (drag reorder)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">lessons</span><span class="tech-val">[Lesson] (embedded)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">quiz</span><span class="tech-val">{ questions[], passmark, timeLimit }</span></div>
+<hr style="border:none;border-top:0.5px solid var(--color-border-tertiary);margin:8px 0"/>
+<strong style="font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.04em">Lesson (embedded in Section)</strong>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">title</span><span class="tech-val">String</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">videoId</span><span class="tech-val">String (VdoCipher ID)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">duration</span><span class="tech-val">Number (minutes)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">description</span><span class="tech-val">String</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">resources</span><span class="tech-val">[{ title, url (Cloudinary) }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">isFreePreview</span><span class="tech-val">Boolean</span></div>
+</div>
+<div class="card">
+<div class="badge b-amber">Order</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">userId</span><span class="tech-val">ObjectId ref User</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">courseId</span><span class="tech-val">ObjectId ref Course</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">paymentInfo</span><span class="tech-val">{ razorpayOrderId, razorpayPaymentId, razorpaySignature, status }</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">price</span><span class="tech-val">Number (amount paid)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">couponCode</span><span class="tech-val">String (if used)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">discountAmount</span><span class="tech-val">Number</span></div>
+<hr style="border:none;border-top:0.5px solid var(--color-border-tertiary);margin:8px 0"/>
+<div class="badge b-green">Notification</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">userId</span><span class="tech-val">ObjectId ref User (or "admin")</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">title</span><span class="tech-val">String</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">message</span><span class="tech-val">String</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">status</span><span class="tech-val">"read" | "unread"</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">type</span><span class="tech-val">"purchase"|"review"|"qa"|"system"</span></div>
+</div>
+<div class="card">
+<div class="badge b-pink">Progress</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">userId</span><span class="tech-val">ObjectId ref User</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">courseId</span><span class="tech-val">ObjectId ref Course</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">completedLessons</span><span class="tech-val">[lessonId Strings]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">percentage</span><span class="tech-val">Number (0–100)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">lastWatched</span><span class="tech-val">{ sectionIdx, lessonIdx }</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">quizResults</span><span class="tech-val">[{ sectionId, score, passed, attempts }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">isCompleted</span><span class="tech-val">Boolean</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">completedAt</span><span class="tech-val">Date</span></div>
+</div>
+<div class="card">
+<div class="badge b-blue">Coupon</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">code</span><span class="tech-val">String, unique, uppercase</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">discountPercent</span><span class="tech-val">Number (1–100)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">expiresAt</span><span class="tech-val">Date</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">usageLimit</span><span class="tech-val">Number (max total uses)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">usedCount</span><span class="tech-val">Number</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">applicableCourses</span><span class="tech-val">[ObjectId] (empty = all)</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">isActive</span><span class="tech-val">Boolean</span></div>
+<hr style="border:none;border-top:0.5px solid var(--color-border-tertiary);margin:8px 0"/>
+<div class="badge b-gray">Layout (CMS)</div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">type</span><span class="tech-val">"Banner"|"FAQ"|"Categories"</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">banner</span><span class="tech-val">{ title, subTitle, image }</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">faq</span><span class="tech-val">[{ question, answer, order }]</span></div>
+<div class="tech-row" style="padding:4px 0"><span class="tech-label">categories</span><span class="tech-val">[{ title, icon }]</span></div>
+</div>
+</div>
+</div>
+
+<div id="api" class="section">
+<h2>Complete API route map</h2>
+<div class="section-title">Auth routes — /api/v1/auth</div>
+<table>
+<thead><tr><th>Method</th><th>Route</th><th>Access</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><span class="tag">POST</span></td><td>/register</td><td>Public</td><td>Create user, send OTP email</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/activate</td><td>Public</td><td>Verify OTP, activate account, issue tokens</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/login</td><td>Public</td><td>Validate credentials, set cookie tokens</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/logout</td><td>Auth</td><td>Clear httpOnly cookies</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/refresh</td><td>Auth</td><td>Refresh access token using refresh cookie</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/forgot-password</td><td>Public</td><td>Send password reset email</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/reset-password</td><td>Public</td><td>Validate reset token, update password</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/social</td><td>Public</td><td>Google OAuth login/register</td></tr>
+</tbody>
+</table>
+<div class="section-title" style="margin-top:14px">User routes — /api/v1/user</div>
+<table>
+<thead><tr><th>Method</th><th>Route</th><th>Access</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><span class="tag">GET</span></td><td>/me</td><td>Auth</td><td>Get own profile</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/update-profile</td><td>Auth</td><td>Update name, bio, social links</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/update-avatar</td><td>Auth</td><td>Upload avatar to Cloudinary</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/change-password</td><td>Auth</td><td>Verify current, set new password</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/all-users</td><td>Admin</td><td>Paginated list of all users</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/update-role/:id</td><td>Admin</td><td>Change user role</td></tr>
+<tr><td><span class="tag">DELETE</span></td><td>/delete/:id</td><td>Admin</td><td>Soft-delete user account</td></tr>
+</tbody>
+</table>
+<div class="section-title" style="margin-top:14px">Course routes — /api/v1/course</div>
+<table>
+<thead><tr><th>Method</th><th>Route</th><th>Access</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><span class="tag">POST</span></td><td>/create</td><td>Admin/Staff</td><td>Create new course (draft)</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/edit/:id</td><td>Admin/Staff</td><td>Update course fields</td></tr>
+<tr><td><span class="tag">DELETE</span></td><td>/delete/:id</td><td>Admin</td><td>Delete course</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/all</td><td>Public</td><td>All published courses (catalogue)</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/:id</td><td>Public</td><td>Course detail (no video URLs)</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/content/:id</td><td>Enrolled</td><td>Full course content with videoIds</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/video-otp/:videoId</td><td>Enrolled</td><td>Generate VdoCipher OTP for lesson</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/add-review/:id</td><td>Enrolled</td><td>Post star rating + text review</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/review-reply/:id</td><td>Admin/Staff</td><td>Reply to a review</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/add-question</td><td>Enrolled</td><td>Ask question on a lesson</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/answer-question</td><td>Auth</td><td>Reply to a Q&amp;A question</td></tr>
+</tbody>
+</table>
+<div class="section-title" style="margin-top:14px">Order, notify, analytics — /api/v1</div>
+<table>
+<thead><tr><th>Method</th><th>Route</th><th>Access</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><span class="tag">POST</span></td><td>/order/create</td><td>Auth</td><td>Create Razorpay order, apply coupon</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/order/verify</td><td>Auth</td><td>Verify payment, enroll user</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/order/all</td><td>Admin</td><td>All orders with filters</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/order/mine</td><td>Auth</td><td>Own purchase history</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/coupon/create</td><td>Admin</td><td>Create discount coupon</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/coupon/apply</td><td>Auth</td><td>Validate coupon code</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/notification/all</td><td>Admin</td><td>All notifications (admin)</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/notification/:id</td><td>Admin</td><td>Mark read / update</td></tr>
+<tr><td><span class="tag">DELETE</span></td><td>/notification/:id</td><td>Admin</td><td>Delete notification</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/analytics/users</td><td>Admin</td><td>Last 12 months user registrations</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/analytics/orders</td><td>Admin</td><td>Last 12 months orders + revenue</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/analytics/courses</td><td>Admin</td><td>Top courses by enrollment</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/progress/:courseId</td><td>Auth</td><td>Get own progress for a course</td></tr>
+<tr><td><span class="tag">POST</span></td><td>/progress/complete</td><td>Auth</td><td>Mark lesson complete, update %</td></tr>
+<tr><td><span class="tag">GET</span></td><td>/layout/:type</td><td>Public</td><td>Get Banner / FAQ / Categories</td></tr>
+<tr><td><span class="tag">PUT</span></td><td>/layout/edit</td><td>Admin</td><td>Update CMS layout section</td></tr>
+</tbody>
+</table>
+</div>
+
+<div id="theme" class="section">
+<h2>Theme & UI design system</h2>
+<div class="grid2">
+<div class="card">
+<div class="badge b-gray">Admin panel theme</div>
+<h3>Dark sidebar layout</h3>
+<ul style="margin-top:6px">
+<li>Sidebar: deep navy #0f0f1a (fixed, 240px wide)</li>
+<li>Content area: light bg (white / gray-50)</li>
+<li>Sidebar links: icon + label, active = purple accent</li>
+<li>Top navbar: search, notification bell, avatar</li>
+<li>Data tables: shadcn DataTable with sorting/filter</li>
+<li>Charts: Recharts with custom purple/teal palette</li>
+<li>Stat cards: metric number + label + trend %</li>
+<li>Form modals: shadcn Dialog with React Hook Form</li>
+</ul>
+</div>
+<div class="card">
+<div class="badge b-teal">User portal theme</div>
+<h3>Light / dark mode</h3>
+<ul style="margin-top:6px">
+<li>Toggle switch in navbar (next-themes)</li>
+<li>Course cards: thumbnail, title, instructor, rating, price</li>
+<li>Hero: glassmorphism with backdrop-blur</li>
+<li>Learning page: 75% video + 25% lesson sidebar</li>
+<li>Tabs below video: Overview, Q&amp;A, Reviews, Resources</li>
+<li>Progress bar (green) in sidebar</li>
+<li>Certificate page: premium card with download</li>
+<li>Skeleton loaders on all data fetches</li>
+</ul>
+</div>
+</div>
+<div class="section-title">Color tokens</div>
+<div class="grid3">
+<div class="card-sm"><div class="dot dot-p"></div><strong style="font-size:12px">Primary purple</strong><p style="font-size:11px;margin-top:2px">#7F77DD — CTAs, active nav, badges</p></div>
+<div class="card-sm"><div class="dot dot-t"></div><strong style="font-size:12px">Success teal</strong><p style="font-size:11px;margin-top:2px">#1D9E75 — Progress, completion, enrolled</p></div>
+<div class="card-sm"><div class="dot dot-o"></div><strong style="font-size:12px">Warning coral</strong><p style="font-size:11px;margin-top:2px">#D85A30 — Alerts, coupon badges</p></div>
+<div class="card-sm"><div class="dot dot-a"></div><strong style="font-size:12px">Amber</strong><p style="font-size:11px;margin-top:2px">#BA7517 — Star ratings, highlights</p></div>
+<div class="card-sm"><div class="dot dot-r"></div><strong style="font-size:12px">Danger red</strong><p style="font-size:11px;margin-top:2px">#E24B4A — Delete, errors, failed</p></div>
+<div class="card-sm"><div class="dot dot-b"></div><strong style="font-size:12px">Info blue</strong><p style="font-size:11px;margin-top:2px">#378ADD — Links, info badges</p></div>
+</div>
+<div class="section-title">Premium UI touches</div>
+<div class="grid2">
+<div class="card-sm"><strong style="font-size:12px">Framer Motion</strong><p style="margin-top:4px">Page transitions (slide-in), course card hover lift (y:-4px scale:1.02), skeleton pulse, confetti on certificate unlock</p></div>
+<div class="card-sm"><strong style="font-size:12px">shadcn/ui components used</strong><p style="margin-top:4px">Button, Input, Dialog, Sheet (mobile sidebar), Tabs, Badge, Card, Select, Tooltip, DropdownMenu, Toast, DataTable, Progress</p></div>
+<div class="card-sm"><strong style="font-size:12px">Typography</strong><p style="margin-top:4px">Font: Inter (via next/font). Headings: 600 weight. Body: 400. Code blocks: JetBrains Mono. Consistent rem scale.</p></div>
+<div class="card-sm"><strong style="font-size:12px">Responsive breakpoints</strong><p style="margin-top:4px">Mobile: 1-col grid, bottom nav drawer. Tablet: 2-col grid. Desktop: 3-col catalogue, sidebar nav. Tailwind sm/md/lg/xl.</p></div>
+</div>
+</div>
+
+<div id="impl" class="section">
+<h2>Recommended build order</h2>
+<p style="margin-bottom:16px">Build in this sequence so every phase is testable and you never block yourself. Each phase depends only on the previous.</p>
+<div class="role-card" style="--accent:#7F77DD">
+<strong style="font-size:13px">Phase 1 — Foundation (Week 1)</strong>
+<p style="margin-top:4px">Project scaffold: Next.js 14 + Express + TypeScript. MongoDB Atlas connection. Env config. Cloudinary setup. Basic CORS + helmet. Folder structure: /controllers /routes /models /middleware /utils /services.</p>
+</div>
+<div class="role-card" style="--accent:#1D9E75">
+<strong style="font-size:13px">Phase 2 — Auth system (Week 1–2)</strong>
+<p style="margin-top:4px">User model. Register → OTP → activate → JWT flow. Login / logout / refresh. isAuthenticated middleware. authorizeRoles middleware. Gmail SMTP OTP email template. Frontend: register/login/OTP pages with React Hook Form + Zod. Redux auth slice.</p>
+</div>
+<div class="role-card" style="--accent:#D85A30">
+<strong style="font-size:13px">Phase 3 — Course CRUD (Week 2–3)</strong>
+<p style="margin-top:4px">Course model + Section/Lesson embedded. Admin course builder UI: multi-step form (details → sections → pricing). Cloudinary thumbnail upload. Course catalogue page (public). Course detail page (public). Filter/search/sort.</p>
+</div>
+<div class="role-card" style="--accent:#BA7517">
+<strong style="font-size:13px">Phase 4 — Video delivery (Week 3)</strong>
+<p style="margin-top:4px">VdoCipher upload API integration. Store videoId in lesson. OTP endpoint (/video-otp/:videoId). VdoCipher player component on frontend. Enrollment guard middleware (user must own course to get OTP). Test DRM protection.</p>
+</div>
+<div class="role-card" style="--accent:#378ADD">
+<strong style="font-size:13px">Phase 5 — Payments (Week 3–4)</strong>
+<p style="margin-top:4px">Razorpay order creation. Checkout modal on frontend (razorpay npm SDK). Verify endpoint with HMAC. Enrollment logic (push courseId to user.courses). Order model. Coupon model + apply logic. Receipt email via SMTP.</p>
+</div>
+<div class="role-card" style="--accent:#1D9E75">
+<strong style="font-size:13px">Phase 6 — Learning features (Week 4)</strong>
+<p style="margin-top:4px">Progress model. Mark lesson complete endpoint. % calculation. Lesson sidebar with checkmarks. Q&amp;A: add question, add answer. Reviews: add/edit. Quiz: questions, submit, score, store result.</p>
+</div>
+<div class="role-card" style="--accent:#7F77DD">
+<strong style="font-size:13px">Phase 7 — Certificate (Week 5)</strong>
+<p style="margin-top:4px">Puppeteer PDF generation (HTML template → PDF). Trigger on 100% progress. Upload to Cloudinary. Store URL in user.certificates[]. Download button in My Courses. Public verify page (/certificate/:id).</p>
+</div>
+<div class="role-card" style="--accent:#D85A30">
+<strong style="font-size:13px">Phase 8 — Admin panel (Week 5–6)</strong>
+<p style="margin-top:4px">Admin layout (dark sidebar). All users table + role management. All orders table. Analytics charts (Recharts). CMS editor (hero / FAQ / categories). Coupon CRUD. Notification center.</p>
+</div>
+<div class="role-card" style="--accent:#D4537E">
+<strong style="font-size:13px">Phase 9 — Real-time (Week 6)</strong>
+<p style="margin-top:4px">Socket.io setup on backend (attach to HTTP server). Admin room: emit on purchase, new user, new review. User room: emit on course published, session scheduled. Staff room: emit on new Q&amp;A. Bell icon with unread count on frontend.</p>
+</div>
+<div class="role-card" style="--accent:#888780">
+<strong style="font-size:13px">Phase 10 — Polish & deploy (Week 7)</strong>
+<p style="margin-top:4px">Staff role scoping. SEO meta tags (Next.js metadata API). Performance: React Query caching, Cloudinary image optimization. Error boundaries. Loading skeletons. Mobile responsive QA. Deploy: Vercel (FE) + Railway/Render (BE). Upstash Redis for rate limiting.</p>
+</div>
+</div>
+
+<script>
+function show(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.target.classList.add('active');
+}
+</script>

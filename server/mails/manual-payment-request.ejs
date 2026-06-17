@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        .header { background-color: #1C1678; color: white; padding: 15px; text-align: center; border-radius: 6px 6px 0 0; }
+        .content { padding: 20px; }
+        .details-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .details-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .details-table td.label { font-weight: bold; width: 40%; color: #555; }
+        .footer { margin-top: 20px; text-align: center; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>New Manual Payment Verification Request</h2>
+        </div>
+        <div class="content">
+            <p>Hello Admin,</p>
+            <p>A student has submitted a UPI transaction reference for manual payment verification. Please verify the transaction in your bank account and approve the enrollment.</p>
+            
+            <table class="details-table">
+                <tr>
+                    <td class="label">Student Name:</td>
+                    <td><%= user.name %></td>
+                </tr>
+                <tr>
+                    <td class="label">Student Email:</td>
+                    <td><%= user.email %></td>
+                </tr>
+                <tr>
+                    <td class="label">Course Name:</td>
+                    <td><%= courseName %></td>
+                </tr>
+                <tr>
+                    <td class="label">Amount:</td>
+                    <td>₹<%= price %></td>
+                </tr>
+                <tr>
+                    <td class="label">UPI UTR / Trans. ID:</td>
+                    <td style="font-size: 16px; font-weight: bold; color: #e056fd;"><%= transactionId %></td>
+                </tr>
+            </table>
+        </div>
+        <div class="footer">
+            <p>Kairaa Blockchain Academy Admin System</p>
+        </div>
+    </div>
+</body>
+</html>

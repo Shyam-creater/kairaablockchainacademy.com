@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Blockchain from "../../assets/blockchainview.jpg";
 import { FaLinkedin } from "react-icons/fa";
@@ -7,183 +7,257 @@ import skill from "../../assets/skills.png";
 import Header from "../../components/Header";
 import { PiNotePencilDuotone } from "react-icons/pi";
 import Heading from "../../components/Heading";
+import Footer from "../../components/Footer";
+
 function InternshipProgram() {
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(2);
   const [route, setRoute] = useState("Login");
 
   return (
-    <>
-     <Heading title="Blockchain Internship Program | Kairaa Blockchain Academy" description="Enhance your skills with Kairaa  Blockchain Academy's Internship Program. Gain hands-on experience, work on real-world projects, and become a Blockchain expert." keywords="blockchain course, blockchain certification, blockchain academy" />
-    <Header 
-    open={open}
-    setOpen={setOpen}
-    activeItem={activeItem}
-    setRoute={setRoute}
-    route={route}
-    />
-      <div className="px-10 py-10 mx-auto container max-w-screen-2xl mt-10 animate-fadeInUp">
-        <div className="bg-[#F7F4FD] rounded-xl rounded-br-[80px] ">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-10">
-            <div className="md:w-3/5 p-10">
-              <h2 className="sm:text-4xl md:text-5xl font-headingFont  xs:text-3xl text-black font-bold mb-5 ">
-                Internship Program
-              </h2>
-              <div className="md:py-3 xs:py-1">
+    <div className="overflow-x-hidden min-h-screen font-sans text-slate-900 bg-white">
+      <Heading
+        title="Blockchain Internship Program | Kairaa Blockchain Academy"
+        description="Enhance your skills with Kairaa Blockchain Academy's Internship Program."
+        keywords="blockchain course, blockchain certification, blockchain academy"
+      />
+      <div className="flex-grow bg-white relative overflow-x-hidden pb-16">
+        <Header
+          open={open}
+          setOpen={setOpen}
+          activeItem={activeItem}
+          setRoute={setRoute}
+          route={route}
+        />
+
+        {/* Hero Section — Content LEFT, Image RIGHT */}
+        <section className="bg-[#1C1678] pt-20 pb-32 px-6 md:px-12 relative text-white overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600 rounded-full opacity-20 blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500 rounded-full opacity-20 blur-[100px] -translate-x-1/2 translate-y-1/2"></div>
+
+          <div className="container mx-auto max-w-6xl relative z-10">
+            <p className="uppercase tracking-widest text-sm text-orange-400 font-bold mb-6">Practical Experience Program</p>
+            <div className="flex flex-row gap-12 lg:gap-24 items-center justify-between">
+
+              {/* LEFT - Text */}
+              <div className="w-3/5">
+                <h1 className="text-4xl md:text-6xl font-extrabold font-headingFont leading-tight mb-6">
+                  Blockchain{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-[#CB77F7]">
+                    Internship Program
+                  </span>
+                </h1>
+                <p className="text-blue-100 text-lg leading-relaxed mb-8 font-paraFont">
+                  Acquire hands-on blockchain expertise. Work on real-world systems, configure nodes, write production smart contracts, and build your technical resume under industry mentorship.
+                </p>
                 <Link to="/course-registration">
-                  <button className="p-3 bg-gradient-to-r from-cyan-500 to-[#CB77F7] text-black rounded-2xl text-lg shadow-2xl shadow-black animate-shake hover:bg-blue-300">
-                    Get Started
+                  <button className="relative overflow-hidden bg-white text-[#1C1678] font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <span className="relative z-10 flex items-center text-lg">Get Started</span>
                   </button>
                 </Link>
-              </div>{" "}
-            </div>
-
-            <div className="md:w-1/4 md:p-1 xs:p-10 ">
-              <img className="rounded-2xl" src={Blockchain} alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ******************************************************** */}
-      <div className="mx-auto container  justify-between ">
-        <div className="justify-center mx-10 items-center flex md:flex-row gap-6 py-3 flex-col">
-          <div className="md:w-1/2 animate-fadeInRight">
-            <h2 className="md:text-2xl xs:text-xl font-bold font-headingFont py-2">
-              About The Program
-            </h2>
-            <p className="text-lg">
-              Kairaa Blockchain Academy is inviting applications for the
-              Blockchain Development and Internship Program.This Internship
-              Program and It's Availability Both Online and Offline Mode.
-            </p>
-
-            <h2 className="md:text-2xl xs:text-xl font-headingFont font-bold py-3 mb-2">
-              Details to know
-            </h2>
-            <div className="flex justify-between gap-5">
-              <div className="gap-2">
-                <p className="text-xl font-bold">
-                  <span>
-                    <FaLinkedin size={25} />
-                  </span>
-                  Shareable certificate
-                </p>
-                <p className="text-lg">Add to your LinkedIn profile</p>
               </div>
 
-              <div>
-                <p className="text-xl font-bold">
-                  <span>
-                    <PiNotePencilDuotone size={25} />
-                  </span>
-                  Assessments
+              {/* RIGHT - Image */}
+              <div className="w-2/5 flex justify-end">
+                <div className="relative group p-1 bg-white/10 rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                  <img
+                    className="max-h-[260px] object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                    src={Blockchain}
+                    alt="Blockchain Internship"
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* Program Details */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto max-w-5xl px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+              {/* Left Details Block */}
+              <div className="bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-extrabold text-[#1C1678] mb-5 pb-2 border-b border-slate-200 font-headingFont">
+                    About The Program
+                  </h3>
+                  <p className="text-slate-500 text-base leading-relaxed mb-8 font-paraFont">
+                    Kairaa Blockchain Academy is inviting applications for the Blockchain Development and Internship Program. This elite curriculum combines foundational theoretical structures with direct real-world application, available in both online and offline learning configurations.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+                    Details to Know
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-[#1C1678]/10 text-[#1C1678] rounded-xl">
+                        <FaLinkedin size={22} />
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-[#1C1678]">Shareable certificate</p>
+                        <p className="text-xs text-slate-500 font-bold">Add to LinkedIn profile</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-[#1C1678]/10 text-[#1C1678] rounded-xl">
+                        <PiNotePencilDuotone size={22} />
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-[#1C1678]">Assessments</p>
+                        <p className="text-xs text-slate-500 font-bold">20 comprehensive quizzes</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Mode Block */}
+              <div className="bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-extrabold text-[#1C1678] mb-5 pb-2 border-b border-slate-200 font-headingFont">
+                    Online & Offline Mode
+                  </h3>
+                  <p className="text-slate-500 text-base leading-relaxed mb-6 font-paraFont">
+                    Blockchain technology can enhance the educational experience by providing secure, efficient, and accessible learning opportunities, while offering verifiable credentials and streamlined processes.
+                  </p>
+                </div>
+                <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+                  <h4 className="text-xs font-bold text-[#1C1678] uppercase tracking-wider mb-4">
+                    Program Structure
+                  </h4>
+                  <ul className="space-y-3 text-slate-500 text-base font-paraFont font-semibold">
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>
+                      <span>Beginner-friendly entry level</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>
+                      <span>Recommended coding experience</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>
+                      <span>Flexible Duration: 1 to 3 months</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* Expertise Section — Image LEFT, Text RIGHT */}
+        <section className="py-16 bg-[#F0F4FF]">
+          <div className="container mx-auto max-w-5xl px-6">
+            <div className="flex flex-row items-center gap-16">
+
+              {/* LEFT - Image */}
+              <div className="w-2/5 flex-shrink-0">
+                <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-100 overflow-hidden group">
+                  <img
+                    src={skill}
+                    className="w-full h-64 object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+                    alt="Expertise Development"
+                  />
+                </div>
+              </div>
+
+              {/* RIGHT - Text */}
+              <div className="w-3/5 flex flex-col justify-center">
+                <span className="text-orange-500 font-bold uppercase tracking-widest text-xs mb-3 block">Expertise</span>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-[#1C1678] mb-4 leading-tight font-headingFont">
+                  Build Your Subject-Matter Expertise
+                </h3>
+                <p className="text-slate-500 text-base leading-relaxed mb-5 font-paraFont">
+                  This course is part of the Blockchain Specialization. When you enroll in this program, you will be systematically equipped with professional skills and credentials.
                 </p>
-                <p className="text-lg">20 quizzes</p>
+                <ul className="space-y-3 text-slate-500 text-base font-paraFont font-semibold">
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-500 mt-1 font-bold flex-shrink-0">•</span>
+                    <span>Learn new concepts from industry experts</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-500 mt-1 font-bold flex-shrink-0">•</span>
+                    <span>Gain a foundational understanding of blockchain tooling</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-500 mt-1 font-bold flex-shrink-0">•</span>
+                    <span>Develop job-relevant skills with hands-on projects</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-orange-500 mt-1 font-bold flex-shrink-0">•</span>
+                    <span>Earn a shareable career certificate</span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* Skills Gain */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto max-w-5xl px-6">
+            <div className="bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg">
+              <h3 className="text-xl font-bold text-[#1C1678] mb-6 font-headingFont">
+                Skills you'll gain
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {["Blockchain", "Ethereum", "Cryptography", "Bitcoin"].map((s, idx) => (
+                  <span
+                    key={idx}
+                    className="px-6 py-2.5 bg-white border border-slate-200 text-[#1C1678] font-bold text-sm rounded-full shadow-sm hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    {s}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
+        </section>
 
-          <div className="md:w-1/2 animate-fadeInLeft">
-            <div className="">
-              <h2 className="md:text-2xl xs:text-xl font-headingFont font-bold py-2">
-                Internship Online&Offline
-              </h2>
-              <p className="text-lg">
-                Blockchain technology can enhance the educational experience by
-                providing secure, efficient, and accessible learning
-                opportunities, while offering verifiable credentials and
-                streamlined processes.
-              </p>
-            </div>
+        {/* Career Certificate */}
+        <section className="pb-16 bg-white">
+          <div className="container mx-auto max-w-5xl px-6">
+            <div className="bg-[#1C1678] rounded-2xl p-8 md:p-14 shadow-2xl text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-purple-600 rounded-full opacity-20 blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-500 rounded-full opacity-20 blur-[80px] -translate-x-1/2 translate-y-1/2"></div>
 
-            <div className="py-2 text-lg pt-2 font-medium">
-              <p className="">
-                <span className="mr-2 ml-1">✿</span>Beginner level
-              </p>
-              <p className="">
-                <span className="mr-2 ml-1">✿</span>Recommended experience
-              </p>
+              <div className="flex flex-row justify-between items-center gap-12 relative z-10">
 
-              <p className="">
-                <span className="mr-2 ml-1">✿ Duration:</span> 1 to 3 months.
-              </p>
+                {/* LEFT - Text */}
+                <div className="w-3/5">
+                  <span className="text-orange-400 font-bold uppercase tracking-widest text-xs mb-3 block">Verified Certification</span>
+                  <h2 className="text-2xl md:text-4xl font-extrabold leading-tight text-white mb-4 font-headingFont">
+                    Earn a Career Certificate
+                  </h2>
+                  <p className="text-blue-100 text-base leading-relaxed font-paraFont">
+                    Add this prestigious credential to your LinkedIn profile, professional resume, or CV. Share your achievement on social media and showcase your proven skills in performance reviews.
+                  </p>
+                </div>
 
-              {/* <p className=''><span className='mr-2 ml-1'>✿</span>Flexible schedule</p>
-                        <p className=''><span className='mr-2 ml-1'>✿</span>Learn at your own pace</p>
-                     */}
-            </div>
-          </div>
-        </div>
-      </div>
-      <hr />
-      {/* ************************************************************* */}
-      <div className="container gap-3 mx-auto py-4 animate-fadeInLeft">
-        <div className="justify-center mx-10 items-center flex md:flex-row gap-6 py-3 flex-col">
-          <div className="md:w-1/2 leading-10 py-4 ">
-            <h2 className="md:text-2xl xs:text-xl font-bold font-headingFont  py-2">
-              Build your subject-matter expertise
-            </h2>
-            <p className="text-lg ">
-              This course is part of the Blockchain Specialization When you
-              enroll in this course, you'll also be enrolled in this
-              Specialization.
-            </p>
-            <ul className="font-medium text-lg leading-8 py-4">
-              <li>Learn new concepts from industry experts</li>
-              <li>Gain a foundational understanding of a subject or tool</li>
-              <li>Develop job-relevant skills with hands-on projects</li>
-              <li>Earn a shareable career certificate</li>
-            </ul>
-          </div>
-          <div className="md:w-1/2 p-3 py-8">
-            <img src={skill} className="rounded-xl" alt="" />
-          </div>
-        </div>
-      </div>
-      {/* *********************************************************************** */}
-      <div className="mx-auto container">
-        <div className="mx-10 flex flex-col md:flex-row justify-between items-center">
-          <div className="">
-            <h2 className="md:text-2xl xs:text-xl font-headingFont font-bold mb-2 py-2">
-              Skills you'll gain
-            </h2>
-            <ul className="flex xs:flex-row flex-col gap-3">
-              <li className="border-2 border-black p-2 rounded">Blockchain</li>
-              <li className="border-2 border-black p-2 rounded">Ethereum</li>
-              <li className="border-2 border-black p-2 rounded">
-                Cryptography
-              </li>
-              <li className="border-2 border-black p-2 rounded">Bitcoin</li>
-            </ul>
-          </div>
-          {/* <h2 className='md:text-3xl xs:text-xl font-bold py-2'>Who Is It For?</h2>
-                <p className='text-lg'>The course is suitable for anyone interested in technology and have basic
-                    knowledge of Javascript or HTML.</p> */}
-        </div>{" "}
-      </div>
-      {/* ***************************************************************** */}
-      <div className="md:px-12 p-4 max-w-screen-2xl mx-auto mt-10 ">
-        <div className="border-[#CADDFE] border-2 rounded-xl rounded-br-[80px] md:p-9 px-4 py-9">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-10">
-            <div className="md:w-3/5">
-              <h2 className="sm:text-4xl  md:text-3xl text-2xl font-headingFont text-black font-bold mb-5 ">
-                Earn a career certificate
-              </h2>
-              <p className="text-lg">
-                Add this credential to your LinkedIn profile, resume, or CV
-                Share it on social media and in your performance review
-              </p>
-            </div>
+                {/* RIGHT - Image */}
+                <div className="w-2/5 flex justify-end">
+                  <div className="relative p-2 bg-white/10 rounded-xl shadow-2xl border border-white/20 group overflow-hidden">
+                    <img
+                      className="w-full h-auto object-cover rounded-lg max-h-[180px] group-hover:scale-105 transition-transform duration-500"
+                      src={Certificate}
+                      alt="Verified Career Certificate"
+                    />
+                  </div>
+                </div>
 
-            <div className="md:w-1/4 w-1/2">
-              <img className="rounded" src={Certificate} alt="" />
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
       </div>
-      {/* **************************************************** */}
-    </>
+      <Footer />
+    </div>
   );
 }
 

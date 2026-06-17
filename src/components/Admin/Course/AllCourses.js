@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import { AiOutlineDelete } from "react-icons/ai";
-
-import { FiEdit2 } from "react-icons/fi";
+import { FiEdit2, FiBookOpen, FiRefreshCw, FiEye } from "react-icons/fi";
+import { motion } from "framer-motion";
 import {
   useGetAllCoursesQuery,
   useDeleteCourseMutation,
@@ -16,7 +16,6 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const AllCourses = () => {
-  // const { theme } = useTheme();
   const [courseId, setCourseId] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -39,17 +38,33 @@ const AllCourses = () => {
     { field: "purchased", headerName: "Purchased", flex: 0.5 },
     { field: "created_at", headerName: "Created At", flex: 0.5 },
     {
-      field: "edit",
-      headerName: "Edit",
+      field: "view",
+      headerName: "View",
+      flex: 0.3,
       renderCell: (params) => {
         return (
-          <Button>
+          <Button sx={{ minWidth: '40px', width: '40px' }}>
+            <Link to={`/courses/${params.row.id}`} target="_blank" rel="noopener noreferrer">
+              <FiEye
+                className="text-gray-600 hover:text-indigo-600 transition-colors"
+                size={20}
+              />
+            </Link>
+          </Button>
+        );
+      },
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      flex: 0.3,
+      renderCell: (params) => {
+        return (
+          <Button sx={{ minWidth: '40px', width: '40px' }}>
             <Link to={`/admin/edit-course/${params.row.id}`}>
             <FiEdit2
-              className={
-                // theme === "dark" ? "text-white" :
-                 "text-black"}
-              size={20}
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+              size={18}
             />
           </Link>
           </Button>
@@ -59,18 +74,18 @@ const AllCourses = () => {
     {
       field: "delete",
       headerName: "Delete",
+      flex: 0.3,
       renderCell: (params) => {
         return (
           <Button
+            sx={{ minWidth: '40px', width: '40px' }}
             onClick={() => {
               setOpen(!open);
               setCourseId(params.row.id);
             }}
           >
             <AiOutlineDelete
-              className={
-                // theme === "dark" ? "text-white" :
-                 "text-black"}
+              className="text-gray-600 hover:text-red-600 transition-colors"
               size={20}
             />
           </Button>
@@ -81,17 +96,14 @@ const AllCourses = () => {
 
   const rows = [];
 
-  {
-    data &&
+  if (data && data.courses) {
       data.courses.forEach((item) => {
         rows.push({
           id: item._id,
           title: item.name,
           ratings: item.ratings,
-          
           purchased: item.purchased,
           created_at: format(item.createdAt),
-          // created_at: item.createdAt
         });
       });
   }
@@ -112,91 +124,52 @@ const AllCourses = () => {
   }, [isSuccess, error,setOpen]);
 
   return (
-    <div className="">
+    <div className="w-full h-full flex flex-col space-y-6">
       {isLoading ? (
         <Loader />
       ) : (
-        <Box m="20px">
-          <Box
-            m="40px 0 0 0"
-            height="80vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-                outline: "none",
-              },
-              "& .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon": {
-                color: 
-                // theme === "dark" ? "#fff" :
-                 "#000",
-              },
-              "& .MuiDataGrid-sortIcon": {
-                color:
-                //  theme === "dark" ? "#fff" : 
-                 "#000",
-              },
-              "& .MuiDataGrid-row": {
-                color: 
-                // theme === "dark" ? "#fff" : 
-                "#000",
-                borderBottom:
-                  // theme === "dark"? "1px solid #ffffff30 !important":
-                     "1px solid #ccc !important",
-              },
-              "& .MuiTablePagination-root": {
-                color: 
-                // theme === "dark" ? "#fff" :
-                 "#000",
-              },
-              "& .MuiIconButton-colorInherit": {
-                color: 
-                // theme === "dark" ? "#fff" :
-                 "#000",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
-              "& .name-column--cell": {
-                color:
-                //  theme === "dark" ? "#fff" : 
-                 "#000",
-              },
-
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: 
-                // theme === "dark" ? "#1F2A40" :
-                 "#F2F0F0",
-              },
-              "& .MuiDataGrid-footerContainer": {
-                color: 
-                // theme === "dark" ? "#fff" :
-                 "#000",
-                borderTop: "none",
-                backgroundColor: 
-                // theme === "dark" ? "#3e4396" :
-                 "#5AB2FF",
-              },
-              "& .MuiCheckbox-root": {
-                color:
-                  // theme === "dark" ? `#b7ebde !important` : 
-                  `#000 !important`,
-              },
-              "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                color: `#fff !important`,
-              },
-              "& .MuiDataGrid-columnHeader": {
-                color: 
-                // theme === "dark" ? "#fff" :
-                 "#000",
-                background: 
-                // theme === "dark" ? "#3e4396" :
-                 "#5AB2FF",
-                borderBottom: "none",
-              },
-            }}
+        <>
+          {/* Stats bar */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center justify-between gap-4"
           >
-            <DataGrid checkboxSelection columns={columns} rows={rows} />
-          </Box>
+            <div className="bg-white rounded-none border border-gray-100 shadow-sm px-5 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+                <FiBookOpen className="text-gray-400" size={16} />
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block leading-none mb-1">Total Courses</span>
+                <span className="text-lg font-bold text-gray-800 leading-none block">{rows.length.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={refetch}
+              className="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 px-4 py-2.5 rounded-full transition-all shadow-sm"
+            >
+              <FiRefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
+              Refresh
+            </button>
+          </motion.div>
+
+          {/* Table Wrapper */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Box className="w-full h-[calc(100vh-280px)] min-h-[400px]">
+              <DataGrid 
+                checkboxSelection 
+                columns={columns} 
+                rows={rows} 
+                disableRowSelectionOnClick
+                rowHeight={64}
+              />
+            </Box>
+          </motion.div>
           {open && (
             <Modal
               open={open}
@@ -204,19 +177,19 @@ const AllCourses = () => {
               aria-labelledby="modal-modal-title"
               aria-describedby="modal-modal-description"
             >
-              <Box className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 outline-none w-[450px]  bg-white rounded-[8px] shadow p-4">
+              <Box className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 outline-none w-[450px] bg-white rounded-none shadow-2xl p-6">
                 <h1 className={`${styles.title}`}>
-                  Add you sure you want to delete this Course?
+                  Are you sure you want to delete this Course?
                 </h1>
-                <div className="flex w-full items-center justify-evenly mb-6 mt-4">
+                <div className="flex w-full items-center justify-evenly mb-2 mt-6 gap-4">
                   <div
-                    className={`${styles.button} !w-[120px] h-[30px] bg-green-500`}
+                    className={`${styles.button} bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-none`}
                     onClick={() => setOpen(!open)}
                   >
                     Cancel
                   </div>
                   <div
-                    className={`${styles.button} !w-[120px] h-[30px] bg-red-500`}
+                    className={`${styles.button} bg-red-500 hover:bg-red-600 rounded-none`}
                     onClick={handleDelete}
                   >
                     Delete
@@ -225,7 +198,7 @@ const AllCourses = () => {
               </Box>
             </Modal>
           )}
-        </Box>
+        </>
       )}
     </div>
   );

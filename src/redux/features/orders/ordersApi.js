@@ -53,7 +53,7 @@ export const ordersApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllOrders: builder.query({
             query: () => ({
-                url: 'get-orders',
+                url: 'get-all-orders',
                 method: 'GET',
                 credentials: 'include',
             })
@@ -89,6 +89,14 @@ export const ordersApi = apiSlice.injectEndpoints({
                 credentials: 'include'
             }),
         }),
+        updateOrderStatus: builder.mutation({
+            query: ({ orderId, status }) => ({
+                url: 'update-order-status',
+                method: 'PUT',
+                body: { orderId, status },
+                credentials: 'include',
+            }),
+        }),
     })
 });
 
@@ -97,5 +105,6 @@ export const {
     useCreateRazorpayOrderMutation,
     useGetRazorpayPublishablekeyQuery,
     useCreateOrderMutation,
-    useVerifyOrderMutation
+    useVerifyOrderMutation,
+    useUpdateOrderStatusMutation,
 } = ordersApi;

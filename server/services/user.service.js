@@ -8,16 +8,39 @@ import Registration from "../models/registrationModel.js";
 
 // get user by Id
 export const getUserById=async(id,res)=>{
-const userJson= await redis.get(id)
-
-if(userJson){
-    const user=JSON.parse(userJson);
-    res.status(201).json({
-        success:true,
-        user
-    })
-}
-
+    try {
+        console.log("getUserById called for id:", id);
+        const userJson= await redis.get(id);
+        
+        if(userJson){
+            console.log("User found in redis");
+            const user=JSON.parse(userJson);
+            res.status(201).json({
+                success:true,
+                user
+            });
+        } else {
+            console.log("User not in redis, querying DB for id:", id);
+            const user = await User.findById(id);
+            if (user) {
+                console.log("User found in DB, sending response");
+                res.status(201).json({
+                    success: true,
+                    user
+                });
+                console.log("Response sent from getUserById");
+            } else {
+                console.log("User not found in DB");
+                res.status(404).json({
+                    success: false,
+                    message: "User not found"
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error in getUserById:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 }
 
 

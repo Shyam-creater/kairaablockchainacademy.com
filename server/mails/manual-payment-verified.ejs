@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f9f9f9; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { border-bottom: 2px solid #1C1678; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { color: #1C1678; margin: 0; }
+        .details-box { background-color: #f5f6fa; border-left: 4px solid #1C1678; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        .footer { margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 15px; font-size: 13px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Enrollment Confirmed!</h2>
+        </div>
+        <p>Dear <%= user.name %>,</p>
+        <p>Greetings from Kairaa Blockchain Academy!</p>
+        <p>We are pleased to inform you that your payment has been successfully verified and your enrollment is now confirmed.</p>
+        
+        <div class="details-box">
+            <strong>📚 Course Details:</strong><br/>
+            Course Name: <%= course.name %><br/>
+            Amount Paid: ₹<%= course.price %>
+        </div>
+        
+        <div class="details-box">
+            <strong>💳 Payment Details:</strong><br/>
+            Payment Method: UPI (QR Code)<br/>
+            Transaction ID (UTR): <%= utr %>
+        </div>
+        
+        <p>Your access to the course has been activated. You can now log in to your account and start learning.</p>
+        <p>We truly appreciate your trust in Kairaa Blockchain Academy and wish you great success in your learning journey.</p>
+        
+        <p>If you have any questions or need assistance, feel free to contact us.</p>
+        
+        <div class="footer">
+            <p>Best regards,<br/>
+            <strong>Kairaa Blockchain Academy</strong><br/>
+            <a href="mailto:support@kairaaacademy.com">support@kairaaacademy.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

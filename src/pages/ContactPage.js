@@ -1,121 +1,165 @@
-import React,{useState} from "react";
-import { IoLocationSharp } from "react-icons/io5";
+import React, { useState } from "react";
+import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import Header from "../components/Header";
-import "../pages/Contact.css";
 import Footer from "../components/Footer";
 import Heading from "../components/Heading";
 import { branchDetails } from "../utils/branchDetails.js";
 import Map1 from "../components/Map.js";
+
 const ContactPage = () => {
-  const [open,setOpen]=useState(false);
- 
-  const [route, setRoute]=useState("Login")
+  const [open, setOpen] = useState(false);
+  const [route, setRoute] = useState("Login");
 
- 
   return (
-    <div className="overflow-x-hidden">
-       <Heading title="Contact Us | Kairaa Blockchain Academy" description="Get in touch with Kairaa Blockchain Academy. Contact us for inquiries, collaborations, or support related to blockchain education and resources." keywords="blockchain course, blockchain certification, blockchain academy" />
-    <Header 
-    open={open}
-    setOpen={setOpen}
-    
-    setRoute={setRoute}
-    route={route}
-    />
-      <>
-      <div className="flex justify-around md:mx-8 m-4 flex-col  md:flex-row">
-        {/* contact us ++++++ chennai office details */}
-        <div className="flex flex-col gap-8 items-center md:w-3/6 w-full xs:m-4 md:m-4 h-full">
-       <Map1/>
-          {/* <iframe
-            title="contactmap"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15665.657021634854!2d76.93245844534019!3d11.007513406523273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba8591b63cb9031%3A0xb7ccd4bb77643789!2sKairaa%20Blockchain%20Academy!5e0!3m2!1sen!2sin!4v1717837372242!5m2!1sen!2sin"
-            width="650"
-            height="600"
-           
-            style={{ border: "0" }}
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          /> */}
+    <div className="overflow-x-hidden min-h-screen bg-neutral-50 font-sans">
+      <Heading
+        title="Contact Us | Kairaa Blockchain Academy"
+        description="Get in touch with Kairaa Blockchain Academy. Contact us for inquiries, collaborations, or support related to blockchain education and resources."
+        keywords="blockchain course, blockchain certification, blockchain academy"
+      />
+      <Header open={open} setOpen={setOpen} setRoute={setRoute} route={route} />
+
+      {/* Minimalist Hero Section */}
+      <section className="bg-white py-20 lg:py-28 border-b border-neutral-200">
+        <div className="container mx-auto px-6 md:px-12 text-center max-w-4xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-6 font-sans">
+            Get in touch with our experts.
+          </h1>
+          <p className="text-lg md:text-xl text-neutral-500 font-medium leading-relaxed">
+            Whether you have questions about our blockchain programs, enterprise solutions, or partnerships, we're here to help you navigate your journey.
+          </p>
         </div>
-        {/* form */}
-        <div className=" md:mx-8 p-4  md:w-3/6 w-full ">
-          <div className="md:w-5/6 w-full p-8 shadow-lg rounded-lg items-center g-4 justify-center">
-            <h2 className="text-3xl font-headingFont font-bold ">
-              Say <span className="text-[#0874DD]">Hello !</span>
-            </h2>
-            <p className="py-4 text-xl font-semibold">
-              Feel free to stop by and say hi !
-            </p>
-            <form className="flex flex-col text-lg ">
-              <label className="">Name</label>
-              <input
-                type="text"
-                className="w-full border border-blue-200  px-6 rounded-md"
-              />
+      </section>
 
+     {/* Map Left, Form Right Layout */}
+<section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 lg:py-12">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
-              <label>E-mail Id</label>
-              <input
-                type="email"
-                className="w-full border border-blue-200  px-6 rounded-md"
-              />
+    {/* Left Side: Map */}
+    <div className="w-full h-[450px] lg:h-[600px] overflow-hidden">
+      <Map1 />
+    </div>
 
+    {/* Right Side: Contact Form */}
+    <div className="w-full">
+      <h3 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-3">
+        Send us a message
+      </h3>
 
-              <label className="">Contact Number</label>
-              <input
-                type="tel"
-                className="w-full border border-blue-200  px-6 rounded-md"
-              />
+      <p className="text-neutral-500 mb-6">
+        Fill out the form below and our team will respond within 24 hours.
+      </p>
 
+      <form className="space-y-5">
 
-              <label>Message</label>
-              <textarea
-                rows="4"
-                cols="40"
-                className="border border-blue-200 w-full"
-              ></textarea>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              First Name
+            </label>
+            <input
+              type="text"
+              placeholder="John"
+              className="w-full px-5 py-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+            />
+          </div>
 
-
-              <button className="text-white w-fit md:px-6 md:py-3 p-2 my-4 md:text-xl text-lg font-bold rounded-md bg-gradient-to-r from-cyan-500 to-[#CB77F7] cursor-pointer z-10 hover:scale-110 duration-300">
-                Submit
-              </button>
-            </form>
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              Last Name
+            </label>
+            <input
+              type="text"
+              placeholder="Doe"
+              className="w-full px-5 py-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+            />
           </div>
         </div>
-      </div>
-      {/* ********************************************************************************* */}
-      <div className="md:text-4xl xs:text-2xl font-bold items-center text-center my-6 px-10 py-10 ">
-        <h2 className="font-headingFont  py-3">Our Branches</h2>
-      </div>
-      <div className="flex items-center  xs:mx-20 justify-center text-center mt-2 xs:mb-40 md:mb-10 px-10 py-10">
-        <div className="grid md:grid-cols-3 gap-5 md:w-[1400px] md:h-[900px] xs:grid-cols-2 grid-cols-1">
-          {branchDetails && branchDetails.map((e) => {
-            return (
-              <>
-                <div className="border-2 bg-gradient-to-t relative transition-transform duration-1000 ease-in-out hover:scale-110 hover: overflow-hidden from-cyan-500  to-[#CB77F7] rounded-s-3xl">
-                  <div className="flex items-center justify-center text-center  text-5xl p-3">
-                    <IoLocationSharp />
-                  </div>
-                  <h2 className="text-xl p-3 bg-[whitesmoke] font-bold">
-                    {e.city}
-                  </h2>
-                  <p className="text-lg p-2 my-5 text-[#f8f8f8]">{e.address}</p>
-                  <div class="absolute z-10 w-48 h-48 rounded-full group-hover:scale-150 transition-all   duration-500 ease-in-out bg-gradient-to-r from-cyan-500 to-[#CB77F7] delay-150 group-hover:delay-75"></div>
-                  <div class="absolute z-10 w-40 h-40 rounded-full group-hover:scale-150 transition-all    duration-500 ease-in-out bg-gradient-to-r from-cyan-500 to-[#CB77F7] delay-150 group-hover:delay-100"></div>
-                  <div class="absolute z-10 w-32 h-32 rounded-full group-hover:scale-150 transition-all    duration-500 ease-in-out bg-gradient-to-r from-cyan-500 to-[#CB77F7] delay-150 group-hover:delay-150"></div>
-                  <div class="absolute z-10 w-24 h-24 rounded-full group-hover:scale-150 transition-all    duration-500 ease-in-out bg-gradient-to-r from-cyan-500 to-[#CB77F7] delay-150 group-hover:delay-200"></div>
-                  <div class="absolute z-10 w-16 h-16 rounded-full group-hover:scale-150 transition-all  duration-500 ease-in-out  delay-150 group-hover:delay-300"></div>
-                </div>
-              </>
-            );
-          })}
-        </div>
-      </div>
-    </>
 
-      <Footer/>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              className="w-full px-5 py-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              placeholder="+91 9876543210"
+              className="w-full px-5 py-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-neutral-700 mb-2">
+            Message
+          </label>
+          <textarea
+            rows="5"
+            placeholder="How can we help you?"
+            className="w-full px-5 py-3.5 border border-neutral-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all"
+          ></textarea>
+        </div>
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all duration-300"
+          >
+            Send Message
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</section>
+
+      {/* Global Presence: Compact Split Timeline */}
+      <section className="bg-white py-16 lg:py-20 border-t border-neutral-200">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4 tracking-tight">Our Global Presence</h2>
+            <p className="text-lg text-neutral-500 max-w-2xl mx-auto font-medium">
+              Find a Kairaa Blockchain Academy near you. We are expanding rapidly to bring blockchain education everywhere.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-20">
+            {branchDetails && branchDetails.map((branch, idx) => (
+              <div key={idx} className="relative pl-10 pb-8">
+                {/* Continuous Vertical Line */}
+                <div className="absolute left-[11px] top-8 bottom-0 w-[2px] bg-gradient-to-b from-primary-200 to-primary-50"></div>
+
+                {/* Timeline Node */}
+                <div className="absolute left-0 top-5 w-6 h-6 rounded-full bg-white border-[4px] border-primary-500 shadow-sm z-10"></div>
+
+                {/* Content Card */}
+                <div className="p-6 rounded-2xl bg-neutral-50 border border-neutral-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiMapPin className="text-primary-600 shrink-0" size={18} />
+                    <h3 className="text-lg font-bold text-neutral-900 tracking-tight">{branch.city}</h3>
+                  </div>
+                  <p className="text-neutral-500 text-sm leading-relaxed pl-7">{branch.address}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };

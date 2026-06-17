@@ -25,8 +25,16 @@ export const galleryApi = apiSlice.injectEndpoints({
           credentials: "include",
         }),
       }),
+    editGalleryImage: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `edit-image/${id}`,
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
 
-export const {useUploadGalleryImageMutation,useGetAllGalleryImageQuery,useDeleteGalleryImageMutation}=galleryApi;
+export const {useUploadGalleryImageMutation,useGetAllGalleryImageQuery,useDeleteGalleryImageMutation,useEditGalleryImageMutation}=galleryApi;

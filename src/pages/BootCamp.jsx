@@ -1,15 +1,15 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import imagebanner from "../assets/bootcamp.png";
-import "../pages/Bootcamp.css";
 import Footer from "../components/Footer";
 import Heading from "../components/Heading";
 
 function BootCamp() {
-
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(2);
   const [route, setRoute] = useState("Login");
+
   const data = [
     {
       id: 1,
@@ -18,27 +18,26 @@ function BootCamp() {
       paragraph: [
         "What is Blockchain?",
         "History and Evolution of Blockchain.",
-        "Key Features and Benifits.",
+        "Key Features and Benefits.",
       ],
     },
     {
       id: 2,
-      one: "How Blockchain Works.",
-      two: "1.5 hour",
+      one: "How Blockchain Works",
+      two: "1.5 hours",
       paragraph: [
-        "What is Blockchain?",
         "Structure of Blockchain.",
         "Cryptography in Blockchain.",
-        "Consensus Mechanism.",
+        "Consensus Mechanisms.",
         "Transaction Verification and Validation.",
       ],
     },
     {
       id: 3,
       one: "Blockchain Use Cases",
-      two: "1.5 hour",
+      two: "1.5 hours",
       paragraph: [
-        "Cryptocurrencies(Bitcoin, Ethereum)",
+        "Cryptocurrencies (Bitcoin, Ethereum)",
         "Supply Chain Management.",
         "Healthcare and Identity Verification.",
         "Smart Contracts and Decentralized Applications.",
@@ -46,35 +45,35 @@ function BootCamp() {
     },
     {
       id: 4,
-      one: "Blockchain Ecosystem.",
+      one: "Blockchain Ecosystem",
       two: "1 hour",
       paragraph: [
         "Public vs Private Blockchain.",
         "Ethereum and Smart Contracts.",
         "Other Major Blockchain Platforms",
-        "Walleta and Exchanges.",
+        "Wallets and Exchanges.",
       ],
     },
     {
       id: 5,
-      one: "Challenges and Future Trends.",
+      one: "Challenges and Future Trends",
       two: "0.5 hour",
       paragraph: [
         "Scalability and Energy Consumption.",
         "Regulatory and Legal Considerations.",
-        "Emerging Trends Legal Considerations.",
+        "Emerging Trends & Security Standards.",
         "The Future of Blockchain.",
       ],
     },
     {
       id: 6,
-      one: "Conclusion and Q&A.",
+      one: "Conclusion and Q&A",
       two: "0.5 hour",
       paragraph: [
         "Recap of Key Concepts.",
-        "Regulatory and Legal Considerations.",
-        "Open Discussion and Participant Questions.",
-        "Final Certification Delivery.",
+        "Final Assessment Review.",
+        "Open Discussion and Participant Q&A.",
+        "Certification Pathway Delivery.",
       ],
     },
   ];
@@ -82,140 +81,187 @@ function BootCamp() {
   const section2 = [
     {
       id: 1,
-      heading1: " About The Program ",
+      heading1: "About The Program",
       paragraph:
-        " Blockchain Developer Bootcamp aims to provide an experience in Blockchain development to blockchain beginners. The sessions wil give a walkthrough of popular tools necessary for dApp development and a step-by-step guide to implementing decentralized application.",
-      heading2: "  What You Will Learn?",
+        "The Blockchain Developer Bootcamp aims to provide a fast-paced, immersive hands-on blockchain building experience to beginners. The sessions will guide you through the popular developer tools necessary for decentralized application (dApp) deployment, smart contract configuration, and integration from scratch.",
+      heading2: "What You Will Learn",
       headingList: [
-        "* Blockchain Fundamentals. ",
-        "* Cryptocurrency Expert.",
-        "* Navigating Cryptocurrencies.",
-        "* Blockchain for global Impact.",
-        "* Bitcoin Cryptocurrency.",
-        "* Cryptocurrency Beginner Guide.",
+        "Blockchain Fundamentals",
+        "Cryptocurrency Development",
+        "Navigating Decentralized Ledgers",
+        "Blockchain for Global Impact",
+        "Bitcoin & Ethereum Protocols",
+        "Cryptocurrency Beginner Guide",
       ],
-      heading3: " What You Will Earn?",
+      heading3: "What You Will Earn",
       heading3List: [
-        "* A Blockchain-powered Certificate. ",
-        "* After Completing the Program.",
-        "* Well knowledge about Blockchain.",
-        "* Real world Contribution of Blockchain.",
+        "A verified Blockchain Certificate",
+        "Hands-on portfolio of dApp projects",
+        "Deep technical blockchain expertise",
+        "Access to elite alumni developer circles",
       ],
     },
   ];
 
   return (
-    <>
-     <Heading title="Blockchain Bootcamp | Kairaa Blockchain Academy " description="Join Kairaa Blockchain Academy's Bootcamp for extensive blockchain knowledge and practical experience. Enroll now to become a Blockchain Professional!" keywords="blockchain course, blockchain certification, blockchain academy" />
-    <Header 
-    open={open}
-    setOpen={setOpen}
-    activeItem={activeItem}
-    setRoute={setRoute}
-    route={route}
-    />
-      <div className="md:px-12 p-4 max-w-screen-2xl mx-auto mt-3 ">
-        {" "}
-        <div className="bg-[#F7F4FD] rounded-xl rounded-br-[80px]  md:p-20 px-4 py-9 ">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-10 ">
-            <div className="md:w-3/5">
-              {/*  <div className="slider-thumb "></div> */}
+    <div className="overflow-x-hidden min-h-screen font-sans text-slate-900 bg-white">
+      <Heading
+        title="Blockchain Bootcamp | Kairaa Blockchain Academy"
+        description="Join Kairaa Blockchain Academy's Bootcamp for extensive blockchain knowledge and practical experience."
+        keywords="blockchain course, blockchain certification, blockchain academy"
+      />
+      <div className="flex-grow bg-white relative overflow-x-hidden pb-16">
+        <Header
+          open={open}
+          setOpen={setOpen}
+          activeItem={activeItem}
+          setRoute={setRoute}
+          route={route}
+        />
 
+        {/* Hero — Text LEFT, Image RIGHT */}
+        <section className="bg-[#1C1678] pt-20 pb-32 px-6 md:px-12 relative text-white overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600 rounded-full opacity-20 blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500 rounded-full opacity-20 blur-[100px] -translate-x-1/2 translate-y-1/2"></div>
 
-              <h2 className="sm:text-4xl md:text-[42px]  font-headingFont text-3xl text-black font-bold mb-5 ">
-                BOOTCAMP
-              </h2>
+          <div className="container mx-auto max-w-6xl relative z-10">
+            <p className="uppercase tracking-widest text-sm text-orange-400 font-bold mb-6">Elite Fast-Track Bootcamp</p>
+            <div className="flex flex-row gap-12 lg:gap-24 items-center justify-between">
+
+              {/* LEFT - Text */}
+              <div className="w-3/5">
+                <h1 className="text-4xl md:text-6xl font-extrabold font-headingFont leading-tight mb-6">
+                  Blockchain{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-[#CB77F7]">
+                    Developer Bootcamp
+                  </span>
+                </h1>
+                <p className="text-blue-100 text-lg leading-relaxed mb-8 font-paraFont">
+                  Immerse yourself in a hands-on developer training ecosystem. Transition from a coding beginner to a blockchain engineering practitioner in weeks.
+                </p>
+                <Link to="/course-registration">
+                  <button className="relative overflow-hidden bg-white text-[#1C1678] font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <span className="relative z-10 flex items-center text-lg">Register Now</span>
+                  </button>
+                </Link>
+              </div>
+
+              {/* RIGHT - Image */}
+              <div className="w-2/5 flex justify-end">
+                <div className="relative group p-4 bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200">
+                  <img
+                    className="max-h-[260px] object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                    src={imagebanner}
+                    alt="Blockchain Bootcamp"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
-      </div>
-      {/* *************************************************** **********************************************/}
-      {section2.map((e) => {
-        return (
-          <>
-            <div className="container mx-auto">
-              <div className="mx-10">
-                <h2 className="md:text-2xl font-headingFont text-lg font-bold py-2">
-                  {e.heading1}
-                </h2>
-                <p className="py-2 text-lg leading-10 text-medium">
-                  {e.paragraph}
-                </p>
+        </section>
+
+        {/* Section 2 */}
+        {section2.map((e) => (
+          <div key={e.id}>
+            <section className="py-16 bg-white">
+              <div className="container mx-auto max-w-5xl px-6">
+
+                {/* About The Program */}
+                <div className="bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg mb-10">
+                  <h3 className="text-2xl font-extrabold text-[#1C1678] mb-4 pb-2 border-b border-slate-200 font-headingFont">
+                    {e.heading1}
+                  </h3>
+                  <p className="text-slate-500 text-base leading-relaxed font-paraFont">
+                    {e.paragraph}
+                  </p>
+                </div>
+
+                {/* What You Learn + Earn */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="flex flex-col justify-center bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg">
+                    <h3 className="text-2xl font-extrabold text-[#1C1678] mb-4 pb-2 border-b border-slate-200 font-headingFont">
+                      {e.heading2}
+                    </h3>
+                    <ul className="space-y-3 text-slate-500 text-base font-paraFont font-semibold">
+                      {e.headingList.map((item, idx) => (
+                        <li className="flex items-center gap-3" key={idx}>
+                          <span className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>
+                          <span>{item.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex flex-col justify-center bg-[#F0F4FF] border border-slate-100 rounded-xl p-8 shadow-lg">
+                    <h3 className="text-2xl font-extrabold text-[#1C1678] mb-4 pb-2 border-b border-slate-200 font-headingFont">
+                      {e.heading3}
+                    </h3>
+                    <ul className="space-y-3 text-slate-500 text-base font-paraFont font-semibold">
+                      {e.heading3List.map((item, idx) => (
+                        <li className="flex items-center gap-3" key={idx}>
+                          <span className="w-2 h-2 rounded-full bg-[#1C1678] flex-shrink-0"></span>
+                          <span>{item.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          </div>
+        ))}
+
+        {/* Program Schedule Table */}
+        <section className="py-16 bg-[#F0F4FF]">
+          <div className="container mx-auto max-w-5xl px-6">
+            <div className="bg-white border border-slate-100 rounded-xl p-6 sm:p-10 shadow-lg overflow-hidden">
+              <h2 className="text-2xl font-extrabold text-[#1C1678] mb-6 pb-3 border-b border-slate-200 font-headingFont">
+                Program Schedule & Syllabus
+              </h2>
+              <div className="overflow-x-auto rounded-lg border border-slate-100 shadow-sm">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-[#1C1678] text-white">
+                    <tr>
+                      <th className="text-sm text-left p-4 md:p-5 font-bold uppercase tracking-wider">
+                        Sessions
+                      </th>
+                      <th className="text-sm text-center p-4 md:p-5 font-bold uppercase tracking-wider">
+                        Duration
+                      </th>
+                      <th className="text-sm text-left p-4 md:p-5 font-bold uppercase tracking-wider">
+                        Covered Topics
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-600 text-sm font-paraFont">
+                    {data.map((e, index) => (
+                      <tr key={index} className="hover:bg-[#F0F4FF] transition-colors duration-150">
+                        <td className="p-4 md:p-5 font-bold text-[#1C1678]">{e.one}</td>
+                        <td className="p-4 md:p-5 text-center font-bold text-orange-500">{e.two}</td>
+                        <td className="p-4 md:p-5 font-medium text-slate-500">
+                          <ul className="space-y-1.5">
+                            {e.paragraph.map((e1, subIndex) => (
+                              <li key={subIndex} className="flex items-start gap-2">
+                                <span className="text-orange-500 mt-1 flex-shrink-0">•</span>
+                                <span>{e1}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-            <div className="container mx-auto">
-              <div className="mx-10 flex xs:flex-row flex-col ">
-                <div className="md:w-1/2">
-                  <h2 className="md:text-2xl text-lg font-headingFont font-bold py-2">
-                    {e.heading2}
-                  </h2>
-                  <ul className="py-2 text-lg leading-10 text-medium ">
-                    {e.headingList.map((e1) => (
-                      <li> {e1}</li>
-                    ))}
-                  </ul>
+          </div>
+        </section>
 
-
-                  <h2 className="md:text-2xl text-lg font-headingFont font-bold py-2"></h2>
-                  <ul className="py-2 text-lg leading-10 text-medium ">
-                    {e.heading3List.map((e1) => (
-                      <li>{e1}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="xs:w-[40%]  p-2">
-                  <img className="rounded-2xl " src={imagebanner} alt="" />
-                </div>
-              </div>
-            </div>{" "}
-          </>
-        );
-      })}
-      {/* ********************************** **********************************************************/}
-      <div className="container mx-auto px-4 py-4 md:px-6 md:py-6">
-  <div className="mx-4 md:mx-10">
-    <h2 className="md:text-2xl text-lg font-headingFont font-bold py-2">
-      Program Details
-    </h2>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 border-2 border-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="text-sm md:text-lg text-left pl-4 md:pl-10 p-2 font-headingFont font-bold text-gray-800 uppercase tracking-wider">
-              Sessions
-            </th>
-            <th className="text-sm md:text-lg font-bold text-center font-headingFont text-gray-800 uppercase tracking-wider">
-              Duration
-            </th>
-            <th className="text-sm md:text-lg text-left pl-8 md:pl-16 font-headingFont font-bold text-gray-800 uppercase tracking-wider">
-              Covered Topics
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200 text-sm md:text-lg">
-          {data.map((e, index) => (
-            <tr key={index}>
-              <td className="p-2 md:p-5">{e.one}</td>
-              <td className="p-2 md:p-5">{e.two}</td>
-              <td className="p-2 md:p-5">
-                {e.paragraph.map((e1, subIndex) => (
-                  <div key={subIndex} className="pl-2 md:pl-5">
-                    ⋆ {e1}
-                  </div>
-                ))}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      </div>
+      <Footer />
     </div>
-  </div>
-
-
-
-     </div>
-      <Footer/>
-    </>
   );
 }
 

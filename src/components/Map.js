@@ -90,7 +90,7 @@ const FitMapToBounds = ({ locations }) => {
 
 const Map1 = () => {
   return (
-    <div className="map-container" style={{ height: "calc(100vh - 80px)", width: "100%" }}>
+    <div className="map-container" style={{ height: "100%", width: "100%", minHeight: "400px" }}>
     <MapContainer
       center={[11.1271, 78.6569]}
       zoom={7}

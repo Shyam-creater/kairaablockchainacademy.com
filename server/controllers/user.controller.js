@@ -15,6 +15,7 @@ import {
   getAllUsersService,
   updateUserRoleService,
 } from "../services/user.service.js";
+import { writeAuditLog } from "../services/admin.service.js";
 import Registration from "../models/registrationModel.js";
 
 
@@ -192,13 +193,18 @@ export const updateAccessToken = CatchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler(message, 400));
     }
 
-    const session = await redis.get(decoded.id);
+    let session = await redis.get(decoded.id);
+    let user;
 
     if (!session) {
-      return next(new ErrorHandler("Please login to access", 400));
+      const dbUser = await User.findById(decoded.id);
+      if (!dbUser) {
+        return next(new ErrorHandler("Please login to access", 400));
+      }
+      user = dbUser;
+    } else {
+      user = JSON.parse(session);
     }
-
-    const user = JSON.parse(session);
 
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, {
       expiresIn: "5m",
@@ -355,7 +361,7 @@ export const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
 
 export const getAllUsers = CatchAsyncError(async (req, res, next) => {
   try {
-    getAllUsersService(res);
+    await getAllUsersService(res);
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
@@ -376,8 +382,16 @@ export const updateUserRole = CatchAsyncError(async (req, res, next) => {
     const { id, email, role } = req.body;
     const isUserExist = await User.findOne({ email });
     if (isUserExist) {
-      const id = isUserExist._id;
-      updateUserRoleService(res, id, role);
+      const uid = isUserExist._id;
+      updateUserRoleService(res, uid, role);
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "";
+      await writeAuditLog({
+        actor: req.user,
+        action: "UPDATE_USER_ROLE",
+        target: email,
+        details: { role },
+        ip,
+      });
     } else {
       res.status(400).json({
         sucess: false,
@@ -398,8 +412,16 @@ export const deleteUser = CatchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("User not found", 404));
     }
 
-    await user.deleteOne({ id });
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "";
+    await writeAuditLog({
+      actor: req.user,
+      action: "DELETE_USER",
+      target: user.email,
+      details: { userId: id, name: user.name },
+      ip,
+    });
 
+    await user.deleteOne({ id });
     await redis.del(id);
     res.status(200).json({
       success: true,

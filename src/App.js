@@ -1,17 +1,17 @@
 import HomePage from "./pages/HomePage";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, useLocation } from "react-router-dom";
 
 import CoursePage from "./pages/CoursePage";
 import {Custom} from "./"
 
 import ProfilePage from "./pages/ProfilePage";
-import AdminPage from "./pages/AdminPage";
-import CreateCoursePage from "./pages/createCoursePage";
-import Courses from "./pages/Courses";
-import Users from "./pages/Users";
-import Team from "./pages/team.js";
+import AdminPage from "./pages/Admin/AdminPage";
+import CreateCoursePage from "./pages/Admin/createCoursePage";
+import Courses from "./pages/Admin/Courses";
+import Users from "./pages/Admin/Users";
+import Team from "./pages/Admin/team.js";
 
-import EditCoursePage from "./pages/EditCoursePage.js";
+import EditCoursePage from "./pages/Admin/EditCoursePage.js";
 import CourseAccessPage from "./pages/CourseAccessPage.js";
 import UserCoursePage from "./pages/UserCoursePage.js";
 
@@ -30,29 +30,39 @@ import BlockChainCertification from "./pages/BlockChainCertification";
 import ContactPage from "./pages/ContactPage";
 import SelfBlockChainDev from "./pages/SelfBlockChainDev";
 import BlogPage from "./pages/BlogPage.js";
+import SingleBlogPage from "./pages/SingleBlogPage.js";
 import GalleryPage from "./pages/GalleryPage.js";
 import ScrollToTop from "./components/ScrollToTop.js"
 
 import ErrorPage from "./pages/ErrorPage.js"
 import Terms_and_cond from "./pages/Terms_and_cond";
-import Register from "./pages/Register.js";
-import UploadGalleryImagePage from "./pages/UploadGalleryImagePage.js";
+import Register from "./pages/Admin/Register.js";
+import UploadGalleryImagePage from "./pages/Admin/UploadGalleryImagePage.js";
 
-import AdminGalleryPage from "./pages/AdminGalleryPage.js";
+import AdminGalleryPage from "./pages/Admin/AdminGalleryPage.js";
+import EditGalleryImagePage from "./pages/Admin/EditGalleryImagePage.js";
+import CreateBlogPage from "./pages/Admin/CreateBlogPage.js";
+import EditBlogPage from "./pages/Admin/EditBlogPage.js";
+import AdminBlogPage from "./pages/Admin/AdminBlogPage.js";
+import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.js";
+import AdminOrdersPage from "./pages/Admin/AdminOrdersPage.js";
+import AdminAuditLogsPage from "./pages/Admin/AdminAuditLogsPage.js";
 // import ErrorPage from "./pages/ErrorPage.js";
 
 
 const AppLayout = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-surface font-poppins text-primary">
       <Custom>
-      <ScrollToTop />
-       <div className="mt-[80px]">
-       <Outlet/>
-       </div>
-      
+        <ScrollToTop />
+        <main className={`flex-grow ${isAdmin ? "" : "pt-[80px]"}`}>
+          <Outlet />
+        </main>
       </Custom>
-    </>
+    </div>
   );
 };
 
@@ -96,6 +106,10 @@ const router = createBrowserRouter([
           element: <AdminGalleryPage/>
           },
           {
+            path:"/admin/edit-gallery-image/:id",
+            element: <EditGalleryImagePage/>
+          },
+          {
             path:"/admin/courses",
             element:<Courses/>
           },
@@ -123,6 +137,10 @@ const router = createBrowserRouter([
           {
             path: "/blogs",
             element: <BlogPage />
+          },
+          {
+            path: "/blogs/:id",
+            element: <SingleBlogPage />
           },
           {
             path: "/gallery",
@@ -188,6 +206,30 @@ const router = createBrowserRouter([
           {
             path: "/admin/registrations",
             element: <Register />
+          },
+          {
+            path: "/admin/create-blog",
+            element: <CreateBlogPage />
+          },
+          {
+            path: "/admin/edit-blog/:id",
+            element: <EditBlogPage />
+          },
+          {
+            path: "/admin/manage-blogs",
+            element: <AdminBlogPage />
+          },
+          {
+            path: "/admin/dashboard",
+            element: <AdminDashboardPage />
+          },
+          {
+            path: "/admin/orders",
+            element: <AdminOrdersPage />
+          },
+          {
+            path: "/admin/audit-logs",
+            element: <AdminAuditLogsPage />
           }
       
     

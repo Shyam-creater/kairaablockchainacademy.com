@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { app } from "./app.js";
+import morgan from "morgan";
 import connectDB from "./utils/db.js";
 import { v2 as cloudinary } from 'cloudinary'
 import cors from 'cors';
@@ -13,6 +14,10 @@ cloudinary.config({
 })
 
 app.use(cors());
+// HTTP request logger
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on ${process.env.PORT}`);

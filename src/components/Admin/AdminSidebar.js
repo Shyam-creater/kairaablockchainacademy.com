@@ -1,274 +1,195 @@
-import React, { useEffect, useState } from "react";
-import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, Icon, IconButton, Typography } from "@mui/material";
-import "react-pro-sidebar/dist/css/styles.css";
-import {
-  HomeOutlinedIcon,
-  ExitToAppIcon,
-  SettingsIcon,
-  ManageHistoryIcon,
-  WysiwygIcon,
-  QuizIcon,
-  WebIcon,
-  VideoCallIcon,
-  OndemandVideoIcon,
-  GroupsIcon,
-  MapOutlinedIcon,
-  BarChartOutlinedIcon,
-  ReceiptOutlinedIcon,
-  PeopleOutlineRoundedIcon,
-  ArrowBackIosRoundedIcon,
-  ArrowForwardIosRoundedIcon,
-} from "./Icons";
-import avatarDefault from "../../assets/user.png";
-import { useSelector } from "react-redux";
-import { useTheme } from "next-themes";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FiGrid, 
+  FiUsers, 
+  FiShoppingCart, 
+  FiFileText, 
+  FiImage, 
+  FiShield, 
+  FiSettings, 
+  FiLogOut, 
+  FiChevronLeft,
+  FiChevronRight,
+  FiBookOpen,
+  FiClipboard,
+  FiX
+} from "react-icons/fi";
+import { userLoggedOut } from "../../redux/features/auth/authslice";
+import { useLazyLogOutQuery } from "../../redux/features/auth/authApi.js";
+import logoImg from "../../carouselimages/footerLogo2.png";
 
-const Item = ({ title, to, icon, selected, setSelected }) => {
+const NavItem = ({ title, to, icon: Icon, isCollapsed }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to || (to !== '/admin' && location.pathname.startsWith(to));
+
   return (
-    <MenuItem
-      active={selected === title}
-      onClick={() => setSelected(title)}
-      icon={icon}
-    >
-      <Typography className="!text-[16px] !font-poppins">{title}</Typography>
-      <Link to={to} />
-    </MenuItem>
+    <Link to={to} className="block w-full">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={`flex items-center px-4 py-3 my-1 rounded-xl cursor-pointer transition-all duration-200 ${
+          isActive 
+            ? "bg-primary text-white font-semibold shadow-md" 
+            : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+        }`}
+      >
+        <div className={`flex items-center justify-center ${isActive ? "text-white" : ""}`}>
+          <Icon size={20} className={isActive ? "stroke-[2.5px]" : "stroke-[2px]"} />
+        </div>
+        
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.span
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="ml-4 text-[14px] whitespace-nowrap"
+            >
+              {title}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </Link>
   );
 };
 
-const Sidebar = () => {
+const AdminSidebar = ({ forceOpen, onMobileClose }) => {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem("adminSidebarCollapsed") === "true";
+  });
   const { user } = useSelector((state) => state.auth);
-  const [logout, setLogout] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("Dashboard");
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [triggerLogout] = useLazyLogOutQuery();
 
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) {
-    return null;
-  }
-
-  const logoutHandler = () => {
-    setLogout(true);
+  const handleToggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem("adminSidebarCollapsed", newState.toString());
   };
 
+  const handleLogout = async () => {
+    await triggerLogout().unwrap(); // Hits backend to clear HttpOnly cookies
+    dispatch(userLoggedOut());
+    navigate("/"); 
+  };
+
+  const activeCollapsed = forceOpen ? false : isCollapsed;
+
   return (
-    <Box
-      sx={{
-        "& .pro-sidebar-inner": {
-          background:  "#fff !important",
-        },
-        "& .pro-icon-wrapper": {
-         backgroundColor: "transparent !important",
-        },
-        "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
-        },
-        "& .pro-menu-item.active": {
-          color: "#6870fa !important",
-        },
-        "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
-          opacity: 1,
-        },
-        "& .pro-menu-item": {
-          color: "#000",
-        },
-      }}
-      className="!bg-white"
+    <motion.aside
+      initial={false}
+      animate={{ width: activeCollapsed ? "80px" : "280px" }}
+      className="h-full bg-sidebar flex flex-col shadow-2xl relative z-50 border-r border-gray-800"
     >
-      <ProSidebar
-        collapsed={isCollapsed}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          width: isCollapsed ? "0%" : "16%",
-        }}
-      >
-        <Menu iconShape="square">
-          {/* logo and menu icon */}
-          <MenuItem
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            icon={isCollapsed ? <ArrowForwardIosRoundedIcon /> : undefined}
-            style={{
-              margin: "10px 0 20px 0",
-            }}
-          >
-            {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Link to="/">
-                  <h3 className="text-[25px] font-poppins uppercase  text-black">
-                    Kairaa 
-                  </h3>
-                </Link>
-                <IconButton
-                  onClick={() => setIsCollapsed(!isCollapsed)}
-                  className="inline-block"
-                >
-                  <ArrowBackIosRoundedIcon className="text-black " />
-                </IconButton>
-              </Box>
-            )}
-          </MenuItem>
+      {/* Mobile Close Button */}
+      {forceOpen && (
+        <button
+          onClick={onMobileClose}
+          className="absolute right-4 top-6 text-gray-400 hover:text-white lg:hidden z-50 p-2"
+        >
+          <FiX size={20} />
+        </button>
+      )}
 
-          {!isCollapsed && (
-            <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <img
-                  alt="user-profile"
-                  width={100}
-                  height={100}
-                  src={user?.avatar  ? user?.avatar?.url : avatarDefault}
-                  className="rounded-full cursor-pointer  border-[3px] border-[#5b6fe6]"
-                />
-              </Box>
-              <Box textAlign="center">
-                <Typography
-                  variant="h6"
-                  sx={{ m: "10px 0 0 0" }}
-                  className="!text-[20px text-black  font-bold"
-                >
-                  {user?.name}
-                </Typography>
-                <Typography
-                  variant="h8"
-                  sx={{ m: "10px 0 0 0" }}
-                  className="!text-[20px text-black  font-bold capitalize"
-                >
-                  - {user?.role}
-                </Typography>
-              </Box>
-            </Box>
+      {/* Collapse Toggle (Desktop only) */}
+      {!forceOpen && (
+        <button
+          onClick={handleToggleCollapse}
+          className="absolute -right-3 top-8 bg-primary text-white p-1.5 rounded-full shadow-lg hover:bg-indigo-600 transition-colors z-50 hidden lg:block"
+        >
+          {isCollapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
+        </button>
+      )}
+
+      {/* Header / Logo */}
+      <div className="flex items-center justify-center h-24 border-b border-gray-800">
+        <Link to="/admin/dashboard" className="flex items-center gap-3 px-2">
+          <div className="w-10 h-10 shrink-0 flex items-center justify-center">
+            <img src={logoImg} alt="Kairaa Logo" className="w-full h-full object-contain" />
+          </div>
+          {!activeCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col"
+            >
+              <span className="text-white font-bold text-sm leading-none tracking-wider font-poppins">
+                KAIRAA
+              </span>
+              <span className="text-gray-400 font-semibold text-[10px] uppercase tracking-widest mt-1">
+                Blockchain Academy
+              </span>
+            </motion.div>
           )}
+        </Link>
+      </div>
 
-          <Box paddingLeft={isCollapsed ? undefined : "10px"}>
-            <Item
-              title="Dashboard"
-              to="/admin"
-              icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black capitalize font-bold">
-              {!isCollapsed && "Data"}
-            </Typography>
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 scrollbar-hide">
+        
+        {/* Main Section */}
+        <div className="mb-6">
+          {!activeCollapsed && (
+            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              Overview
+            </p>
+          )}
+          <NavItem title="Dashboard" to="/admin/dashboard" icon={FiGrid} isCollapsed={activeCollapsed} />
+        </div>
 
-            <Item
-              title="Users"
-              to="/admin/users"
-              icon={<GroupsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Registrations"
-              to="/admin/registrations"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black capitalize font-bold">
-              {!isCollapsed && "Content"}
-            </Typography>
-            <Item
-              title="Create Course"
-              to="/admin/create-course"
-              icon={<VideoCallIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-             <Item
-              title="Live Courses"
-              to="/admin/courses"
-              icon={<OndemandVideoIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-             <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black capitalize font-bold">
-              {!isCollapsed && "Customization"}
-            </Typography>
-            <Item
-              title="Gallery Image"
-              to="/admin/upload-gallery-image"
-              icon={<WebIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+        {/* Data Management Section */}
+        <div className="mb-6">
+          {!activeCollapsed && (
+            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              Management
+            </p>
+          )}
+          <NavItem title="Users" to="/admin/users" icon={FiUsers} isCollapsed={activeCollapsed} />
+          <NavItem title="Courses" to="/admin/courses" icon={FiBookOpen} isCollapsed={activeCollapsed} />
+          <NavItem title="Registrations" to="/admin/registrations" icon={FiClipboard} isCollapsed={activeCollapsed} />
+          <NavItem title="Course Purchases" to="/admin/orders" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
+        </div>
 
-               <Item
-              title="Edit Gallery Image"
-              to="/admin/edit-gallery-image"
-              icon={<WysiwygIcon  />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-              {/* <Item
-              title="Categories"
-              to="/admin/categories"
-              icon={<WysiwygIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
-            <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black  capitalize font-bold">
-              {!isCollapsed && "Controllers"}
-            </Typography>
-            <Item
-              title="Manage Team"
-              to="/admin/team"
-              icon={<PeopleOutlineRoundedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-             {/* <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black  capitalize font-bold">
-              {!isCollapsed && "Analytics"}
-            </Typography>
-               <Item
-              title="Course Analytics"
-              to="/admin/courses-analytics"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-               <Item
-              title="Order Analytics"
-              to="/admin/order-analytics"
-              icon={<MapOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-              <Item
-              title="User Analytics"
-              to="/admin/users-analytics"
-              icon={<ManageHistoryIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            /> */}
-             <Typography variant="h6" sx={{ m: "15px 0 5px 20px" }} className="!text[18px] text-black capitalize font-bold">
-              {!isCollapsed && "Extras"}
-            </Typography>
-            <Item
-              title="Settings"
-              to="/admin/settings"
-              icon={<SettingsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-          </Box>
-        </Menu>
-      </ProSidebar>
-    </Box>
+        {/* Content Section */}
+        <div className="mb-6">
+          {!activeCollapsed && (
+            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              Content
+            </p>
+          )}
+          <NavItem title="Blogs" to="/admin/manage-blogs" icon={FiFileText} isCollapsed={activeCollapsed} />
+          <NavItem title="Gallery" to="/admin/edit-gallery-image" icon={FiImage} isCollapsed={activeCollapsed} />
+        </div>
+
+        {/* System Section */}
+        <div className="mb-6">
+          {!activeCollapsed && (
+            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+              System
+            </p>
+          )}
+          <NavItem title="Audit Logs" to="/admin/audit-logs" icon={FiShield} isCollapsed={activeCollapsed} />
+          <NavItem title="Settings" to="/admin/settings" icon={FiSettings} isCollapsed={activeCollapsed} />
+        </div>
+      </div>
+
+      {/* Footer / Logout */}
+      <div className="p-4 border-t border-gray-800">
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-colors group"
+        >
+          <FiLogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+          {!activeCollapsed && <span className="ml-4 text-sm font-medium">Log out</span>}
+        </button>
+      </div>
+    </motion.aside>
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

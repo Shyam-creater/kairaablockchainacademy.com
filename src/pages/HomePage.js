@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
 import CustomModel from "../utils/CustomModel.js";
-import Hero from "../components/Hero";
+import { ProvettaHero, ProvettaWelcomeSection, ProvettaInfoSection, ProvettaBannerSection, ProvettaCoursesSection, ProvettaWhyChooseUsSection, ProvettaTestimonialsSection, ProvettaFAQSection, ProvettaContactSection } from "../components/HomeLayoutComponents.js";
 import Header from "../components/Header";
 import Heading from "../components/Heading";
-import SliderComp from "../components/SliderComp.js";
-import Getstarted from "../components/Getstarted.js";
-import Faq from "../components/Faq.js";
-import Carousel from "../components/Carousel.js";
 import Footer from "../components/Footer.js";
 import EnquiryForm from "../utils/EnquiryForm.js";
 
@@ -48,11 +44,15 @@ const HomePage = () => {
         route={route}
       />
 
-      <SliderComp  />
-      <Hero />
-      <Carousel />
-      <Getstarted />
-      <Faq />
+      <ProvettaHero />
+      <ProvettaWelcomeSection />
+      <ProvettaInfoSection />
+      <ProvettaBannerSection />
+      <ProvettaCoursesSection />
+      <ProvettaWhyChooseUsSection />
+      <ProvettaTestimonialsSection />
+      <ProvettaFAQSection />
+      <ProvettaContactSection />
       <Footer />
 
       { isModalOpen && (

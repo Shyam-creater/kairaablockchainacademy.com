@@ -3,6 +3,7 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import { redis } from "../utils/redis.js";
 import jwt from "jsonwebtoken";
 import { updateAccessToken } from "../controllers/user.controller.js";
+import { User } from "../models/userModel.js";
 
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
   
@@ -30,16 +31,26 @@ if(!decoded){
         return next(new ErrorHandler(error.message, 500));
       }
     } else {
-      const user = await redis.get(decoded.id);
+      console.log("Token not expired, checking redis");
+      let userSession = await redis.get(decoded.id);
+      let userObj;
 
-      if (!user) {
-        return next(
-          new ErrorHandler("Please login ", 400)
-        );
+      if (!userSession) {
+        console.log("Redis session empty, querying DB for user id:", decoded.id);
+        const dbUser = await User.findById(decoded.id);
+        if (!dbUser) {
+          console.log("User not found in DB");
+          return next(new ErrorHandler("Please login ", 400));
+        }
+        console.log("User found in DB, setting req.user");
+        userObj = dbUser;
+      } else {
+        console.log("User found in Redis");
+        userObj = JSON.parse(userSession);
       }
 
-      req.user = JSON.parse(user);
-
+      req.user = userObj;
+      console.log("Calling next() from auth.js");
       next();
     }
   });

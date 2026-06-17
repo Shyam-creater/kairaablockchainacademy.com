@@ -1,82 +1,106 @@
-import React, { useState,useEffect } from 'react';
-import { styles } from '../styles/style';
+import React, { useState, useEffect } from 'react';
 import { toast } from "react-hot-toast";
 import { useUpdatePasswordMutation } from '../redux/features/user/userApi';
 
 const ChangePassword = () => {
-const[oldPassword, setOldPassword]=useState("");
-const [newPassword, setNewPassword]=useState("");
-const[confirmPassword, setConfirmPassword]=useState("");
-const [updatePassword, { isSuccess, error }] = useUpdatePasswordMutation();
-const passwordChangeHandler = async (e) => {
-  e.preventDefault();
-  if (newPassword !== confirmPassword) {
-    toast.error("Passwords do not match");
-  } else {
-    await updatePassword({ oldPassword, newPassword });
-  }
-};
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [updatePassword, { isSuccess, error }] = useUpdatePasswordMutation();
 
-useEffect(() => {
-  if (isSuccess) {
-    toast.success("Password changed successfully");
-  }
-  if (error) {
-    if ("data" in error) {
-      const errorData = error;
-      toast.error(errorData.data.message);
+  const passwordChangeHandler = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+    } else {
+      await updatePassword({ oldPassword, newPassword });
     }
-  }
-}, [isSuccess, error]);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Password changed successfully");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    if (error) {
+      if ("data" in error) {
+        toast.error(error.data.message);
+      }
+    }
+  }, [isSuccess, error]);
 
   return (
-    <div className=' w-full pl-7 px-2 800px:pl-8'>
-<h1 className='block text-[25px] 800px:text-[30px] font-poppins text-center font-semibold p-8 text-black '>Change Password</h1>
-<div className='w-full flex justify-center  '>
-<form onSubmit={passwordChangeHandler}>
-          <div className="800px:w-[30vw] w-[50vw]">
-            <div className="w-[100%]">
-              <label className={`${styles.label} block `}>Old password:</label>
-              <input
-                type="text"
-                className={`${styles.input} w-[95%] mb-4 `}
-                required
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-              />
-            </div>
-            <div className="w-[100%] pt-2">
-              <label className={`${styles.label} block `}>New password:</label>
-              <input
-                type="text"
-                className={`${styles.input} w-[95%] mb-4 `}
-                required
+    <div className="w-full">
+      <div className="mb-8 border-b border-slate-200 pb-6">
+        <h2 className="text-3xl font-bold text-slate-800 font-headingFont">
+          Security Settings
+        </h2>
+        <p className="text-slate-500 mt-2 text-base">
+          Update your password to keep your account secure.
+        </p>
+      </div>
 
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </div>
-            <div className="w-[100%] pt-2">
-              <label className={`${styles.label} block `}>Confirm new password:</label>
-              <input
-                type="text"
-                className={`${styles.input} w-[95%] mb-4 800px:mb-0`}
-                required
-              
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+      <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm">
+        <form onSubmit={passwordChangeHandler} className="w-full max-w-lg space-y-6">
+          
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Current Password
+            </label>
             <input
-              className={` ${styles.button} mt-8 text-black  `}
-              type="submit"
-              value="Update"
+              type="password"
+              required
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              placeholder="Enter current password"
+              className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0975DE] focus:ring-1 focus:ring-[#0975DE] transition-colors"
             />
           </div>
-        </form>
-</div>
-    </div>
-  )
-}
+          
+          <hr className="border-slate-100 my-6" />
 
-export default ChangePassword
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              New Password
+            </label>
+            <input
+              type="password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0975DE] focus:ring-1 focus:ring-[#0975DE] transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your new password"
+              className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0975DE] focus:ring-1 focus:ring-[#0975DE] transition-colors"
+            />
+          </div>
+
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="px-6 py-3 bg-[#0975DE] hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors w-full sm:w-auto"
+            >
+              Update Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default ChangePassword;

@@ -1,33 +1,36 @@
-import Ratings from "../Admin/Course/Ratings.js";
-import React, { FC } from "react";
-import { AiOutlineUnorderedList } from "react-icons/ai";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const CourseCard = ({ item, isProfile }) => {
   return (
     <Link
       to={!isProfile ? `/courses/${item._id}` : `course-access/${item._id}`}
+      className="block h-full"
     >
-        {/* transition-transform duration-1000 ease-in-out hover:scale-110 group-hover:filter */}
-      <div className="p-2  shadow-lg bg-slate-100 rounded-md 
-    transition-transform duration-1000 ease-in-out hover:scale-110 group-hover:filter
-      ">
-        <img
-          src={item?.thumbnail?.url}
-          width={600}
-          height={300}
-          className="rounded w-full h-full object-cover"
-          alt="course-banner"
-        />
-        <br />
-        <div className="flex flex-col gap-4 items-center justify-center ">
-          <h1 className="font-Poppins text-xl text-black font-bold text-center">
-            {item.name}
-          </h1>
-          <button className="bg-gradient-to-r from-cyan-500 to-[#CB77F7] text-lg text-white rounded p-3 hover:bg-blue-600 mx-4 my-2">
-            Enroll Now
-          </button>
+      <div className="group flex flex-col justify-between p-3 bg-white border border-slate-100 hover:border-slate-200 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden h-full">
+        
+        {/* Image */}
+        <div className="relative rounded-none overflow-hidden mb-3 h-44 bg-slate-50">
+          <img
+            src={item?.thumbnail?.url}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            alt="course-banner"
+          />
         </div>
+
+        {/* Title */}
+        <h1 className="text-sm font-bold text-[#1C1678] mb-3 text-center leading-snug px-1 font-headingFont">
+          {item.name}
+        </h1>
+
+        {/* Button */}
+        <div className="pt-3 border-t border-slate-100 w-full">
+  <button className="relative w-full overflow-hidden bg-transparent border-2 border-[#1C1678] text-[#1C1678] font-semibold py-2.5 rounded-full text-xs tracking-wider uppercase transition-colors duration-300 group-hover:text-white">
+    <span className="absolute inset-0 w-0 bg-gradient-to-r from-orange-500 to-[#1C1678] transition-all duration-500 ease-out group-hover:w-full rounded-full"></span>
+    <span className="relative z-10">Enroll Now</span>
+  </button>
+</div>
+
       </div>
     </Link>
   );

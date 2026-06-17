@@ -135,7 +135,7 @@ export const createorder = CatchAsyncError(async (req, res) => {
 
     const user = await User.findById(req?.user?._id);
 
-    const courseExistInUser = user?.courses?.some(
+    const courseExistInUser = user?.courses?.some( 
       (course) => course._id.toString() === req.body.couresId.toString()
     );
     if (courseExistInUser) {
@@ -147,22 +147,14 @@ export const createorder = CatchAsyncError(async (req, res) => {
 
     }
     instance.orders.create(req.body.data, async function (err, order) {
-      
-
       if (err) {
-
+        console.error("Razorpay Order Creation Error details:", err);
         return res.status(500).json({
           message: "Something Went Wrong",
         });
       }
-      // if(order){
-        
-        return res.status(200).json(order);
-      }
-      
-    // }
-  
-  );
+      return res.status(200).json(order);
+    });
   }
   catch (err) {
     return res.status(500).json({
@@ -172,3 +164,172 @@ export const createorder = CatchAsyncError(async (req, res) => {
 }
 
 );
+
+export const createManualOrder = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId, transactionId } = req.body;
+    const userId = req.user?._id;
+
+    if (!courseId || !transactionId) {
+      return next(new ErrorHandler("Course ID and Transaction ID are required", 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    const courseExistInUser = user?.courses?.some(
+      (course) => course._id.toString() === courseId.toString()
+    );
+    if (courseExistInUser) {
+      return next(new ErrorHandler("You have already purchased this course", 400));
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    const orderData = {
+      courseId,
+      userId,
+      payment_info: {
+        method: "UPI_QR",
+        transactionId,
+        status: "pending",
+      },
+    };
+
+    const order = await Order.create(orderData);
+
+    // Send email to admin
+    const mailData = {
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+      courseName: course.name,
+      price: course.price,
+      transactionId,
+    };
+
+    try {
+      const html = await ejs.renderFile(
+        path.join(__dirname, "../mails/manual-payment-request.ejs"),
+        mailData
+      );
+
+      await sendMail({
+        email: "support@kairaaacademy.com",
+        subject: "New Manual Course Enrollment Request",
+        template: "manual-payment-request.ejs",
+        data: mailData,
+      });
+    } catch (mailErr) {
+      console.error("Failed to send manual payment email to admin:", mailErr.message);
+    }
+
+    // Add push notification for admin
+    await Notification.create({
+      user: userId,
+      title: "New Manual Enrollment Request",
+      message: `${user.name} requested manual activation for ${course.name} (UTR: ${transactionId})`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Payment verification details submitted successfully",
+      order,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// Update order status - only for admin
+export const updateOrderStatus = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { orderId, status } = req.body;
+
+    if (!orderId || !status) {
+      return next(new ErrorHandler("Order ID and Status are required", 400));
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return next(new ErrorHandler("Order not found", 404));
+    }
+
+    if (order.payment_info.status === "verified") {
+      return next(new ErrorHandler("Order is already verified", 400));
+    }
+
+    if (status === "verified") {
+      const user = await User.findById(order.userId);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      const course = await Course.findById(order.courseId);
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+
+      // Add course to user if not already there
+      const courseExistInUser = user?.courses?.some(
+        (c) => c._id.toString() === course._id.toString()
+      );
+      if (!courseExistInUser) {
+        user?.courses.push(course?._id);
+        await redis.set(user._id.toString(), JSON.stringify(user));
+        await user?.save();
+      }
+
+      // Update course purchase count
+      course.purchased = (course.purchased || 0) + 1;
+      await course.save();
+
+      // Update order status
+      order.payment_info.status = "verified";
+      order.markModified("payment_info");
+      await order.save();
+
+      // Send email to student
+      const mailData = {
+        user: {
+          name: user.name,
+          email: user.email,
+        },
+        course: {
+          name: course.name,
+          price: course.price,
+        },
+        utr: order.payment_info.transactionId,
+      };
+
+      try {
+        await sendMail({
+          email: user.email,
+          subject: "Payment Verified & Enrollment Confirmed - Kairaa Blockchain Academy",
+          template: "manual-payment-verified.ejs",
+          data: mailData,
+        });
+      } catch (mailErr) {
+        console.error("Failed to send manual payment confirmation email to student:", mailErr.message);
+      }
+    } else {
+      order.payment_info.status = status;
+      order.markModified("payment_info");
+      await order.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      order,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});

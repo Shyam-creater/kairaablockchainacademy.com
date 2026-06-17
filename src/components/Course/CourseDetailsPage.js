@@ -16,7 +16,6 @@ const CourseDetailsPage = ({ id }) => {
 
 
   const { data: userData } = useLoadUserQuery(undefined, {});
-  const [currentUser, setCurrentUser] = useState(userData?.user);
 
 
 
@@ -43,7 +42,7 @@ const CourseDetailsPage = ({ id }) => {
             <CourseDetails
               data={data.course}
               // setRedirect={setRedirect}
-              currentUser={currentUser}
+              currentUser={userData?.user}
             />
           
         </div>
