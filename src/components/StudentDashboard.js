@@ -6,7 +6,7 @@ import {
   FiBell, FiMessageSquare, FiTrendingUp,
   FiArrowRight, FiCheckCircle, FiPlayCircle,
   FiMoreHorizontal, FiPlus, FiGithub, FiExternalLink, FiStar,
-  FiVideo, FiCalendar, FiSend, FiPaperclip, FiCircle, FiDownload, FiSearch, FiUpload, FiAlertCircle, FiLoader, FiArrowLeft, FiClock, FiFileText, FiHeart
+  FiVideo, FiCalendar, FiSend, FiPaperclip, FiCircle, FiDownload, FiSearch, FiUpload, FiAlertCircle, FiLoader, FiArrowLeft, FiClock, FiFileText, FiHeart, FiActivity
 } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 import CourseContent from "./Course/CourseContent";
@@ -39,6 +39,14 @@ const StudentDashboard = ({ user, courses }) => {
   const [activeCourseTab, setActiveCourseTab] = useState(0);
   const [pendingRecordingUrl, setPendingRecordingUrl] = useState(null);
   const [pendingRecordingTitle, setPendingRecordingTitle] = useState(null);
+
+  // Sync activeTab with URL parameter changes
+  useEffect(() => {
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
 
   // Initialize activeCourseId to first course if available
   useEffect(() => {
@@ -330,6 +338,7 @@ const StudentDashboard = ({ user, courses }) => {
     const [submitAssignment, { isLoading: isSubmitting }] = useSubmitAssignmentMutation();
     const [selectedTask, setSelectedTask] = useState(null);
     const [file, setFile] = useState("");
+    const [fileName, setFileName] = useState("");
 
     if (!activeCourseId) {
        return (
@@ -347,6 +356,7 @@ const StudentDashboard = ({ user, courses }) => {
     const handleFileChange = (e) => {
       const selectedFile = e.target.files?.[0];
       if (selectedFile) {
+        setFileName(selectedFile.name);
         const reader = new FileReader();
         reader.onload = () => { if (reader.readyState === 2) setFile(reader.result); };
         reader.readAsDataURL(selectedFile);
@@ -360,6 +370,7 @@ const StudentDashboard = ({ user, courses }) => {
         toast.success("Assignment submitted for review!");
         setSelectedTask(null);
         setFile("");
+        setFileName("");
         refetch();
       } catch (error) {
         toast.error(error?.data?.message || "Failed to submit assignment");
@@ -390,7 +401,7 @@ const StudentDashboard = ({ user, courses }) => {
                                <FiClock /> Due: {formatDateSafe(task.dueDate)}
                             </div>
                          </div>
-                         <button onClick={() => { setSelectedTask(task); setFile(""); }} className="bg-[#111827] text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-[#374151] transition-colors shrink-0 ml-4">
+                         <button onClick={() => { setSelectedTask(task); setFile(""); setFileName(""); }} className="bg-[#111827] text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-[#374151] transition-colors shrink-0 ml-4">
                             Submit Work
                          </button>
                       </div>
@@ -454,10 +465,10 @@ const StudentDashboard = ({ user, courses }) => {
                 </div>
                 <div className="mb-6">
                    <div className="relative border-2 border-dashed border-[#E5E7EB] rounded-2xl hover:border-[#111827] bg-[#F8FAFC] transition-colors p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
-                      <input type="file" accept=".pdf,.doc,.docx,.zip,.rar" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                      <input type="file" accept=".pdf,.doc,.docx,.zip,.rar" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                       <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] group-hover:text-[#111827] group-hover:scale-110 transition-all mb-3"><FiUpload size={20} /></div>
-                      <p className="text-sm font-bold text-[#111827] mb-1">{file ? file.name : "Click to upload or drag and drop"}</p>
-                      <p className="text-xs text-[#6B7280]">PDF, DOCX, ZIP up to 50MB</p>
+                      <p className="text-sm font-bold text-[#111827] mb-1 z-0">{fileName ? fileName : "Click to upload or drag and drop"}</p>
+                      <p className="text-xs text-[#6B7280] z-0">PDF, DOCX, ZIP up to 50MB</p>
                    </div>
                 </div>
                 <button onClick={handleSubmit} disabled={isSubmitting || !file} className={`w-full py-3.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 ${file ? 'bg-[#111827] text-white hover:bg-[#374151] shadow-md hover:shadow-lg' : 'bg-[#F1F5F9] text-[#9CA3AF] cursor-not-allowed'} transition-all`}>
@@ -1156,6 +1167,40 @@ const WorkspaceAskDoubt = () => {
     const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
     const [answers, setAnswers] = useState({});
     const [result, setResult] = useState(null);
+    const [hasStarted, setHasStarted] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(null);
+
+    // Helpers to format dates
+    const formatDateStr = (dateString) => dateString ? new Date(dateString).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "N/A";
+    
+    // Timer format
+    const formatTime = (seconds) => {
+      if (seconds === null) return "";
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = (seconds % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    };
+
+    // Timer effect
+    useEffect(() => {
+      let timerId;
+      if (hasStarted && timeLeft !== null && timeLeft > 0) {
+        timerId = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerId);
+              handleSubmit();
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+      return () => clearInterval(timerId);
+    }, [hasStarted, timeLeft]);
+
+    const answersRef = React.useRef(answers);
+    useEffect(() => { answersRef.current = answers; }, [answers]);
 
     if (!activeCourseId) {
        return (
@@ -1169,11 +1214,11 @@ const WorkspaceAskDoubt = () => {
 
     const handleSubmit = async () => {
       if (!quiz) return;
-      const ansArray = quiz.questions.map((_, i) => answers[i] ?? -1);
+      const ansArray = quiz.questions.map((_, i) => answersRef.current[i] ?? -1);
       try {
         const res = await submitQuiz({ quizId: quiz._id, answers: ansArray }).unwrap();
         setResult(res);
-      } catch (err) { toast.error("Failed to submit quiz"); }
+      } catch (err) { toast.error(err?.data?.message || err?.message || "Failed to submit quiz"); console.error(err); }
     };
 
     return (
@@ -1204,13 +1249,76 @@ const WorkspaceAskDoubt = () => {
                 <div className="w-24 h-24 bg-[#F0FDF4] text-[#10B981] rounded-full flex items-center justify-center mx-auto mb-6"><FiAward size={48} /></div>
                 <h2 className="text-3xl font-black text-[#111827] mb-2">Quiz Completed!</h2>
                 <p className="text-xl font-bold text-[#374151] mb-8">You scored: <span className="text-[#10B981]">{result.score}</span> / {quiz.questions.length}</p>
-                <button onClick={() => { setSelectedSection(""); setResult(null); setAnswers({}); }} className="bg-[#111827] text-white px-8 py-3 rounded-xl font-bold">Take Another Quiz</button>
+                <button onClick={() => { setSelectedSection(""); setResult(null); setAnswers({}); setHasStarted(false); setTimeLeft(null); }} className="bg-[#111827] text-white px-8 py-3 rounded-xl font-bold">Take Another Quiz</button>
+             </div>
+           ) : !hasStarted ? (
+             <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 shadow-sm">
+                <div className="flex justify-between items-center mb-6 border-b border-[#F3F4F6] pb-6">
+                   <h2 className="text-2xl font-bold text-[#111827]">{quiz.sectionName || "Quiz"}</h2>
+                   <button onClick={() => setSelectedSection("")} className="text-sm font-bold text-[#9CA3AF] hover:text-[#111827]">Cancel</button>
+                </div>
+                
+                <div className="space-y-6 text-[#374151]">
+                  {quiz.instructions && (
+                    <div className="bg-[#F9FAFB] p-5 rounded-xl border border-[#E5E7EB]">
+                      <h3 className="font-bold text-[#111827] mb-2">Instructions</h3>
+                      <p className="text-sm">{quiz.instructions}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 p-4 border border-[#E5E7EB] rounded-xl">
+                      <FiClock className="text-[#3B82F6] text-xl" />
+                      <div>
+                        <p className="text-xs text-[#6B7280] font-bold uppercase tracking-wider">Time Limit</p>
+                        <p className="font-bold text-[#111827]">{quiz.timeLimit ? `${quiz.timeLimit} Minutes` : "No Limit"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 border border-[#E5E7EB] rounded-xl">
+                      <FiActivity className="text-[#10B981] text-xl" />
+                      <div>
+                        <p className="text-xs text-[#6B7280] font-bold uppercase tracking-wider">Attempts</p>
+                        <p className="font-bold text-[#111827]">Max {quiz.maxAttempts || 3}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 border border-[#E5E7EB] rounded-xl">
+                      <FiCalendar className="text-[#F59E0B] text-xl" />
+                      <div>
+                        <p className="text-xs text-[#6B7280] font-bold uppercase tracking-wider">Available From</p>
+                        <p className="font-bold text-[#111827] text-sm">{formatDateStr(quiz.availableFrom)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 border border-[#E5E7EB] rounded-xl">
+                      <FiCalendar className="text-[#EF4444] text-xl" />
+                      <div>
+                        <p className="text-xs text-[#6B7280] font-bold uppercase tracking-wider">Available Until</p>
+                        <p className="font-bold text-[#111827] text-sm">{formatDateStr(quiz.availableUntil)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-[#F3F4F6]">
+                   <button onClick={() => {
+                     setHasStarted(true);
+                     if (quiz.timeLimit) setTimeLeft(quiz.timeLimit * 60);
+                   }} className="w-full py-4 rounded-xl font-bold text-lg transition-colors bg-[#111827] text-white hover:bg-[#374151]">
+                     Start Quiz Now
+                   </button>
+                </div>
              </div>
            ) : (
              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 shadow-sm">
                 <div className="flex justify-between items-center mb-8 border-b border-[#F3F4F6] pb-6">
-                   <h2 className="text-xl font-bold text-[#111827]">{quiz.title}</h2>
-                   <button onClick={() => setSelectedSection("")} className="text-sm font-bold text-[#9CA3AF] hover:text-[#111827]">Cancel</button>
+                   <h2 className="text-xl font-bold text-[#111827]">{quiz.sectionName || "Quiz"}</h2>
+                   <div className="flex gap-4 items-center">
+                     {quiz.timeLimit && (
+                       <div className="text-sm font-bold text-[#EF4444] bg-[#FEF2F2] px-3 py-1.5 rounded-lg flex items-center gap-2">
+                         <FiClock/> {formatTime(timeLeft)} Limit
+                       </div>
+                     )}
+                     <button onClick={() => { setHasStarted(false); setAnswers({}); setTimeLeft(null); }} className="text-sm font-bold text-[#9CA3AF] hover:text-[#111827]">Cancel</button>
+                   </div>
                 </div>
                 <div className="space-y-10 overflow-y-auto max-h-[50vh] pr-4">
                    {quiz.questions.map((q, qIndex) => (

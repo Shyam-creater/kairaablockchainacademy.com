@@ -107,7 +107,7 @@ const AdminSidebar = ({ forceOpen, onMobileClose }) => {
       {!forceOpen && (
         <button
           onClick={handleToggleCollapse}
-          className="absolute -right-3 top-8 bg-primary text-white p-1.5 rounded-full shadow-lg hover:bg-indigo-600 transition-colors z-50 hidden lg:block"
+          className="absolute -right-3 top-8 bg-primary text-white p-1.5 rounded-full shadow-lg hover:bg-indigo-600 transition-colors z-[150] hidden lg:block"
         >
           {isCollapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
         </button>

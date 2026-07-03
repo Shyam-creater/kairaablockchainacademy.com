@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ThemeSwitcher from "../../utils/ThemeSwitcher";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FiWifi } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { useGetNotificationsQuery, useUpdateNotificationMutation } from "../../redux/features/admin/adminApi.js";
 import { format } from "timeago.js";
 import { io } from "socket.io-client";
@@ -27,14 +28,28 @@ const DashboardHeader = () => {
   }, []);
 
   const notifications = data?.notifications || [];
-  const unreadCount = notifications.filter((n) => n.status === "unread").length;
+  const unreadNotifications = notifications.filter((n) => n.status === "unread");
+  const unreadCount = unreadNotifications.length;
 
-  const handleMarkAsRead = async (id) => {
+  const navigate = useNavigate();
+
+  const handleMarkAsRead = async (e, id) => {
+    if (e) e.stopPropagation();
     try {
       await updateNotification(id).unwrap();
       refetch();
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleNotificationClick = async (item) => {
+    if (item.status === "unread") {
+      await handleMarkAsRead(null, item._id);
+    }
+    if (item.url) {
+      setOpen(false);
+      navigate(item.url);
     }
   };
 
@@ -66,17 +81,21 @@ const DashboardHeader = () => {
           <h5 className="text-center text-[18px] font-bold text-gray-800 p-3 sticky top-0 bg-white border-b border-gray-100 z-20">
             Notifications
           </h5>
-          {notifications.length === 0 ? (
+          {unreadNotifications.length === 0 ? (
             <p className="p-4 text-center text-sm text-gray-500">No notifications yet.</p>
           ) : (
-            notifications.map((item) => (
-              <div key={item._id} className={`font-poppins border-b border-gray-100 ${item.status === "unread" ? "bg-blue-50/50" : "bg-white"}`}>
+            unreadNotifications.map((item) => (
+              <div 
+                key={item._id} 
+                onClick={() => handleNotificationClick(item)}
+                className={`font-poppins border-b border-gray-100 cursor-pointer ${item.status === "unread" ? "bg-blue-50/50 hover:bg-blue-100/50" : "bg-white hover:bg-gray-50"}`}
+              >
                 <div className="w-full flex items-center justify-between p-3 pb-1">
                   <p className={`text-sm ${item.status === "unread" ? "font-bold text-gray-800" : "font-semibold text-gray-600"}`}>
                     {item.title}
                   </p>
                   {item.status === "unread" && (
-                    <button onClick={() => handleMarkAsRead(item._id)} className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
+                    <button onClick={(e) => handleMarkAsRead(e, item._id)} className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
                       Mark as read
                     </button>
                   )}

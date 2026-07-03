@@ -20,7 +20,7 @@ const AdminLayout = ({ title, subtitle, action, children }) => {
     <AdminProtected>
       <div className="flex h-screen bg-[#0B0F19] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0B0F19] to-black font-sans overflow-hidden text-slate-200">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block z-40">
+        <div className="hidden lg:block relative z-[100]">
           <AdminSidebar />
         </div>
 

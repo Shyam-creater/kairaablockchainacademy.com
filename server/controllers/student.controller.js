@@ -232,8 +232,8 @@ export const getCourseAssignmentTasks = CatchAsyncError(async (req, res, next) =
     const batch = await Batch.findOne({ courseId, students: studentId });
     const batchId = batch ? batch._id : null;
 
-    const tasks = await AssignmentTask.find({ 
-      courseId, 
+    const tasks = await AssignmentTask.find({
+      courseId,
       staffId: order.assignedStaffId,
       $or: [{ batchId: null }, { batchId }]
     }).sort({ createdAt: -1 });
@@ -262,14 +262,14 @@ export const getStudentMeetings = CatchAsyncError(async (req, res, next) => {
     const batchId = batch ? batch._id : null;
 
     // Fetch meetings created for this course by the assigned staff, filtered by batch
-    const meetings = await Meeting.find({ 
-      courseId, 
+    const meetings = await Meeting.find({
+      courseId,
       staffId: order.assignedStaffId,
       $or: [{ batchId: null }, { batchId }]
     }).lean().sort({ date: 1 });
 
     const attendances = await Attendance.find({ studentId, courseId }).lean();
-    
+
     // Calculate overall attendance percentage:
     const pastMeetings = meetings.filter(m => new Date(m.date) < new Date());
     const totalAllowed = pastMeetings.length;
@@ -328,7 +328,7 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
 
     // 1. Fetch Progress & Calculate Completed Lessons + Learning Hours
     const progressRecords = await Progress.find({ userId: studentId }).populate("courseId");
-    
+
     let totalCompletedLessons = 0;
     let totalLearningMinutes = 0;
 
@@ -364,7 +364,7 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
     const orders = await Order.find({ userId: studentId }).sort({ createdAt: -1 });
     let totalAllowedMeetings = 0;
     let totalAttended = 0;
-    
+
     let currentCourseName = "Kairaa Learner";
     let totalLessonsInCurrentCourse = 0;
     if (orders.length > 0) {
@@ -377,25 +377,25 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
 
     for (const order of orders) {
       const batch = await Batch.findOne({ courseId: order.courseId, "students.userId": studentId });
-      
+
       const meetingsQuery = {
-         courseId: order.courseId,
-         status: "completed",
-         $or: [
-           { batchId: null },
-           ...(batch ? [{ batchId: batch._id }] : [])
-         ]
+        courseId: order.courseId,
+        status: "completed",
+        $or: [
+          { batchId: null },
+          ...(batch ? [{ batchId: batch._id }] : [])
+        ]
       };
-      
+
       const meetings = await Meeting.find(meetingsQuery);
       totalAllowedMeetings += meetings.length;
-      
+
       if (meetings.length > 0) {
         const attended = await Attendance.countDocuments({
-           studentId: studentId,
-           courseId: order.courseId,
-           meetingId: { $in: meetings.map(m => m._id) },
-           status: { $in: ["present", "late"] }
+          studentId: studentId,
+          courseId: order.courseId,
+          meetingId: { $in: meetings.map(m => m._id) },
+          status: { $in: ["present", "late"] }
         });
         totalAttended += attended;
       }
@@ -405,12 +405,12 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
     if (totalAllowedMeetings > 0) {
       attendancePercentage = Math.round((totalAttended / totalAllowedMeetings) * 100);
     }
-    
+
     // 4. Generate Weekly Progress based on real Live Class Attendance
     const today = new Date();
     const currentDayOfWeek = today.getDay(); // 0=Sun, 1=Mon...
     const mappedDay = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // 0=Mon, 6=Sun
-    
+
     // Calculate start of the week (Monday) and end of the week (Sunday)
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - mappedDay);
@@ -427,27 +427,27 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
     }).sort({ createdAt: -1 });
 
     let weeklyProgress = Array(7).fill(false);
-    
+
     // Calculate Weekly Progress
     allAttendances.forEach(att => {
-       const attDate = new Date(att.createdAt);
-       if (attDate >= startOfWeek && attDate <= endOfWeek) {
-         const attDay = attDate.getDay();
-         const mapIndex = attDay === 0 ? 6 : attDay - 1;
-         weeklyProgress[mapIndex] = true;
-       }
+      const attDate = new Date(att.createdAt);
+      if (attDate >= startOfWeek && attDate <= endOfWeek) {
+        const attDay = attDate.getDay();
+        const mapIndex = attDay === 0 ? 6 : attDay - 1;
+        weeklyProgress[mapIndex] = true;
+      }
     });
 
     // Calculate Learning Streak based on real Attendance
     const uniqueDates = [...new Set(allAttendances.map(a => new Date(a.createdAt).toISOString().split('T')[0]))];
-    
+
     let calcCurrentStreak = 0;
     let calcBestStreak = 0;
-    
+
     if (uniqueDates.length > 0) {
       const todayStr = new Date().toISOString().split('T')[0];
       const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
+
       // Calculate Current Streak
       if (uniqueDates[0] === todayStr || uniqueDates[0] === yesterdayStr) {
         calcCurrentStreak = 1;
@@ -461,12 +461,12 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
           }
         }
       }
-      
+
       // Calculate Longest/Best Streak
       let tempStreak = 1;
       calcBestStreak = 1;
       for (let i = 1; i < uniqueDates.length; i++) {
-        const prevDate = new Date(uniqueDates[i-1]);
+        const prevDate = new Date(uniqueDates[i - 1]);
         prevDate.setDate(prevDate.getDate() - 1);
         if (uniqueDates[i] === prevDate.toISOString().split('T')[0]) {
           tempStreak++;
@@ -481,40 +481,40 @@ export const getDashboardMetrics = CatchAsyncError(async (req, res, next) => {
     // Note: Progress model doesn't store timestamp per lesson, distributing total for chart
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const learningAnalytics = days.map((day, index) => {
-        let hours = 0;
-        let xp = 0;
-        if (totalLearningMinutes > 0) {
-            const base = (totalLearningMinutes / 60) / 7;
-            hours = parseFloat((base * (0.5 + Math.random())).toFixed(1));
-            xp = Math.floor(hours * 100);
-        }
-        return { name: day, hours, xp };
+      let hours = 0;
+      let xp = 0;
+      if (totalLearningMinutes > 0) {
+        const base = (totalLearningMinutes / 60) / 7;
+        hours = parseFloat((base * (0.5 + Math.random())).toFixed(1));
+        xp = Math.floor(hours * 100);
+      }
+      return { name: day, hours, xp };
     });
 
     // 6. Upcoming Meetings
     let upcomingMeetings = [];
     if (orders.length > 0) {
-       upcomingMeetings = await Meeting.find({
-           courseId: { $in: orders.map(o => o.courseId) },
-           status: { $in: ["scheduled", "ongoing"] }
-       }).sort({ date: 1 }).limit(2);
+      upcomingMeetings = await Meeting.find({
+        courseId: { $in: orders.map(o => o.courseId) },
+        status: { $in: ["scheduled", "ongoing"] }
+      }).sort({ date: 1 }).limit(2);
     }
 
     // 7. Pending Assignments
     let pendingAssignments = [];
     if (orders.length > 0) {
-       const allTasks = await AssignmentTask.find({
-           courseId: { $in: orders.map(o => o.courseId) }
-       });
-       const submitted = await Assignment.find({ studentId: studentId });
-       const submittedTitles = submitted.map(s => s.assignmentTitle);
-       
-       pendingAssignments = allTasks.filter(task => !submittedTitles.includes(task.title)).slice(0, 3);
+      const allTasks = await AssignmentTask.find({
+        courseId: { $in: orders.map(o => o.courseId) }
+      });
+      const submitted = await Assignment.find({ studentId: studentId });
+      const submittedTitles = submitted.map(s => s.assignmentTitle);
+
+      pendingAssignments = allTasks.filter(task => !submittedTitles.includes(task.title)).slice(0, 3);
     }
 
     // 8. Initialize/Fetch New Mission Control Metrics
     let successScore = await StudentSuccessScore.findOne({ studentId });
-    if (!successScore) successScore = await StudentSuccessScore.create({ studentId, score: 78 }); 
+    if (!successScore) successScore = await StudentSuccessScore.create({ studentId, score: 78 });
 
     let roadmap = await StudentRoadmap.findOne({ studentId });
     if (!roadmap && orders.length > 0) {
@@ -621,22 +621,22 @@ export const submitProject = CatchAsyncError(async (req, res, next) => {
     let project = await Project.findOne({ studentId, projectTaskId });
 
     if (project) {
-       project.submissionLink = submissionLink;
-       project.status = 'pending';
-       if(message) {
-         project.replies.push({ sender: 'student', message });
-       }
-       await project.save();
+      project.submissionLink = submissionLink;
+      project.status = 'pending';
+      if (message) {
+        project.replies.push({ sender: 'student', message });
+      }
+      await project.save();
     } else {
-       project = await Project.create({
-         studentId,
-         courseId,
-         staffId: task.staffId,
-         projectTaskId,
-         submissionLink,
-         status: 'pending',
-         replies: message ? [{ sender: 'student', message }] : [],
-       });
+      project = await Project.create({
+        studentId,
+        courseId,
+        staffId: task.staffId,
+        projectTaskId,
+        submissionLink,
+        status: 'pending',
+        replies: message ? [{ sender: 'student', message }] : [],
+      });
     }
 
     res.status(201).json({

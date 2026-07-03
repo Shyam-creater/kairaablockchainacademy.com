@@ -37,9 +37,23 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 app.use(helmet()); // Secure HTTP headers
 app.use(mongoSanitize()); // Prevent NoSQL injection attacks
 
+const corsOptions = {
+  credentials: true,
+  origin: [
+    "https://kairaablockchainacademy.com",
+    "https://kairaaacademy.com",
+    "http://localhost:3000",
+  ],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 150, // limit each IP to 150 requests per windowMs
+  max: 3000, // Increased limit to support frequent notification polling
   message: "Too many requests from this IP, please try again after 15 minutes",
   standardHeaders: true,
   legacyHeaders: false,
@@ -78,19 +92,7 @@ app.use(morgan(function (tokens, req, res) {
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 
-const corsOptions = {
-  credentials: true,
-  origin: [
-    "https://kairaablockchainacademy.com",
-    "https://kairaaacademy.com",
-    "http://localhost:3000",
-  ],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-};
 
-app.use(cors(corsOptions));
 // routes
 app.use("/api/v1/", userRouter);
 

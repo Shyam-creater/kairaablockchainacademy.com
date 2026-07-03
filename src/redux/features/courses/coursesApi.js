@@ -110,6 +110,15 @@ export const courseApi = apiSlice.injectEndpoints({
       }),
     }),
 
+    approveQuizAttempt: builder.mutation({
+      query: (attemptId) => ({
+        url: "quiz/admin/approve",
+        method: "POST",
+        body: { attemptId },
+        credentials: "include",
+      }),
+    }),
+
     // Certificate
     generateCertificate: builder.mutation({
       query: (courseId) => ({
@@ -276,6 +285,7 @@ export const {
   useMarkLessonWatchedMutation,
   useGetQuizForSectionQuery,
   useSubmitQuizMutation,
+  useApproveQuizAttemptMutation,
   useGenerateCertificateMutation,
   useGetMyCertificatesQuery,
   useVerifyCertificateQuery,

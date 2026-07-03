@@ -25,6 +25,11 @@ const quizAttemptSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved"],
+      default: "pending",
+    },
     timeTaken: {
       type: Number, // in seconds
     },

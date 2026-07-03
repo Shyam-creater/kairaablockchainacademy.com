@@ -117,11 +117,11 @@ export const checkCertificateEligibility = async (studentId, courseId) => {
     let projectStatus = "No Projects";
     let projectMet = true;
     if (projectTasks.length > 0) {
-       const projects = await Project.find({ studentId, courseId });
-       const approvedProjects = projects.filter(p => p.status === "approved").length;
-       projectMet = approvedProjects >= projectTasks.length;
-       projectStatus = projectMet ? "Approved" : (projects.length > 0 ? "Pending/Revision" : "Not Submitted");
-       if (!projectMet) isEligible = false;
+      const projects = await Project.find({ studentId, courseId });
+      const approvedProjects = projects.filter(p => p.status === "approved").length;
+      projectMet = approvedProjects >= projectTasks.length;
+      projectStatus = projectMet ? "Approved" : (projects.length > 0 ? "Pending/Revision" : "Not Submitted");
+      if (!projectMet) isEligible = false;
     }
     stats.push({
       label: "Project Approval",
@@ -166,9 +166,9 @@ export const checkCertificateEligibility = async (studentId, courseId) => {
 
   } catch (error) {
     console.error("Eligibility Check Error:", error);
-    return { 
-      isEligible: false, 
-      stats: [{ label: "Error", value: "Failed to evaluate", target: "N/A", met: false, type: "error" }] 
+    return {
+      isEligible: false,
+      stats: [{ label: "Error", value: "Failed to evaluate", target: "N/A", met: false, type: "error" }]
     };
   }
 };

@@ -1,6 +1,7 @@
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import Batch from "../models/batchModel.js";
+import Notification from "../models/notificationModel.js";
 import {
   getDashboardSummaryService,
   getDashboardTrendsService,
@@ -186,8 +187,19 @@ export const assignStaff = CatchAsyncError(async (req, res, next) => {
         userId: staffId,
         type: "system",
         title: "New Student Assignment",
-        message
+        message,
+        url: "/staff/dashboard"
       });
+
+      if (result.userId) {
+        await Notification.create({
+          userId: result.userId,
+          type: "general",
+          title: "Staff Assigned",
+          message: `Staff ${staff.name} has been assigned for your course.`,
+          url: "/profile"
+        });
+      }
 
       if (staff && staff.email) {
         try {

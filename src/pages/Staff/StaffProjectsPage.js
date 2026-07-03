@@ -15,10 +15,15 @@ import { FiCheckSquare, FiClock, FiActivity, FiUser, FiFileText, FiSend, FiMessa
 import { format } from "timeago.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-const fmtDate = (iso) =>
-  iso
-    ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : "—";
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  let d = new Date(iso);
+  if (iso.length === 10 && iso.includes("-")) {
+    const [y, m, day] = iso.split("-");
+    d = new Date(y, m - 1, day);
+  }
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
 
 const fmtDateTime = (iso) =>
   iso
@@ -57,8 +62,9 @@ const DateInput = ({ value, onChange }) => {
   // We store internally as yyyy-mm-dd for the native input
   const toInputVal = (iso) => {
     if (!iso) return "";
+    if (iso.length === 10 && iso.includes("-")) return iso; // already yyyy-mm-dd
     const d = new Date(iso);
-    if (isNaN(d)) return iso; // already yyyy-mm-dd
+    if (isNaN(d)) return iso;
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
@@ -84,6 +90,7 @@ const DateInput = ({ value, onChange }) => {
           // Pass the raw yyyy-mm-dd string up so the parent can store & send it
           onChange(e.target.value);
         }}
+        onClick={(e) => e.target.showPicker && e.target.showPicker()}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       />
     </div>

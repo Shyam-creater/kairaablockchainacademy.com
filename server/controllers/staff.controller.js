@@ -262,8 +262,9 @@ export const scheduleMeeting = CatchAsyncError(async (req, res, next) => {
       const batch = await Batch.findById(batchId).populate("students", "name email");
       if (batch) targetStudents = batch.students;
     } else {
-      const orders = await Order.find({ assignedStaffId: staffId, courseId }).populate("userId", "name email");
-      targetStudents = orders.map(o => o.userId).filter(u => u != null);
+      const orders = await Order.find({ assignedStaffId: staffId, courseId });
+      const userIds = orders.map(o => o.userId).filter(Boolean);
+      targetStudents = await User.find({ _id: { $in: userIds } });
     }
 
     const message = `A new meeting '${topic}' has been scheduled for ${new Date(date).toLocaleString()}.`;
@@ -273,7 +274,8 @@ export const scheduleMeeting = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "meeting",
         title: "New Meeting Scheduled",
-        message
+        message,
+        url: "/profile?tab=meetings"
       });
 
       if (student.email) {
@@ -344,6 +346,42 @@ export const uploadMeetingRecording = CatchAsyncError(async (req, res, next) => 
     meeting.status = "completed"; // Mark as completed when recording is uploaded
     await meeting.save();
 
+    // Notify students about the recording
+    const Notification = (await import("../models/notificationModel.js")).default;
+    const orders = await Order.find({ courseId: meeting.courseId, assignedStaffId: meeting.staffId });
+    const userIds = orders.map(o => o.userId).filter(Boolean);
+    const { User } = await import("../models/userModel.js");
+    const targetStudents = await User.find({ _id: { $in: userIds } });
+    
+    const hasRecording = !!recordingUrl;
+    const hasMaterial = !!materialFile || (materials && materials.length > 0);
+    
+    let notifyTitle = "Meeting Update";
+    let notifyMessage = `Updates are available for meeting '${meeting.topic}'.`;
+    
+    if (hasRecording && hasMaterial) {
+      notifyTitle = "Meeting Recording & Materials Available";
+      notifyMessage = `The recording and notes for meeting '${meeting.topic}' are now available.`;
+    } else if (hasRecording) {
+      notifyTitle = "Meeting Recording Available";
+      notifyMessage = `The recording for meeting '${meeting.topic}' is now available.`;
+    } else if (hasMaterial) {
+      notifyTitle = "Meeting Materials Available";
+      notifyMessage = `The notes/materials for meeting '${meeting.topic}' are now available.`;
+    }
+
+    for (const student of targetStudents) {
+      if (student._id) {
+        await Notification.create({
+          userId: student._id,
+          type: "meeting",
+          title: notifyTitle,
+          message: notifyMessage,
+          url: "/profile?tab=meetings"
+        });
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: "Recording uploaded successfully",
@@ -407,7 +445,8 @@ export const replyToDoubt = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "doubt",
         title: "Doubt Replied",
-        message: notificationMessage
+        message: notificationMessage,
+        url: "/profile?tab=ask-doubt"
       });
 
       if (student.email) {
@@ -442,6 +481,18 @@ export const resolveDoubt = CatchAsyncError(async (req, res, next) => {
     );
 
     if (!doubt) return next(new ErrorHandler("Doubt not found", 404));
+
+    // Notify student
+    const Notification = (await import("../models/notificationModel.js")).default;
+    if (doubt.studentId) {
+      await Notification.create({
+        userId: doubt.studentId,
+        type: "doubt",
+        title: "Doubt Resolved",
+        message: `Your doubt regarding '${doubt.title}' has been marked as resolved.`,
+        url: "/profile?tab=ask-doubt"
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -533,7 +584,8 @@ export const reviewAssignment = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "assignment",
         title: "Assignment Reviewed",
-        message: notificationMessage
+        message: notificationMessage,
+        url: `/profile?tab=assignments`
       });
 
       if (student.email) {
@@ -591,18 +643,21 @@ export const createAssignmentTask = CatchAsyncError(async (req, res, next) => {
       const batch = await Batch.findById(batchId).populate("students", "name email");
       if (batch) targetStudents = batch.students;
     } else {
-      const orders = await Order.find({ assignedStaffId: staffId, courseId }).populate("userId", "name email");
-      targetStudents = orders.map(o => o.userId).filter(u => u != null);
+      const orders = await Order.find({ assignedStaffId: staffId, courseId });
+      const userIds = orders.map(o => o.userId).filter(Boolean);
+      const { User } = await import("../models/userModel.js");
+      targetStudents = await User.find({ _id: { $in: userIds } });
     }
 
-    const message = `A new assignment '${title}' has been posted. Due date: ${new Date(dueDate).toLocaleDateString()}.`;
+    const message = `Staff assigned you a task '${title}'. Instructions: ${description}. Due date: ${new Date(dueDate).toLocaleDateString()}.`;
 
     for (const student of targetStudents) {
       await Notification.create({
         userId: student._id,
         type: "assignment",
         title: "New Assignment Posted",
-        message
+        message,
+        url: `/profile?tab=assignments`
       });
 
       if (student.email) {
@@ -742,8 +797,10 @@ export const sendAttendanceReminder = CatchAsyncError(async (req, res, next) => 
 
     await Notification.create({
       userId: studentId,
+      type: "system",
       title: "Attendance Reminder",
       message,
+      url: "/profile"
     });
 
     res.status(200).json({ success: true, message: "Reminder sent successfully" });
@@ -1010,6 +1067,15 @@ export const recommendCertificate = CatchAsyncError(async (req, res, next) => {
       notes
     });
 
+    const Notification = (await import("../models/notificationModel.js")).default;
+    await Notification.create({
+      userId: studentId,
+      type: "system",
+      title: "Certificate Recommendation",
+      message: "You have been recommended for a certificate!",
+      url: "/profile"
+    });
+
     res.status(201).json({
       success: true,
       message: "Student recommended for certificate successfully",
@@ -1034,6 +1100,31 @@ export const createProjectTask = CatchAsyncError(async (req, res, next) => {
       description,
       dueDate,
     });
+
+    const Notification = (await import("../models/notificationModel.js")).default;
+    
+    // Find target students
+    let targetStudents = [];
+    if (batchId) {
+      const Batch = (await import("../models/batchModel.js")).default;
+      const batch = await Batch.findById(batchId).populate("students", "_id");
+      if (batch) targetStudents = batch.students.map(s => s._id);
+    } else {
+      const Order = (await import("../models/orderModel.js")).default;
+      const orders = await Order.find({ assignedStaffId: staffId, courseId });
+      targetStudents = orders.map(o => o.userId).filter(Boolean);
+    }
+
+    const message = `Staff assigned you a new project task '${title}'. Due date: ${new Date(dueDate).toLocaleDateString()}.`;
+    for (const studentId of targetStudents) {
+      await Notification.create({
+        userId: studentId,
+        type: "project",
+        title: "New Project Task Assigned",
+        message,
+        url: `/profile?tab=projects`
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -1082,6 +1173,15 @@ export const staffReviewProject = CatchAsyncError(async (req, res, next) => {
     }
 
     await project.save();
+
+    const Notification = (await import("../models/notificationModel.js")).default;
+    await Notification.create({
+      userId: project.studentId,
+      type: "project",
+      title: "Project Reviewed",
+      message: `Your project has been reviewed. Status: ${status || 'updated'}.`,
+      url: `/profile?tab=projects`
+    });
 
     res.status(200).json({
       success: true,

@@ -16,8 +16,15 @@ import { FiCheckSquare, FiClock, FiAlertCircle, FiExternalLink, FiStar, FiActivi
 import { format } from "timeago.js";
 
 // ─── Date Helpers ─────────────────────────────────────────────────────────────
-const fmtDate = (iso) =>
-  iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  let d = new Date(iso);
+  if (iso.length === 10 && iso.includes("-")) {
+    const [y, m, day] = iso.split("-");
+    d = new Date(y, m - 1, day);
+  }
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
 const fmtDateTime = (iso) =>
   iso ? new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true }) : "—";
 const fmtTime = (iso) =>
@@ -427,7 +434,13 @@ const StaffAssignmentsPage = () => {
                                    <span className="text-primary">📅</span>
                                    <span className={taskDueDate ? "text-white text-sm" : "text-slate-500 text-sm"}>{taskDueDate ? fmtDate(taskDueDate) : "Select due date…"}</span>
                                  </div>
-                                 <input type="date" value={taskDueDate} onChange={e => setTaskDueDate(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                 <input 
+                                   type="date" 
+                                   value={taskDueDate} 
+                                   onChange={e => setTaskDueDate(e.target.value)} 
+                                   onClick={e => e.target.showPicker && e.target.showPicker()}
+                                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                 />
                                </div>
                              </div>
                             </div>

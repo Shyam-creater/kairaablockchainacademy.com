@@ -28,6 +28,9 @@ export const getQuizForSection = CatchAsyncError(async (req, res, next) => {
         passMark: quiz.passMark,
         timeLimit: quiz.timeLimit,
         maxAttempts: quiz.maxAttempts,
+        instructions: quiz.instructions,
+        availableFrom: quiz.availableFrom,
+        availableUntil: quiz.availableUntil,
         questions: safeQuestions,
       },
     });
@@ -74,6 +77,18 @@ export const submitQuiz = CatchAsyncError(async (req, res, next) => {
       score,
       passed,
     });
+
+    // Notify staff
+    const Notification = (await import("../models/notificationModel.js")).default;
+    if (quiz.staffId) {
+      await Notification.create({
+        userId: quiz.staffId,
+        type: "quiz",
+        title: "Quiz Submitted",
+        message: `A student has submitted the quiz '${quiz.sectionName}'.`,
+        url: "/staff/quizzes"
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -139,6 +154,26 @@ export const createOrUpdateQuiz = CatchAsyncError(async (req, res, next) => {
         negativeMarking,
         deductionPerWrongAnswer
       });
+    }
+
+    // Notify enrolled students
+    const Notification = (await import("../models/notificationModel.js")).default;
+    const Order = (await import("../models/orderModel.js")).default;
+    const orders = await Order.find({ courseId: quiz.courseId });
+    const userIds = orders.map(o => o.userId).filter(Boolean);
+    const { User } = await import("../models/userModel.js");
+    const targetStudents = await User.find({ _id: { $in: userIds } });
+    
+    for (const student of targetStudents) {
+      if (student._id) {
+        await Notification.create({
+          userId: student._id,
+          type: "quiz",
+          title: "New Quiz Available",
+          message: `A new quiz '${quiz.sectionName}' has been assigned to you.`,
+          url: "/profile?tab=quiz"
+        });
+      }
     }
 
     res.status(200).json({
@@ -279,6 +314,41 @@ export const getStudentResults = CatchAsyncError(async (req, res, next) => {
     res.status(200).json({
       success: true,
       results,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// Admin/Staff endpoint to manually approve quiz marks
+export const approveQuizAttempt = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { attemptId } = req.body;
+    const attempt = await QuizAttempt.findById(attemptId).populate("quizId", "sectionName").populate("userId", "name");
+    
+    if (!attempt) {
+      return next(new ErrorHandler("Quiz attempt not found", 404));
+    }
+
+    attempt.status = "approved";
+    await attempt.save();
+
+    // Notify student
+    const Notification = (await import("../models/notificationModel.js")).default;
+    if (attempt.userId && attempt.userId._id) {
+      await Notification.create({
+        userId: attempt.userId._id,
+        type: "quiz",
+        title: "Quiz Marks Approved",
+        message: `Your marks for quiz '${attempt.quizId?.sectionName || 'Assessment'}' have been approved.`,
+        url: "/profile?tab=quiz"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Quiz attempt approved successfully",
+      attempt,
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));

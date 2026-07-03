@@ -220,7 +220,7 @@ const WorkspaceProjects = ({ activeCourseId, user, globalCourseName }) => {
                                 required
                                 value={submissionLink}
                                 onChange={(e) => setSubmissionLink(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:border-blue-500 font-medium transition-colors !shadow-none"
+                                className="w-full text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:border-blue-500 font-medium transition-colors !shadow-none"
                                 placeholder="https://github.com/username/project"
                               />
                             </div>
@@ -229,7 +229,7 @@ const WorkspaceProjects = ({ activeCourseId, user, globalCourseName }) => {
                               <textarea 
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:border-blue-500 font-medium transition-colors !shadow-none min-h-[100px]"
+                                className="w-full text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:bg-white focus:border-blue-500 font-medium transition-colors !shadow-none min-h-[100px]"
                                 placeholder="Add any comments about your submission..."
                               />
                             </div>

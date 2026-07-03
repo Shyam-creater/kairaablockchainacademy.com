@@ -9,11 +9,13 @@ import {
   useGetStaffAssignedCoursesQuery,
   useGetQuizAnalyticsQuery,
   useGetQuizLeaderboardQuery,
-  useGetStudentResultsQuery
+  useGetStudentResultsQuery,
 } from "../../redux/features/staff/staffApi";
 import { 
-
-
+  useApproveQuizAttemptMutation,
+  useGetCourseContentQuery
+} from "../../redux/features/courses/coursesApi";
+import { 
   FiFileText, FiPlus, FiSave, FiEye, FiTrash2, FiClock, FiSettings, 
   FiAward, FiTrendingUp, FiActivity, FiDownload, FiCheckCircle, FiXCircle,
   FiCalendar, FiShuffle, FiImage, FiMinusCircle
@@ -125,12 +127,20 @@ const StaffQuizPage = () => {
   const [selectedCourse, setSelectedCourse] = useState("");
   const { data: quizzesData, refetch: refetchQuizzes } = useGetCourseQuizzesQuery(selectedCourse, { skip: !selectedCourse });
   const [createOrUpdateQuiz, { isLoading }] = useCreateOrUpdateQuizMutation();
+  const [approveQuizAttempt] = useApproveQuizAttemptMutation();
 
   useEffect(() => {
     if (uniqueCourses.length === 1 && !selectedCourse) {
       setSelectedCourse(uniqueCourses[0].id);
     }
   }, [uniqueCourses, selectedCourse]);
+
+  const { data: contentData } = useGetCourseContentQuery(selectedCourse, { skip: !selectedCourse });
+  const courseModules = React.useMemo(() => {
+    const s = new Set();
+    if (contentData?.content) contentData.content.forEach(l => s.add(l.videoSection));
+    return Array.from(s);
+  }, [contentData]);
 
   const [sectionName, setSectionName] = useState("");
   const [status, setStatus] = useState("draft");
@@ -162,7 +172,7 @@ const StaffQuizPage = () => {
     setPassMark(quiz.passMark || 70);
     setTimeLimit(quiz.timeLimit || 15);
     setMaxAttempts(quiz.maxAttempts || 3);
-    setQuestions(quiz.questions || []);
+    setQuestions(quiz.questions ? JSON.parse(JSON.stringify(quiz.questions)) : []);
   };
 
   const handleSaveQuiz = async () => {
@@ -190,8 +200,32 @@ const StaffQuizPage = () => {
       
       toast.success("Quiz saved successfully!");
       refetchQuizzes();
+      
+      // Reset form
+      setSectionName("");
+      setStatus("draft");
+      setInstructions("");
+      setAvailableFrom("");
+      setAvailableUntil("");
+      setShuffleQuestions(false);
+      setShuffleOptions(false);
+      setNegativeMarking(false);
+      setDeductionPerWrongAnswer(0);
+      setPassMark(70);
+      setTimeLimit(15);
+      setMaxAttempts(3);
+      setQuestions([]);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to save quiz");
+    }
+  };
+
+  const handleApproveAttempt = async (attemptId) => {
+    try {
+      await approveQuizAttempt(attemptId).unwrap();
+      toast.success("Quiz marks approved and student notified!");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to approve quiz attempt");
     }
   };
 
@@ -273,7 +307,16 @@ const StaffQuizPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NeonInput label="Quiz Title / Section" value={sectionName} onChange={e => setSectionName(e.target.value)} placeholder="e.g., Module 1 Assessment" />
+            <NeonSelect label="Select a Module" value={sectionName} onChange={e => setSectionName(e.target.value)}>
+              <option value="">-- Select Module --</option>
+              {courseModules.map((mod, i) => (
+                <option key={i} value={mod}>{mod}</option>
+              ))}
+              {/* Fallback for old custom sections */}
+              {sectionName && !courseModules.includes(sectionName) && (
+                <option value={sectionName}>{sectionName} (Custom)</option>
+              )}
+            </NeonSelect>
             <NeonSelect label="Status" value={status} onChange={e => setStatus(e.target.value)}>
               <option value="draft">Draft (Hidden)</option>
               <option value="published">Published (Visible)</option>
@@ -423,10 +466,15 @@ const StaffQuizPage = () => {
                   <td className="p-4 font-bold text-white">{res.userId?.name}</td>
                   <td className="p-4 text-xs">{res.quizId?.sectionName}</td>
                   <td className="p-4 font-bold">{res.score}%</td>
-                  <td className="p-4">
+                  <td className="p-4 flex items-center gap-2">
                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${res.passed ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}`}>
-                      {res.passed ? 'Passed' : 'Failed'}
+                      {res.status === 'approved' ? 'Approved' : (res.passed ? 'Passed' : 'Failed')}
                     </span>
+                    {res.status !== 'approved' && (
+                      <button onClick={() => handleApproveAttempt(res._id)} className="text-xs bg-primary/20 hover:bg-primary/40 text-primary px-2 py-1 rounded transition-colors">
+                        Approve
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

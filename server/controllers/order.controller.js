@@ -117,6 +117,15 @@ export const verifyorder = CatchAsyncError(async (req, res) => {
       payment_info: order?.items[0],
     };
     const orderData = await Order.create(data);
+
+    // Notify admin
+    await Notification.create({
+      userId: null,
+      title: "New Course Enrollment",
+      message: `${user?.name || 'A student'} enrolled in ${course?.name || 'a course'}`,
+      url: "/admin/users"
+    });
+
     res.status(201).json({
       success: true,
       orderData,
