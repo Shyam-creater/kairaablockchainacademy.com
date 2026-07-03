@@ -10,14 +10,14 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#7c3aed", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
+const COLORS = ["#00f2fe", "#3b82f6", "#10b981", "#f59e0b", "#fe0979"];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-3 text-sm">
-        <p className="font-semibold text-gray-700 truncate max-w-[180px]">{label}</p>
-        <p className="text-violet-600 font-bold">{payload[0].value} purchases</p>
+      <div className="bg-surface/80 backdrop-blur-md border border-slate-600 rounded-xl shadow-glass p-3 text-sm z-50 relative">
+        <p className="font-bold text-white mb-1 truncate max-w-[180px]">{label}</p>
+        <p className="text-primary font-bold">{payload[0].value} purchases</p>
       </div>
     );
   }
@@ -27,9 +27,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 const TopCoursesChart = ({ topCourses = [], loading }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-        <div className="h-6 w-40 bg-gray-100 rounded animate-pulse mb-4" />
-        <div className="h-52 bg-gray-50 rounded-xl animate-pulse" />
+      <div className="glass-panel p-6 h-full flex flex-col">
+        <div className="h-6 w-40 bg-white/10 rounded animate-pulse mb-4" />
+        <div className="flex-1 bg-white/5 rounded-xl animate-pulse min-h-[200px]" />
       </div>
     );
   }
@@ -42,27 +42,28 @@ const TopCoursesChart = ({ topCourses = [], loading }) => {
 
   if (!data.length) {
     return (
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 flex items-center justify-center h-52">
-        <p className="text-gray-400 text-sm">No course data yet</p>
+      <div className="glass-panel p-6 flex items-center justify-center h-full min-h-[250px]">
+        <p className="text-slate-400 text-sm font-bold uppercase tracking-wider">No course data yet</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-      <h3 className="text-base font-semibold text-gray-700 mb-4">
+    <div className="glass-panel p-6 h-full flex flex-col">
+      <h3 className="text-lg font-bold text-white tracking-tight mb-4">
         Top Courses by Purchases
       </h3>
-      <ResponsiveContainer width="100%" height={220}>
+      <div className="flex-1 w-full min-h-[220px]">
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
           layout="vertical"
           margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: "#9ca3af" }}
+            tick={{ fontSize: 11, fill: "#64748b", fontWeight: 600 }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
@@ -71,18 +72,19 @@ const TopCoursesChart = ({ topCourses = [], loading }) => {
             type="category"
             dataKey="name"
             width={130}
-            tick={{ fontSize: 11, fill: "#374151" }}
+            tick={{ fontSize: 11, fill: "#e2e8f0", fontWeight: 600 }}
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
           <Bar dataKey="purchased" radius={[0, 6, 6, 0]} barSize={20}>
             {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              <Cell key={i} fill={COLORS[i % COLORS.length]} style={{ filter: `drop-shadow(0 0 4px ${COLORS[i % COLORS.length]}80)` }} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 };

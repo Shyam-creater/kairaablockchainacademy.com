@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteGalleryImage, getAllGalleryImages, uploadGalleryImage, editGalleryImage } from "../controllers/gallery.Controller.js";
+import { deleteGalleryImage, getAllGalleryImages, uploadGalleryImage, editGalleryImage, getGalleryAlbums, updateGalleryFeatured } from "../controllers/gallery.Controller.js";
 import { isAuthenticated, authorizeRoles } from "../middleware/auth.js";
 
 
@@ -10,5 +10,10 @@ galleryRoute.post("/delete-image/:id",isAuthenticated,authorizeRoles("admin"),de
 galleryRoute.put("/edit-image/:id",isAuthenticated,authorizeRoles("admin"),editGalleryImage);
 galleryRoute.get("/get-all-images",getAllGalleryImages);
 
-export default galleryRoute;
+// Albums
+galleryRoute.get("/get-albums", getGalleryAlbums);
 
+// Featured Toggle
+galleryRoute.patch("/feature-image/:id", isAuthenticated, authorizeRoles("admin"), updateGalleryFeatured);
+
+export default galleryRoute;

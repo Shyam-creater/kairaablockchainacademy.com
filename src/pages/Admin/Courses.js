@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Heading from "../../components/Heading.js";
 import AdminLayout from "../../components/Admin/AdminLayout.js";
 import AllCourses from "../../components/Admin/Course/AllCourses.js";
-import CreateCourse from "../../components/Admin/Course/CreateCourse.js";
+import CourseBuilder from "../../components/Admin/CourseBuilder/CourseBuilder.js";
 import { FiPlus, FiArrowLeft } from "react-icons/fi";
 
 const Courses = () => {
@@ -23,8 +23,8 @@ const Courses = () => {
             onClick={() => setIsCreating(!isCreating)}
             className={`flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-none transition-all shadow-sm ${
               isCreating 
-                ? "bg-white border border-gray-200 hover:border-gray-300 text-gray-700" 
-                : "bg-primary hover:bg-indigo-700 text-white"
+                ? "btn-secondary" 
+                : "btn-primary"
             }`}
           >
             {isCreating ? (
@@ -41,8 +41,8 @@ const Courses = () => {
       >
         <div className="w-full h-full">
           {isCreating ? (
-            <div className="bg-white rounded-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
-              <CreateCourse />
+            <div className="w-full">
+              <CourseBuilder />
             </div>
           ) : (
             <AllCourses />

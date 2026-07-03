@@ -17,26 +17,31 @@ import {
 } from "../services/user.service.js";
 import { writeAuditLog } from "../services/admin.service.js";
 import Registration from "../models/registrationModel.js";
-
-
+import bcrypt from "bcryptjs";
+import ActivityLog from "../models/activityLogModel.js";
+import LoginHistory from "../models/loginHistoryModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const registrationUser = CatchAsyncError(async (req, res, next) => {
   try {
-    const { name, email, password, phoneNumber } = req.body;
+    const { name, email, password, phoneNumber, gender } = req.body;
     const isEmailExist = await User.findOne({ email });
 
     if (isEmailExist) {
-      return next(new ErrorHandler("Email already exist", 400));
+      return next(new ErrorHandler("Email already exists", 400));
     }
+
+    // Security Fix: Hash password BEFORE placing it in JWT to prevent plaintext exposure
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = {
       name,
       email,
-      password,
+      password: hashedPassword,
       phoneNumber,
+      gender,
     };
 
     const activationToken = createActivationToken(user);
@@ -56,7 +61,7 @@ export const registrationUser = CatchAsyncError(async (req, res, next) => {
       });
       res.status(201).json({
         success: true,
-        message: `Please check you email ${user.email} to activate your account`,
+        message: `Please check your email ${user.email} to activate your account`,
         activationToken: activationToken.token,
       });
     } catch (error) {
@@ -70,7 +75,8 @@ export const registrationUser = CatchAsyncError(async (req, res, next) => {
 });
 
 export const createActivationToken = (user) => {
-  const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
+  // Security Fix: 6-digit OTP
+  const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
   const token = jwt.sign(
     { user, activationCode },
@@ -91,32 +97,32 @@ export const activateUser = CatchAsyncError(async (req, res, next) => {
     let newUser;
     try {
       newUser = jwt.verify(activation_token, process.env.ACTIVATION_SECRET);
-      console.log("JWT verified:", newUser);
     } catch (error) {
-      console.error("JWT verification error:", error);
       return next(new ErrorHandler("Invalid or expired activation token", 400));
     }
-    console.log("newUser.activationCode", newUser.activationCode);
+
     if (newUser.activationCode !== activation_code) {
-      console.error(
-        "Activation code mismatch:",
-        newUser.activationCode,
-        activation_code
-      );
       return next(new ErrorHandler("Invalid activation code", 400));
     }
 
-    const { name, email, password,phoneNumber } = newUser.user;
+    const { name, email, password, phoneNumber, gender } = newUser.user;
     const existUser = await User.findOne({ email });
 
     if (existUser) {
-      return next(new ErrorHandler("User already exist", 400));
+      return next(new ErrorHandler("User already exists", 400));
     }
     const user = await User.create({
       name,
       email,
-      password,
-      phoneNumber
+      password, // this is already hashed from registrationUser
+      phoneNumber,
+      gender,
+      isVerified: true
+    });
+
+    await ActivityLog.create({
+      userId: user._id,
+      action: "ACCOUNT_CREATED",
     });
 
     res.status(201).json({
@@ -136,8 +142,8 @@ export const loginUser = CatchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("Please enter your email & password", 400));
     }
 
-    const user = await User.findOne({ email });
-    console.log(`user ${user}`);
+    // Security Fix: Explicitly select password since it's hidden by default now
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return next(new ErrorHandler("Invalid email or password", 400));
@@ -145,8 +151,28 @@ export const loginUser = CatchAsyncError(async (req, res, next) => {
 
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
-      return next(new ErrorHandler("Invalid password", 400));
+      return next(new ErrorHandler("Invalid email or password", 400)); // Changed to prevent user enumeration
     }
+
+    user.lastLogin = Date.now();
+    await user.save();
+
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "";
+    const userAgent = req.headers["user-agent"] || "Unknown Device";
+    
+    await LoginHistory.create({
+      userId: user._id,
+      ipAddress: ip,
+      browser: userAgent,
+    });
+
+    await ActivityLog.create({
+      userId: user._id,
+      action: "LOGIN_EVENT",
+      ipAddress: ip,
+      deviceInfo: userAgent,
+    });
+
     sendToken(user, 200, res);
   } catch (error) {
     console.log(error);
@@ -248,9 +274,11 @@ export const socialAuth = CatchAsyncError(async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      const newUser = await User.create({ email, name, avatar });
+      const newUser = await User.create({ email, name, avatar, lastLogin: Date.now() });
       sendToken(newUser, 200, res);
     } else {
+      user.lastLogin = Date.now();
+      await user.save();
       sendToken(user, 200, res);
     }
   } catch (error) {
@@ -383,7 +411,7 @@ export const updateUserRole = CatchAsyncError(async (req, res, next) => {
     const isUserExist = await User.findOne({ email });
     if (isUserExist) {
       const uid = isUserExist._id;
-      updateUserRoleService(res, uid, role);
+      await updateUserRoleService(res, uid, role);
       const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "";
       await writeAuditLog({
         actor: req.user,
@@ -452,3 +480,117 @@ export const courseRegistration=CatchAsyncError(async(req,res,next)=>{
     return next(new ErrorHandler(error.message, 500));
   }
 })
+// forgot password
+export const forgotPassword = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return next(new ErrorHandler('Please enter your email', 400));
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(new ErrorHandler('User not found with this email', 404));
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpiry = expiry;
+    await user.save();
+
+    const data = { user: { name: user.name }, resetPasswordOtp: otp };
+    try {
+      await sendMail({
+        email: user.email,
+        subject: 'Password Reset Request',
+        template: 'forgot-password-mail.ejs',
+        data,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'OTP sent to your email successfully',
+      });
+    } catch (error) {
+      user.resetPasswordOtp = undefined;
+      user.resetPasswordOtpExpiry = undefined;
+      await user.save();
+      return next(new ErrorHandler(error.message, 500));
+    }
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+// reset password
+export const resetPassword = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return next(new ErrorHandler('Please provide email, OTP and new password', 400));
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return next(new ErrorHandler('User not found', 404));
+    }
+
+    if (user.resetPasswordOtp !== otp) {
+      return next(new ErrorHandler('Invalid OTP', 400));
+    }
+
+    if (user.resetPasswordOtpExpiry < Date.now()) {
+      return next(new ErrorHandler('OTP has expired', 400));
+    }
+
+    user.password = newPassword;
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordOtpExpiry = undefined;
+    await user.save();
+    await redis.set(user._id, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully',
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const toggleFavorite = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId } = req.body;
+    if (!courseId) {
+      return next(new ErrorHandler('Course ID is required', 400));
+    }
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      return next(new ErrorHandler('User not found', 404));
+    }
+
+    const isFavorite = user.favorites.find((fav) => fav.courseId === courseId);
+
+    if (isFavorite) {
+      // Remove from favorites
+      user.favorites = user.favorites.filter((fav) => fav.courseId !== courseId);
+    } else {
+      // Add to favorites
+      user.favorites.push({ courseId });
+    }
+
+    await user.save();
+    await redis.set(user._id, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      message: isFavorite ? 'Removed from favorites' : 'Added to favorites',
+      user
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+

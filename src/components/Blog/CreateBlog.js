@@ -66,23 +66,23 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="800px:w-[80%] w-[90%] mx-auto my-8">
+    <div className="w-[90%] 800px:w-[80%] mx-auto mt-10 glass-panel p-6 800px:p-10 mb-10 block">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-neutral-200">
-        <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
-          <FiFileText className="text-primary-600" size={20} />
+      <div className="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+        <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+          <FiFileText className="text-primary" size={24} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-neutral-900">Create New Blog</h2>
-          <p className="text-sm text-neutral-500">Fill in the details to publish a new blog post</p>
+          <h2 className="text-2xl font-bold text-white tracking-wide">Create New Blog</h2>
+          <p className="text-sm text-slate-400 mt-1">Fill in the details to publish a new blog post</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label htmlFor="blog-title" className={`${styles.label}`}>
-            Blog Title <span className="text-red-500">*</span>
+          <label htmlFor="blog-title" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            Blog Title <span className="text-danger">*</span>
           </label>
           <input
             type="text"
@@ -90,7 +90,7 @@ const CreateBlog = () => {
             required
             placeholder="Enter blog title"
             value={blogInfo.title}
-            className={`${styles.input} !rounded-lg`}
+            className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
             onChange={(e) => setBlogInfo({ ...blogInfo, title: e.target.value })}
           />
         </div>
@@ -98,8 +98,8 @@ const CreateBlog = () => {
         {/* Category & Tags */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label htmlFor="blog-category" className={`${styles.label}`}>
-              Category <span className="text-red-500">*</span>
+            <label htmlFor="blog-category" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Category <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -107,12 +107,12 @@ const CreateBlog = () => {
               required
               placeholder="e.g. Blockchain, DeFi, NFTs"
               value={blogInfo.category}
-              className={`${styles.input} !rounded-lg`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) => setBlogInfo({ ...blogInfo, category: e.target.value })}
             />
           </div>
           <div>
-            <label htmlFor="blog-tags" className={`${styles.label}`}>
+            <label htmlFor="blog-tags" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
               Tags
             </label>
             <input
@@ -120,7 +120,7 @@ const CreateBlog = () => {
               id="blog-tags"
               placeholder="e.g. Web3, Crypto, Smart Contracts"
               value={blogInfo.tags}
-              className={`${styles.input} !rounded-lg`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) => setBlogInfo({ ...blogInfo, tags: e.target.value })}
             />
           </div>
@@ -128,8 +128,8 @@ const CreateBlog = () => {
 
         {/* Short Description */}
         <div>
-          <label htmlFor="blog-description" className={`${styles.label}`}>
-            Short Description <span className="text-red-500">*</span>
+          <label htmlFor="blog-description" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            Short Description <span className="text-danger">*</span>
           </label>
           <textarea
             id="blog-description"
@@ -137,15 +137,15 @@ const CreateBlog = () => {
             rows={3}
             placeholder="Brief summary shown on the blog card (max 200 chars)"
             value={blogInfo.description}
-            className={`${styles.input} !h-auto py-3 !rounded-lg resize-none`}
+            className="w-full bg-black/20 border border-slate-600 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500 resize-y"
             onChange={(e) => setBlogInfo({ ...blogInfo, description: e.target.value })}
           />
         </div>
 
         {/* Full Content */}
         <div>
-          <label htmlFor="blog-content" className={`${styles.label}`}>
-            Full Blog Content <span className="text-red-500">*</span>
+          <label htmlFor="blog-content" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            Full Blog Content <span className="text-danger">*</span>
           </label>
           <textarea
             id="blog-content"
@@ -153,14 +153,14 @@ const CreateBlog = () => {
             rows={10}
             placeholder="Write the full blog post content here..."
             value={blogInfo.content}
-            className={`${styles.input} !h-auto py-3 !rounded-lg resize-none`}
+            className="w-full bg-black/20 border border-slate-600 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500 resize-y"
             onChange={(e) => setBlogInfo({ ...blogInfo, content: e.target.value })}
           />
         </div>
 
         {/* Cover Image Upload */}
         <div>
-          <label className={`${styles.label}`}>
+          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
             Cover Image
           </label>
           <input
@@ -172,64 +172,61 @@ const CreateBlog = () => {
           />
           <label
             htmlFor="blog-image"
-            className={`mt-2 w-full min-h-[180px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
-              dragging
-                ? "border-primary-500 bg-primary-50"
-                : "border-neutral-200 bg-neutral-50 hover:border-primary-400 hover:bg-primary-50/50"
+            className={`w-full min-h-[200px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
+              dragging ? "border-primary bg-primary/10" : "border-white/20 bg-white/5 hover:border-primary/50 hover:bg-white/10"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
             {blogInfo.image ? (
-              <div className="relative w-full h-[200px]">
+              <div className="relative w-full h-[200px] p-2">
                 <img
                   src={blogInfo.image}
                   alt="Preview"
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); setBlogInfo({ ...blogInfo, image: "" }); }}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-danger/80 backdrop-blur text-white flex items-center justify-center hover:bg-danger transition-colors"
                 >
                   <FiX size={14} />
                 </button>
               </div>
             ) : (
-              <div className="text-center p-8">
-                <FiUploadCloud className="mx-auto text-neutral-400 mb-3" size={36} />
-                <p className="text-sm font-semibold text-neutral-600">
+              <div className="flex flex-col items-center justify-center text-slate-400 p-8">
+                <FiUploadCloud size={40} className="mb-3" />
+                <p className="text-sm font-medium text-white mb-1">
                   Click to upload or drag & drop
                 </p>
-                <p className="text-xs text-neutral-400 mt-1">PNG, JPG, WEBP up to 10MB</p>
+                <p className="text-xs text-slate-500">PNG, JPG, WEBP up to 10MB</p>
               </div>
             )}
           </label>
         </div>
 
-        {/* Submit */}
-        <div className="flex items-center gap-4 pt-2">
+        <div className="flex items-center justify-end gap-4 pt-6">
+          <button
+            type="button"
+            onClick={() => navigate("/admin/manage-blogs")}
+            className="h-[45px] px-8 flex items-center justify-center bg-white/5 text-white border border-slate-600 font-bold uppercase tracking-widest rounded-lg hover:bg-white/10 transition-all"
+          >
+            Cancel
+          </button>
           <button
             type="submit"
             disabled={isLoading}
-            className="px-8 py-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-60 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2"
+            className="h-[45px] px-8 flex items-center justify-center bg-primary/20 text-primary border border-primary/50 font-bold uppercase tracking-widest rounded-lg shadow-[0_0_15px_rgba(0,242,254,0.3)] hover:bg-primary hover:text-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin mr-2" />
                 Publishing...
               </>
             ) : (
               "Publish Blog"
             )}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/manage-blogs")}
-            className="px-8 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-xl transition-all duration-300"
-          >
-            Cancel
           </button>
         </div>
       </form>

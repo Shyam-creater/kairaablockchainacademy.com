@@ -34,6 +34,23 @@ const blogSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    authorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    status: {
+      type: String,
+      enum: ["Draft", "Published", "Archived"],
+      default: "Draft",
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

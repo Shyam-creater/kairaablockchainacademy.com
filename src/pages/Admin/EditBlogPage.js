@@ -12,11 +12,8 @@ const EditBlogPage = () => {
         description="Edit an existing blog post" 
         keywords="edit, blog, admin" 
       />
-      <AdminLayout 
-        title="Edit Blog Post" 
-        subtitle="Update the details or cover image for this blog post"
-      >
-        <div className="bg-white p-8 rounded-none border border-gray-100 shadow-sm">
+      <AdminLayout title="Edit Blog" subtitle="Update your blog post details">
+        <div className="w-full">
           <EditBlog />
         </div>
       </AdminLayout>

@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const emailRegexPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegexPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -11,7 +13,7 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, "Please enter you email"],
+      required: [true, "Please enter your email"],
       validate: {
         validator: function (value) {
           return emailRegexPattern.test(value);
@@ -22,13 +24,14 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-   
-      minlength: [6, "Password must be atleast 6 characters"],
+      minlength: [8, "Password must be at least 8 characters"],
+      select: false,
     },
     phoneNumber: {
       type: Number,
-      minlength: [10, "Phone number must be atleast 10 Numbers"],
       required: [true, "Please enter your phone number"],
+      unique: true,
+      sparse: true,
     },
     avatar: {
       public_id: String,
@@ -36,11 +39,35 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
+      enum: ["user", "staff", "admin"],
       default: "user",
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other", "Prefer not to say"],
+    },
+    bio: {
+      type: String,
+    },
+    expertiseTags: [
+      {
+        type: String,
+      },
+    ],
+    socialLinks: {
+      facebook: String,
+      twitter: String,
+      linkedin: String,
+      youtube: String,
+      website: String,
     },
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
     },
     isSuspended: {
       type: Boolean,
@@ -49,9 +76,37 @@ const userSchema = new mongoose.Schema(
     courses: [
       {
         courseId:String
-        // type:mongoose.Schema.Types.ObjectId
       },
     ],
+    favorites: [
+      {
+        courseId: String
+      }
+    ],
+    assignedCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course"
+      }
+    ],
+    tags: [
+      { type: String }
+    ],
+    healthScore: {
+      type: Number,
+      default: 100,
+    },
+    riskStatus: {
+      type: String,
+      enum: ["Active", "At Risk", "Dormant"],
+      default: "Active",
+    },
+    resetPasswordOtp: {
+      type: String,
+    },
+    resetPasswordOtpExpiry: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
@@ -61,17 +116,19 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
-  this.password = await bcrypt.hash(this.password, 10);
+  if (this.password && !this.password.startsWith('$2a$') && !this.password.startsWith('$2b$')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   next();
 });
 
 // sign access token
-
 userSchema.methods.SignAccessToken = function () {
   return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN, {
-    expiresIn: "100m",
+    expiresIn: "15m",
   });
 };
+
 // sign refresh token
 userSchema.methods.SignRefreshToken = function () {
   return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN, {
@@ -80,7 +137,6 @@ userSchema.methods.SignRefreshToken = function () {
 };
 
 // compare password
-
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

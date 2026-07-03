@@ -8,8 +8,8 @@ const UploadGalleryImagePage = () => {
   return (
     <AdminProtected>
       <Heading title="Upload Image - Admin" description="Upload a new gallery image" keywords="upload, gallery, admin" />
-      <AdminLayout title="Upload Gallery Image" subtitle="Add new media to the platform gallery">
-        <div className="bg-white p-8 rounded-none border border-gray-100 shadow-sm">
+      <AdminLayout title="Upload Gallery Image" subtitle="Add new media to the gallery">
+        <div className="w-full">
           <CreateGalleryImage />
         </div>
       </AdminLayout>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FiUploadCloud } from "react-icons/fi";
 import { styles } from "../../../styles/style";
 import toast from "react-hot-toast";
 
@@ -75,137 +76,205 @@ const CourseInformation = ({
   };
 
   return (
-    <div className="800px:w-[80%] w-[70%] ml-[10px] 800px:mx-auto my-auto mt-24 ">
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="" className={`${styles.label}`}>
+    <div className="w-full glass-panel p-6 800px:p-10">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6 md:gap-8">
+        {/* Course Name */}
+        <div className="w-full">
+          <label htmlFor="name" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
             Course Name
           </label>
           <input
             type="text"
             id="name"
             required
-            name=""
             placeholder="Blockchain Fundamentals"
             value={courseInfo.name}
-            className={`${styles.input}`}
+            className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
             onChange={(e) =>
               setCourseInfo({ ...courseInfo, name: e.target.value })
             }
           />
         </div>
-        <br />
-        <div className="">
-          <label htmlFor="" className={`${styles.label}`}>
+
+        {/* Course Description */}
+        <div className="w-full">
+          <label htmlFor="description" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
             Course Description
           </label>
           <textarea
-            name=""
-            id=""
+            id="description"
             cols={30}
-            rows={8}
-            placeholder="Course description"
-            className={`${styles.input} !h-min-24 py-2 `}
+            rows={5}
+            placeholder="Detailed course description..."
+            className="w-full min-h-[120px] bg-black/20 border border-slate-600 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500 resize-y"
             value={courseInfo.description}
             onChange={(e) =>
               setCourseInfo({ ...courseInfo, description: e.target.value })
             }
           ></textarea>
         </div>
-        <br />
-        <div className="w-full flex justify-between">
-          <div className="w-[45%]">
-            <label htmlFor="" className={`${styles.label}`}>
-              Course Price
+
+        {/* Pricing Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div>
+            <label htmlFor="price" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Course Price ($)
             </label>
             <input
               type="number"
-              id=""
+              id="price"
               required
-              name=""
               placeholder="29"
               value={courseInfo.price}
-              className={`${styles.input}`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) =>
                 setCourseInfo({ ...courseInfo, price: e.target.value })
               }
             />
           </div>
-          <div className="w-[45%]">
-            <label htmlFor="" className={`${styles.label}`}>
+          <div>
+            <label htmlFor="estimatedPrice" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
               Estimated Price (optional)
             </label>
             <input
               type="number"
-              id=""
+              id="estimatedPrice"
               required
-              name=""
-              placeholder="29"
+              placeholder="49"
               value={courseInfo.estimatedPrice}
-              className={`${styles.input}`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) =>
                 setCourseInfo({ ...courseInfo, estimatedPrice: e.target.value })
               }
             />
           </div>
         </div>
-        <br />
-        <div>
-          <label htmlFor="" className={`${styles.label}`}>
-            Course Tags
+
+        {/* Course Tags */}
+        <div className="w-full">
+          <label htmlFor="tags" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            Course Tags (comma separated)
           </label>
           <input
             type="text"
-            id="name"
+            id="tags"
             required
-            name=""
-            placeholder="Blockchain"
+            placeholder="Blockchain, Crypto, Web3"
             value={courseInfo.tags}
-            className={`${styles.input}`}
+            className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
             onChange={(e) =>
               setCourseInfo({ ...courseInfo, tags: e.target.value })
             }
           />
         </div>
-        <br />
-        <div className="w-full flex justify-between">
-          <div className="w-[45%]">
-            <label htmlFor="" className={`${styles.label}`}>
+
+        {/* Level and Demo URL Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div>
+            <label htmlFor="level" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
               Course Level
             </label>
             <input
               type="text"
-              id=""
+              id="level"
               required
-              name=""
-              placeholder="Begineer/Intermediate/Expert"
+              placeholder="Beginner / Intermediate / Expert"
               value={courseInfo.level}
-              className={`${styles.input}`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) =>
                 setCourseInfo({ ...courseInfo, level: e.target.value })
               }
             />
           </div>
-          <div className="w-[45%]">
-            <label htmlFor="" className={`${styles.label}`}>
-              Demo Url
+          <div>
+            <label htmlFor="demoUrl" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Demo Video Url
             </label>
             <input
               type="text"
-              id=""
+              id="demoUrl"
               required
-              name=""
-              placeholder=""
+              placeholder="https://youtube.com/..."
               value={courseInfo.demoUrl}
-              className={`${styles.input}`}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
               onChange={(e) =>
                 setCourseInfo({ ...courseInfo, demoUrl: e.target.value })
               }
             />
           </div>
         </div>
-        <br />
-        <div className="w-full ">
+
+        {/* New Course Expansion Fields */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div>
+            <label htmlFor="duration" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Course Duration
+            </label>
+            <input
+              type="text"
+              id="duration"
+              placeholder="e.g. 8 Weeks, 45 Hours"
+              value={courseInfo.duration}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
+              onChange={(e) =>
+                setCourseInfo({ ...courseInfo, duration: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label htmlFor="language" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Language
+            </label>
+            <input
+              type="text"
+              id="language"
+              placeholder="English"
+              value={courseInfo.language}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
+              onChange={(e) =>
+                setCourseInfo({ ...courseInfo, language: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div>
+            <label htmlFor="syllabusUrl" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Syllabus PDF URL (optional)
+            </label>
+            <input
+              type="text"
+              id="syllabusUrl"
+              placeholder="https://drive.google.com/..."
+              value={courseInfo.syllabusUrl}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all placeholder:text-slate-500"
+              onChange={(e) =>
+                setCourseInfo({ ...courseInfo, syllabusUrl: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex items-center gap-4 h-full pt-4">
+            <input
+              type="checkbox"
+              id="certificate"
+              checked={courseInfo.certificate}
+              onChange={(e) =>
+                setCourseInfo({ ...courseInfo, certificate: e.target.checked })
+              }
+              className="w-5 h-5 accent-primary cursor-pointer"
+            />
+            <label htmlFor="certificate" className="text-sm font-bold text-slate-300 cursor-pointer">
+              Includes Certification upon Completion
+            </label>
+          </div>
+        </div>
+
+        {/* Thumbnail Upload */}
+        <div className="w-full">
+          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+            Course Thumbnail Cover
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -215,8 +284,8 @@ const CourseInformation = ({
           />
           <label
             htmlFor="file"
-            className={`w-full min-h-[10vh]  border-[#00000026] p-3 border flex items-center justify-center ${
-              dragging ? "bg-blue-500" : "bg-transparent"
+            className={`w-full min-h-[200px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
+              dragging ? "border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,242,254,0.3)]" : "border-white/20 bg-white/5 hover:border-primary/50 hover:bg-white/10"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -225,27 +294,29 @@ const CourseInformation = ({
             {courseInfo.thumbnail ? (
               <img
                 src={courseInfo.thumbnail}
-                alt=""
-                className="mx-h-full w-full object-cover"
+                alt="Course Thumbnail"
+                className="max-h-[250px] w-full object-contain p-2 rounded-xl"
               />
             ) : (
-              <span>Choose a file or drag it here.</span>
+              <div className="flex flex-col items-center justify-center text-slate-400 group">
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-slate-600 flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:border-primary/50 transition-all group-hover:shadow-[0_0_15px_rgba(0,242,254,0.4)]">
+                  <FiUploadCloud size={30} className="text-slate-300 group-hover:text-primary transition-all" />
+                </div>
+                <span className="font-medium text-sm text-slate-300 group-hover:text-white transition-all">Click to browse or drag image here</span>
+                <span className="text-xs text-slate-500 mt-2">JPEG, PNG, GIF (Max 10MB)</span>
+              </div>
             )}
           </label>
         </div>
-        <br />
-        <div className="w-full flex items-center justify-end">
+
+        {/* Form Action */}
+        <div className="w-full flex items-center justify-end mt-4">
           <input
             type="submit"
-            value="Next"
-            className="w-full 800px:w-[180px] h-[40px] bg-blue-500 text-center text-[#fff] rounded mt-8 cursor-pointer"
-           
-              
-            
+            value="Next Step"
+            className="w-full md:w-[200px] h-[50px] btn-primary"
           />
         </div>
-        <br />
-        <br />
       </form>
     </div>
   );

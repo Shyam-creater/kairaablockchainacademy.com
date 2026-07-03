@@ -1,205 +1,174 @@
-import React, { useEffect, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { HiOutlineUser, HiOutlineMail, HiOutlineLockClosed, HiOutlineCheckCircle, HiOutlinePhone } from "react-icons/hi";
+import { useRegisterMutation } from "../../redux/features/auth/authApi";
 import { toast } from "react-hot-toast";
-import { useRegisterMutation } from "../../redux/features/auth/authApi.js";
-import logo2 from "../../carouselimages/Blockchain-Academy-Logo.png";
 
-const schema = Yup.object().shape({
-  name: Yup.string().required("Please enter your name!"),
-  email: Yup.string().email("Invalid email!").required("Please enter your email!"),
-  password: Yup.string().required("Please enter your password!").min(6),
-  phoneNumber: Yup.string().required("Please enter your phone number!").min(10),
-});
+const Signup = ({ setRoute, setOpen }) => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    gender: "",
+    interests: [],
+    goal: ""
+  });
 
-const Signup = ({ setRoute }) => {
-  const [show, setShow] = useState(false);
-  const [register, { data, error, isSuccess, isError }] = useRegisterMutation();
+  const [register, { data, isSuccess, error, isLoading }] = useRegisterMutation();
 
   useEffect(() => {
     if (isSuccess) {
-      const message = data?.message || "Registration successful!";
-      toast.success(message);
-      setRoute("Verification");
+      toast.success(data?.message || "Registration successful");
+      navigate("/verify");
     }
-    if (error && "data" in error) {
-      toast.error(error.data.message);
+    if (error) {
+      toast.error(error?.data?.message || "Registration failed");
     }
-  }, [isSuccess, setRoute, error, isError, data]);
+  }, [isSuccess, error, data, navigate]);
 
-  const formik = useFormik({
-    initialValues: { name: "", email: "", password: "", phoneNumber: "" },
-    validationSchema: schema,
-    onSubmit: async ({ name, email, password, phoneNumber }) => {
-      const payload = { name, email, password, phoneNumber };
-      await register(payload);
-    },
-  });
+  const nextStep = async (e) => {
+    e.preventDefault();
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      // Final submit
+      await register({
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        password: formData.password,
+        gender: formData.gender,
+      });
+    }
+  };
 
-  const { errors, touched, values, handleChange, handleSubmit } = formik;
-  
+  const handleInterest = (interest) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest) 
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }));
+  };
+
   return (
-    <div className="flex flex-col md:flex-row w-full h-[550px] animate-fade-in">
-      
-      {/* Redesigned Left Side: Premium Tech/Academy Look */}
-      <div className="hidden md:flex flex-col md:w-[45%] relative overflow-hidden p-10 justify-center items-center text-center">
-        {/* Dynamic Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
-        
-        {/* Animated Gradient Orbs matching Academy Theme */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-400/20 rounded-full blur-[80px] animate-pulse pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#CB77F7]/20 rounded-full blur-[80px] animate-pulse pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div className="relative z-10 w-full flex flex-col items-center justify-center h-full space-y-8">
-          <img src={logo2} className="h-12 object-contain filter brightness-0 invert" alt="Kairaa Blockchain Academy" />
-          
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 font-headingFont leading-tight">
-              Start Your<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-[#CB77F7]">Journey</span>
-            </h2>
-            <p className="text-sm text-blue-100 font-paraFont font-medium leading-relaxed max-w-[280px] mx-auto">
-              Join thousands of learners worldwide. Your journey to mastering blockchain starts today.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 w-full max-w-[280px] mt-8">
-             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 text-center rounded-2xl shadow-xl">
-                <p className="text-2xl font-bold text-white mb-1 font-headingFont">7K+</p>
-                <p className="text-[10px] uppercase tracking-wider text-cyan-300 font-bold">Students</p>
-             </div>
-             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 text-center rounded-2xl shadow-xl">
-                <p className="text-2xl font-bold text-white mb-1 font-headingFont">1K+</p>
-                <p className="text-[10px] uppercase tracking-wider text-cyan-300 font-bold">Courses</p>
-             </div>
-          </div>
-        </div>
+    <div className="w-full animate-fade-in">
+      {/* Progress Bar */}
+      <div className="flex gap-2 mb-8">
+        {[1, 2, 3].map(i => (
+          <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary shadow-[0_0_10px_rgba(0,242,254,0.5)]" : "bg-white/10"}`}></div>
+        ))}
       </div>
 
-      {/* Right Side: Clean Form */}
-      <div className="w-full md:w-[55%] flex flex-col justify-start p-6 sm:p-10 bg-white relative h-full overflow-y-auto scrollbar-hide">
-        <div className="mb-4 text-left mt-auto md:mt-0 pt-4 md:pt-0">
-          <h1 className="text-2xl font-bold text-slate-800 mb-1 font-headingFont tracking-tight">
-            Create an Account
-          </h1>
-          <p className="text-slate-500 text-sm">Sign up to kickstart your career.</p>
-        </div>
+      <form onSubmit={nextStep} className="w-full space-y-6">
         
-        <form onSubmit={handleSubmit} className="w-full space-y-3">
-          
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1" htmlFor="name">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              value={values.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              className={`w-full px-4 py-2.5 rounded-xl border bg-white shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all duration-300 ${
-                errors.name && touched.name ? "border-red-400 focus:ring-red-500/20" : "border-slate-200 focus:ring-cyan-500/20 focus:border-cyan-500 hover:border-cyan-400"
-              }`}
-            />
-            {errors.name && touched.name && (
-              <span className="text-red-500 text-[10px] font-medium pt-0.5 block animate-fade-in">{errors.name}</span>
-            )}
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1" htmlFor="phoneNumber">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              id="phoneNumber"
-              value={values.phoneNumber}
-              onChange={handleChange}
-              placeholder="e.g. 9876543210"
-              className={`w-full px-4 py-2.5 rounded-xl border bg-white shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all duration-300 ${
-                errors.phoneNumber && touched.phoneNumber ? "border-red-400 focus:ring-red-500/20" : "border-slate-200 focus:ring-cyan-500/20 focus:border-cyan-500 hover:border-cyan-400"
-              }`}
-            />
-            {errors.phoneNumber && touched.phoneNumber && (
-              <span className="text-red-500 text-[10px] font-medium pt-0.5 block animate-fade-in">{errors.phoneNumber}</span>
-            )}
-          </div>
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1" htmlFor="email">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={values.email}
-              onChange={handleChange}
-              placeholder="name@example.com"
-              className={`w-full px-4 py-2.5 rounded-xl border bg-white shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all duration-300 ${
-                errors.email && touched.email ? "border-red-400 focus:ring-red-500/20" : "border-slate-200 focus:ring-cyan-500/20 focus:border-cyan-500 hover:border-cyan-400"
-              }`}
-            />
-            {errors.email && touched.email && (
-              <span className="text-red-500 text-[10px] font-medium pt-0.5 block animate-fade-in">{errors.email}</span>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1" htmlFor="password">
-              Password
-            </label>
+        {/* STEP 1: Basic Info */}
+        {step === 1 && (
+          <div className="space-y-4 animate-fade-in">
+            <h2 className="text-xl font-bold text-white mb-6">Create your account</h2>
             <div className="relative">
-              <input
-                type={!show ? "password" : "text"}
-                name="password"
-                id="password"
-                value={values.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`w-full px-4 py-2.5 rounded-xl border bg-white shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all duration-300 pr-12 ${
-                  errors.password && touched.password ? "border-red-400 focus:ring-red-500/20" : "border-slate-200 focus:ring-cyan-500/20 focus:border-cyan-500 hover:border-cyan-400"
-                }`}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-600 transition-colors"
-                onClick={() => setShow(!show)}
-              >
-                {!show ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
-              </button>
+              <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input type="text" placeholder="Full Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
             </div>
-            {errors.password && touched.password && (
-              <span className="text-red-500 text-[10px] font-medium pt-0.5 block animate-fade-in">{errors.password}</span>
-            )}
+            <div className="relative">
+              <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input type="email" placeholder="Email Address" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+            </div>
+            <div className="relative">
+              <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input type="tel" placeholder="Mobile Number" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+            </div>
+            <div className="relative">
+              <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input type="password" placeholder="Password (min 8 chars)" required minLength={8} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+            </div>
+            <div className="relative">
+              <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <select required value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className={`w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer ${formData.gender ? 'text-white' : 'text-slate-400'}`}>
+                <option value="" disabled className="text-slate-900">Select Gender</option>
+                <option value="Male" className="text-slate-900">Male</option>
+                <option value="Female" className="text-slate-900">Female</option>
+                <option value="Other" className="text-slate-900">Other</option>
+                <option value="Prefer not to say" className="text-slate-900">Prefer not to say</option>
+              </select>
+            </div>
           </div>
+        )}
 
-          <div className="pt-2">
-            <button 
-              type="submit" 
-              className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-[#CB77F7] text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
-            >
-              Sign Up
+        {/* STEP 2: Interests */}
+        {step === 2 && (
+          <div className="space-y-4 animate-fade-in">
+            <h2 className="text-xl font-bold text-white mb-2">What are you interested in?</h2>
+            <p className="text-sm text-slate-400 mb-6">Select all that apply to personalize your journey.</p>
+            <div className="grid grid-cols-2 gap-3">
+              {["Blockchain", "Web3", "Smart Contracts", "DeFi", "NFTs", "Full Stack"].map(interest => (
+                <button
+                  key={interest}
+                  type="button"
+                  onClick={() => handleInterest(interest)}
+                  className={`p-4 rounded-xl border text-sm font-bold transition-all flex items-center justify-between ${
+                    formData.interests.includes(interest) 
+                      ? "border-primary bg-primary/10 text-primary shadow-[0_0_15px_rgba(0,242,254,0.2)]" 
+                      : "border-white/10 bg-white/5 text-slate-300 hover:border-white/30"
+                  }`}
+                >
+                  {interest}
+                  {formData.interests.includes(interest) && <HiOutlineCheckCircle size={18} />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: Goal */}
+        {step === 3 && (
+          <div className="space-y-4 animate-fade-in">
+            <h2 className="text-xl font-bold text-white mb-2">What's your primary goal?</h2>
+            <p className="text-sm text-slate-400 mb-6">This helps us recommend the right pathways.</p>
+            <div className="flex flex-col gap-3">
+              {["Career Change into Web3", "Skill Upgrade for Current Job", "Land an Internship", "Placement Preparation", "Freelance Development"].map(goal => (
+                <label
+                  key={goal}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4 ${
+                    formData.goal === goal 
+                      ? "border-accent bg-accent/10 text-accent shadow-[0_0_15px_rgba(139,92,246,0.2)]" 
+                      : "border-white/10 bg-white/5 text-slate-300 hover:border-white/30"
+                  }`}
+                >
+                  <input type="radio" name="goal" value={goal} checked={formData.goal === goal} onChange={e => setFormData({...formData, goal: e.target.value})} className="hidden" />
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.goal === goal ? "border-accent" : "border-slate-500"}`}>
+                    {formData.goal === goal && <div className="w-2.5 h-2.5 bg-accent rounded-full"></div>}
+                  </div>
+                  <span className="font-bold text-sm">{goal}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="pt-6 flex gap-3">
+          {step > 1 && (
+            <button type="button" onClick={() => setStep(step - 1)} className="px-6 py-4 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all">
+              Back
             </button>
-          </div>
+          )}
+          <button disabled={isLoading} type="submit" className="flex-1 py-4 bg-primary text-[#0B0F19] font-extrabold rounded-xl shadow-[0_0_20px_rgba(0,242,254,0.3)] hover:shadow-[0_0_30px_rgba(0,242,254,0.5)] transition-all disabled:opacity-50">
+            {isLoading ? "Registering..." : (step === 3 ? "Complete Registration" : "Continue")}
+          </button>
+        </div>
 
-          <p className="text-center pt-2 text-sm text-slate-500">
+        {step === 1 && (
+          <p className="text-center pt-6 text-sm text-slate-400">
             Already have an account?{" "}
-            <button
-              type="button"
-              className="text-blue-600 font-bold hover:text-blue-700 transition-colors hover:underline"
-              onClick={() => setRoute("Login")}
-            >
-              Sign In
-            </button>
+            <Link to="/login" className="text-white font-extrabold hover:text-primary transition-colors underline decoration-white/30 underline-offset-4">
+              Sign in
+            </Link>
           </p>
-        </form>
-      </div>
+        )}
+      </form>
     </div>
   );
 };

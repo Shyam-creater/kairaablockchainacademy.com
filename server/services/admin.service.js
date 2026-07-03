@@ -302,13 +302,57 @@ export const getOrdersSummaryService = async () => {
 /**
  * Get paginated orders
  */
-export const getPaginatedOrdersService = async ({ page = 1, limit = 15 }) => {
+export const getPaginatedOrdersService = async ({ page = 1, limit = 15, staffId = null }) => {
   const skip = (page - 1) * limit;
+  const query = staffId ? { assignedStaffId: staffId } : {};
   const [orders, total] = await Promise.all([
-    Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-    Order.countDocuments(),
+    Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("assignedStaffId", "name email"),
+    Order.countDocuments(query),
   ]);
-  return { orders, total, page, pages: Math.ceil(total / limit) };
+
+  const resolvedOrders = await Promise.all(
+    orders.map(async (order) => {
+      let userName = "Unknown";
+      let userEmail = "";
+      let userAvatar = "";
+      let courseName = "Unknown";
+      let coursePrice = 0;
+
+      if (order.userId) {
+        try {
+          const { User } = await import("../models/userModel.js");
+          const user = await User.findById(order.userId).select("name email avatar");
+          if (user) {
+            userName = user.name;
+            userEmail = user.email;
+            userAvatar = user.avatar?.url || "";
+          }
+        } catch (e) {}
+      }
+
+      if (order.courseId) {
+        try {
+          const Course = (await import("../models/courseModel.js")).default;
+          const course = await Course.findById(order.courseId).select("name price");
+          if (course) {
+            courseName = course.name;
+            coursePrice = course.price;
+          }
+        } catch (e) {}
+      }
+
+      return {
+        ...order.toObject(),
+        userName,
+        userEmail,
+        userAvatar,
+        courseName,
+        coursePrice,
+      };
+    })
+  );
+
+  return { orders: resolvedOrders, total, page, pages: Math.ceil(total / limit) };
 };
 
 /**
@@ -351,4 +395,211 @@ export const writeAuditLog = async ({ actor, action, target, details, ip }) => {
     // Non-blocking – audit log failure should not break main operations
     console.error("Audit log write failed:", err.message);
   }
+};
+
+/**
+ * Get 360 degree user profile
+ */
+export const getUserProfile360Service = async (userId) => {
+  const ActivityLog = (await import("../models/activityLogModel.js")).default;
+  const LoginHistory = (await import("../models/loginHistoryModel.js")).default;
+  const UserNote = (await import("../models/userNoteModel.js")).default;
+  const Placement = (await import("../models/placementModel.js")).default;
+  const Progress = (await import("../models/progressModel.js")).default;
+  const Assignment = (await import("../models/assignmentModel.js")).default;
+  const Course = (await import("../models/courseModel.js")).default;
+
+  const [
+    user,
+    rawOrders,
+    activity,
+    loginHistory,
+    notes,
+    placement,
+    progress,
+    assignments
+  ] = await Promise.all([
+    User.findById(userId).select("-password"),
+    Order.find({ userId }).populate("assignedStaffId", "name email").lean(),
+    ActivityLog.find({ userId }).sort({ createdAt: -1 }).limit(50),
+    LoginHistory.find({ userId }).sort({ createdAt: -1 }).limit(10),
+    UserNote.find({ userId }).populate("adminId", "name avatar").sort({ createdAt: -1 }),
+    Placement.findOne({ userId }),
+    Progress.find({ userId }).populate("courseId", "name"),
+    Assignment.find({ studentId: userId }).populate("courseId", "name")
+  ]);
+
+  const orders = await Promise.all(
+    rawOrders.map(async (order) => {
+      let courseDetails = null;
+      if (order.courseId) {
+        try {
+          courseDetails = await Course.findById(order.courseId).select("name thumbnail price").lean();
+        } catch (err) {}
+      }
+      return {
+        ...order,
+        courseId: courseDetails || { name: "Unknown Course", price: 0 }
+      };
+    })
+  );
+
+  if (!user) throw new Error("User not found");
+
+  return {
+    user,
+    orders,
+    activity,
+    loginHistory,
+    notes,
+    placement,
+    progress,
+    assignments
+  };
+};
+
+/**
+ * Perform bulk actions on users
+ */
+export const bulkActionUsersService = async ({ userIds, action, payload, actorUser, ip }) => {
+  if (!userIds || userIds.length === 0) throw new Error("No users selected");
+
+  let result = { matched: 0, modified: 0 };
+  const actionEnum = "OTHER";
+
+  switch (action) {
+    case "suspend":
+      result = await User.updateMany({ _id: { $in: userIds } }, { $set: { isSuspended: true } });
+      await writeAuditLog({ actor: actorUser, action: "SUSPEND_USER", target: "Bulk Update", details: { count: result.modifiedCount }, ip });
+      break;
+    case "activate":
+      result = await User.updateMany({ _id: { $in: userIds } }, { $set: { isSuspended: false } });
+      await writeAuditLog({ actor: actorUser, action: "REACTIVATE_USER", target: "Bulk Update", details: { count: result.modifiedCount }, ip });
+      break;
+    case "delete":
+      result = await User.deleteMany({ _id: { $in: userIds } });
+      await writeAuditLog({ actor: actorUser, action: "DELETE_USER", target: "Bulk Update", details: { count: result.deletedCount }, ip });
+      break;
+    case "assign_staff":
+      // Not straightforward for generic assignment unless we update Order or User's assignedCourses
+      // We will just add the staff id to a specific order if payload.courseId is provided, or we assign staff across all their orders.
+      if (payload.staffId) {
+        result = await Order.updateMany({ userId: { $in: userIds } }, { $set: { assignedStaffId: payload.staffId } });
+        await writeAuditLog({ actor: actorUser, action: "OTHER", target: "Bulk Assign Staff", details: { count: result.modifiedCount, staffId: payload.staffId }, ip });
+      }
+      break;
+    case "add_tags":
+      if (payload.tags && payload.tags.length > 0) {
+        result = await User.updateMany({ _id: { $in: userIds } }, { $addToSet: { tags: { $each: payload.tags } } });
+        await writeAuditLog({ actor: actorUser, action: "OTHER", target: "Bulk Add Tags", details: { count: result.modifiedCount, tags: payload.tags }, ip });
+      }
+      break;
+      default:
+      throw new Error("Invalid bulk action");
+  }
+
+  return result;
+};
+
+/**
+ * Get overall metrics for staff management
+ */
+export const getStaffMetricsService = async () => {
+  const staff = await User.find({ role: "staff" });
+  const staffCount = staff.length;
+  
+  const Order = (await import("../models/orderModel.js")).default;
+  const totalAssignedOrders = await Order.countDocuments({ assignedStaffId: { $ne: null } });
+  
+  return {
+    totalStaff: staffCount,
+    totalAssignedOrders,
+    averageCaseload: staffCount > 0 ? (totalAssignedOrders / staffCount).toFixed(1) : 0
+  };
+};
+
+/**
+ * Get a 360 degree productivity profile for a staff member
+ */
+export const getStaffProfile360Service = async (staffId) => {
+  const Order = (await import("../models/orderModel.js")).default;
+  const ActivityLog = (await import("../models/activityLogModel.js")).default;
+  const Course = (await import("../models/courseModel.js")).default;
+  const Progress = (await import("../models/progressModel.js")).default;
+  const Assignment = (await import("../models/assignmentModel.js")).default;
+
+  const staffInfo = await User.findById(staffId).select("-password").lean();
+  if (!staffInfo || staffInfo.role !== "staff") throw new Error("Staff not found");
+
+  const rawOrders = await Order.find({ assignedStaffId: staffId }).lean();
+  
+  // Populate course manually
+  const ordersWithCourses = await Promise.all(rawOrders.map(async (order) => {
+    let courseDetails = null;
+    if (order.courseId) {
+      try {
+        courseDetails = await Course.findById(order.courseId).select("name thumbnail").lean();
+      } catch (err) {}
+    }
+    return {
+      ...order,
+      courseId: courseDetails || { name: "Unknown Course" }
+    };
+  }));
+
+  // Populate student details
+  const userIds = ordersWithCourses.map(o => o.userId).filter(Boolean);
+  const users = await User.find({ _id: { $in: userIds } }).select("name email avatar").lean();
+  const userMap = {};
+  users.forEach(u => userMap[u._id.toString()] = u);
+
+  const studentsAssigned = ordersWithCourses.map(o => ({
+    ...o,
+    student: userMap[o.userId] || { name: "Unknown Student", email: "" }
+  }));
+
+  // Calculate Involvement Metrics
+  const validUserObjectIds = users.map(u => u._id);
+  
+  const [progressDocs, assignmentDocs] = await Promise.all([
+    Progress.find({ userId: { $in: validUserObjectIds } }).lean(),
+    Assignment.find({ studentId: { $in: validUserObjectIds } }).lean()
+  ]);
+
+  let totalCompletedLessons = 0;
+  progressDocs.forEach(p => {
+    if (p.completedLessons && Array.isArray(p.completedLessons)) {
+      totalCompletedLessons += p.completedLessons.length;
+    }
+  });
+  
+  const avgLessonsPerStudent = userIds.length > 0 
+    ? (totalCompletedLessons / userIds.length).toFixed(1) 
+    : 0;
+
+  let pendingAssignments = 0;
+  let reviewedAssignments = 0;
+  assignmentDocs.forEach(a => {
+    if (a.status === "pending") pendingAssignments++;
+    else if (a.status === "approved" || a.status === "rejected") reviewedAssignments++;
+  });
+
+  const involvement = {
+    totalCompletedLessons,
+    avgLessonsPerStudent: parseFloat(avgLessonsPerStudent),
+    pendingAssignments,
+    reviewedAssignments,
+    totalAssignments: assignmentDocs.length
+  };
+
+  // Fetch their recent activity log
+  const recentActivity = await ActivityLog.find({ userId: staffId }).sort({ createdAt: -1 }).limit(30).lean();
+
+  return {
+    staffInfo,
+    caseload: studentsAssigned.length,
+    studentsAssigned,
+    involvement,
+    recentActivity
+  };
 };

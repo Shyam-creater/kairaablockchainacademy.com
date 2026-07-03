@@ -88,7 +88,7 @@ const FitMapToBounds = ({ locations }) => {
   return null;
 };
 
-const Map1 = () => {
+const Map1 = ({ onBranchSelect }) => {
   return (
     <div className="map-container" style={{ height: "100%", width: "100%", minHeight: "400px" }}>
     <MapContainer
@@ -104,7 +104,18 @@ const Map1 = () => {
   
       <MarkerClusterGroup>
         {locations.map((loc) => (
-          <Marker key={loc.id} position={loc.position} icon={customIcon}>
+          <Marker 
+            key={loc.id} 
+            position={loc.position} 
+            icon={customIcon}
+            eventHandlers={{
+              click: () => {
+                if (onBranchSelect) {
+                  onBranchSelect(loc.id);
+                }
+              }
+            }}
+          >
             <Popup>
               <div>
                 <strong>{loc.name}</strong>

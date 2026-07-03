@@ -33,8 +33,29 @@ export const galleryApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    getGalleryAlbums: builder.query({
+      query: () => ({
+        url: "get-albums",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    updateGalleryFeatured: builder.mutation({
+      query: ({ id, isFeatured }) => ({
+        url: `feature-image/${id}`,
+        method: "PATCH",
+        body: { isFeatured },
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
-
-export const {useUploadGalleryImageMutation,useGetAllGalleryImageQuery,useDeleteGalleryImageMutation,useEditGalleryImageMutation}=galleryApi;
+export const {
+  useUploadGalleryImageMutation,
+  useGetAllGalleryImageQuery,
+  useDeleteGalleryImageMutation,
+  useEditGalleryImageMutation,
+  useGetGalleryAlbumsQuery,
+  useUpdateGalleryFeaturedMutation,
+} = galleryApi;

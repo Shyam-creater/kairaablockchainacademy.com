@@ -39,6 +39,10 @@ const CreateCourse = () => {
     level: "",
     demoUrl: "",
     thumbnail: "",
+    duration: "",
+    language: "English",
+    certificate: true,
+    syllabusUrl: "",
   });
   const [benefits, setBenefits] = useState([{ title: "" }]);
   const [prerequisites, setPrerequisites] = useState([{ title: "" }]);
@@ -93,6 +97,10 @@ const CreateCourse = () => {
       thumbnail: courseInfo.thumbnail,
       level: courseInfo.level,
       demoUrl: courseInfo.demoUrl,
+      duration: courseInfo.duration,
+      language: courseInfo.language,
+      certificate: courseInfo.certificate,
+      syllabusUrl: courseInfo.syllabusUrl,
       totalVideos: courseContentData.length,
       benefits: formattedBenefits,
       prerequisites: formattedPrerequisites,
@@ -111,8 +119,14 @@ const CreateCourse = () => {
   };
 
   return (
-    <div className="w-full flex min-h-screen pr-8">
-      <div className="w-[80%]">
+    <div className="w-full max-w-5xl mx-auto flex flex-col min-h-screen py-10 px-4">
+      {/* Top 4-Step Tracking Bar */}
+      <div className="w-full mb-8">
+        <CourseOptions active={active} setActive={setActive} />
+      </div>
+
+      {/* Main Form Content */}
+      <div className="w-full">
         {active === 0 && (
           <CourseInformation
             courseInfo={courseInfo}
@@ -148,9 +162,6 @@ const CreateCourse = () => {
             handleCourseCreate={handleCourseCreate}
           />
         )}
-      </div>
-      <div className="800px:w-[20%] mt-[100px] h-screen fixed z-[-1] top-18 right-0">
-        <CourseOptions active={active} setActive={setActive} />
       </div>
     </div>
   );

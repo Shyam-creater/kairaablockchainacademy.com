@@ -18,7 +18,7 @@ const AdminLayout = ({ title, subtitle, action, children }) => {
 
   return (
     <AdminProtected>
-      <div className="flex h-screen bg-background font-sans overflow-hidden">
+      <div className="flex h-screen bg-[#0B0F19] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0B0F19] to-black font-sans overflow-hidden text-slate-200">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block z-40">
           <AdminSidebar />
@@ -52,19 +52,22 @@ const AdminLayout = ({ title, subtitle, action, children }) => {
         <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full lg:w-auto">
           <AdminNavbar onToggleMobileMenu={() => setMobileMenuOpen(true)} />
 
-          <main className="flex-1 overflow-auto p-4 sm:p-6 bg-background scrollbar-hide">
+          <main className="flex-1 overflow-auto pt-3 pb-4 px-4 sm:px-6 bg-transparent scrollbar-hide relative z-0">
+            {/* Subtle glowing orb backgrounds */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] -z-10 pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] rounded-full bg-secondary/10 blur-[100px] -z-10 pointer-events-none"></div>
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="max-w-7xl mx-auto"
+              className="w-full h-full"
             >
               {/* Page Header */}
               {(title || action) && (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div>
-                    {title && <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{title}</h1>}
-                    {subtitle && <p className="mt-1.5 text-[13px] sm:text-sm text-gray-500 font-medium">{subtitle}</p>}
+                    {title && <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{title}</h1>}
+                    {subtitle && <p className="mt-1.5 text-[13px] sm:text-sm text-primary font-medium neon-text">{subtitle}</p>}
                   </div>
                   {action && <div>{action}</div>}
                 </div>

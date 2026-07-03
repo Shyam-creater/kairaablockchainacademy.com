@@ -5,7 +5,14 @@ import cron from "node-cron";
 
 export const getNotifications = CatchAsyncError(async (req, res, next) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 });
+    const query = {
+      $or: [
+        { userId: req.user._id },
+        { userId: null },
+        { userId: { $exists: false } }
+      ]
+    };
+    const notifications = await Notification.find(query).sort({ createdAt: -1 });
     res.status(201).json({
       success: true,
       notifications,
@@ -26,7 +33,15 @@ export const updatedNotifications = CatchAsyncError(async (req, res, next) => {
       notification.status = "read";
     }
     await notification.save();
-    const notifications = await Notification.find().sort({ createdAt: -1 });
+    
+    const query = {
+      $or: [
+        { userId: req.user._id },
+        { userId: null },
+        { userId: { $exists: false } }
+      ]
+    };
+    const notifications = await Notification.find(query).sort({ createdAt: -1 });
 
     res.status(201).json({
       success: true,

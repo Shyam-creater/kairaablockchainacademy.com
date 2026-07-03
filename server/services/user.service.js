@@ -66,6 +66,9 @@ export const getAllRegistrationsService= async(res)=>{
 // update user role
 export const updateUserRoleService= async(res, id, role)=>{
     const user= await User.findByIdAndUpdate(id, {role}, {new:true});
+    if (user) {
+        await redis.set(id.toString(), JSON.stringify(user));
+    }
 
 res.status(201).json({
     success:true,

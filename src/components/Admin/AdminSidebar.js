@@ -15,7 +15,14 @@ import {
   FiChevronRight,
   FiBookOpen,
   FiClipboard,
-  FiX
+  FiX,
+  FiCheckSquare,
+  FiFolder,
+  FiMessageSquare,
+  FiCalendar,
+  FiAward,
+  FiVideo,
+  FiEdit3
 } from "react-icons/fi";
 import { userLoggedOut } from "../../redux/features/auth/authslice";
 import { useLazyLogOutQuery } from "../../redux/features/auth/authApi.js";
@@ -140,42 +147,60 @@ const AdminSidebar = ({ forceOpen, onMobileClose }) => {
             </p>
           )}
           <NavItem title="Dashboard" to="/admin/dashboard" icon={FiGrid} isCollapsed={activeCollapsed} />
+          {user?.role === "staff" && (
+            <>
+              <NavItem title="My Students" to="/staff/dashboard" icon={FiUsers} isCollapsed={activeCollapsed} />
+              <NavItem title="Assignments" to="/staff/assignments" icon={FiCheckSquare} isCollapsed={activeCollapsed} />
+              <NavItem title="Projects" to="/staff/projects" icon={FiFolder} isCollapsed={activeCollapsed} />
+              <NavItem title="Doubt Center" to="/staff/doubts" icon={FiMessageSquare} isCollapsed={activeCollapsed} />
+              <NavItem title="Attendance" to="/staff/attendance" icon={FiCalendar} isCollapsed={activeCollapsed} />
+              <NavItem title="Certificates" to="/staff/certificates" icon={FiAward} isCollapsed={activeCollapsed} />
+              <NavItem title="Zoom Meetings" to="/staff/meetings" icon={FiVideo} isCollapsed={activeCollapsed} />
+              <NavItem title="Quiz Management" to="/staff/quizzes" icon={FiEdit3} isCollapsed={activeCollapsed} />
+            </>
+          )}
         </div>
 
-        {/* Data Management Section */}
-        <div className="mb-6">
-          {!activeCollapsed && (
-            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Management
-            </p>
-          )}
-          <NavItem title="Users" to="/admin/users" icon={FiUsers} isCollapsed={activeCollapsed} />
-          <NavItem title="Courses" to="/admin/courses" icon={FiBookOpen} isCollapsed={activeCollapsed} />
-          <NavItem title="Registrations" to="/admin/registrations" icon={FiClipboard} isCollapsed={activeCollapsed} />
-          <NavItem title="Course Purchases" to="/admin/orders" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
-        </div>
+        {/* Admin Only Sections */}
+        {user?.role === "admin" && (
+          <>
+            {/* Data Management Section */}
+            <div className="mb-6">
+              {!activeCollapsed && (
+                <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                  Management
+                </p>
+              )}
+              <NavItem title="Users" to="/admin/users" icon={FiUsers} isCollapsed={activeCollapsed} />
+              <NavItem title="Courses" to="/admin/courses" icon={FiBookOpen} isCollapsed={activeCollapsed} />
+              <NavItem title="Registrations" to="/admin/registrations" icon={FiClipboard} isCollapsed={activeCollapsed} />
+              <NavItem title="Course Purchases" to="/admin/orders" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
+              <NavItem title="Certificates" to="/admin/certificates" icon={FiAward} isCollapsed={activeCollapsed} />
+            </div>
 
-        {/* Content Section */}
-        <div className="mb-6">
-          {!activeCollapsed && (
-            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Content
-            </p>
-          )}
-          <NavItem title="Blogs" to="/admin/manage-blogs" icon={FiFileText} isCollapsed={activeCollapsed} />
-          <NavItem title="Gallery" to="/admin/edit-gallery-image" icon={FiImage} isCollapsed={activeCollapsed} />
-        </div>
+            {/* Content Section */}
+            <div className="mb-6">
+              {!activeCollapsed && (
+                <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                  Content
+                </p>
+              )}
+              <NavItem title="Blogs" to="/admin/manage-blogs" icon={FiFileText} isCollapsed={activeCollapsed} />
+              <NavItem title="Gallery" to="/admin/edit-gallery-image" icon={FiImage} isCollapsed={activeCollapsed} />
+            </div>
 
-        {/* System Section */}
-        <div className="mb-6">
-          {!activeCollapsed && (
-            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
-              System
-            </p>
-          )}
-          <NavItem title="Audit Logs" to="/admin/audit-logs" icon={FiShield} isCollapsed={activeCollapsed} />
-          <NavItem title="Settings" to="/admin/settings" icon={FiSettings} isCollapsed={activeCollapsed} />
-        </div>
+            {/* System Section */}
+            <div className="mb-6">
+              {!activeCollapsed && (
+                <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                  System
+                </p>
+              )}
+              <NavItem title="Audit Logs" to="/admin/audit-logs" icon={FiShield} isCollapsed={activeCollapsed} />
+              <NavItem title="Settings" to="/admin/settings" icon={FiSettings} isCollapsed={activeCollapsed} />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Footer / Logout */}

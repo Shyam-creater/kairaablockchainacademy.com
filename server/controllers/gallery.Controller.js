@@ -118,3 +118,39 @@ export const editGalleryImage = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+// ── Update Gallery Featured Status ─────────────────────────────────────────────
+export const updateGalleryFeatured = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { isFeatured } = req.body;
+    
+    const image = await GalleryImage.findByIdAndUpdate(id, { isFeatured }, { new: true });
+    if (!image) return next(new ErrorHandler("Image not found", 404));
+
+    res.status(200).json({
+      success: true,
+      image
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// ── Get Gallery Albums ─────────────────────────────────────────────────────────
+export const getGalleryAlbums = CatchAsyncError(async (req, res, next) => {
+  try {
+    const albums = await GalleryImage.distinct("album");
+    // Ensure "General" is always an option even if no images
+    if (!albums.includes("General")) {
+      albums.unshift("General");
+    }
+
+    res.status(200).json({
+      success: true,
+      albums
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+

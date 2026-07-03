@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import AdminLayout from "../../components/Admin/AdminLayout";
-import { DataGrid } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
+import { 
+  DataGrid, 
+  GridToolbarContainer, 
+  GridToolbarColumnsButton, 
+  GridToolbarFilterButton, 
+  GridToolbarDensitySelector, 
+  GridToolbarExport 
+} from "@mui/x-data-grid";
+import { Box, Button } from "@mui/material";
 import { useGetAuditLogsQuery } from "../../redux/features/admin/adminApi";
 import Loader from "../../components/Loader/Loader";
 import { format } from "timeago.js";
@@ -80,6 +87,29 @@ const AdminAuditLogsPage = () => {
     created_at: log.createdAt ? format(new Date(log.createdAt)) : "—",
   }));
 
+  const [filterModel, setFilterModel] = useState({ items: [] });
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ display: 'flex', justifyContent: 'space-between', padding: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <Box sx={{ display: 'flex', gap: 3 }}>
+          <GridToolbarColumnsButton sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarFilterButton sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarDensitySelector sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarExport sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+        </Box>
+        <Button 
+          size="small" 
+          variant="outlined" 
+          onClick={() => setFilterModel({ items: [] })}
+          sx={{ borderRadius: '8px', textTransform: 'none', borderColor: 'rgba(255,255,255,0.1)', color: '#94A3B8', '&:hover': { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: '#E2E8F0', color: '#E2E8F0' } }}
+        >
+          Clear Filters
+        </Button>
+      </GridToolbarContainer>
+    );
+  };
+
   return (
     <AdminLayout
       title="Audit Logs"
@@ -92,17 +122,17 @@ const AdminAuditLogsPage = () => {
               setActionFilter(e.target.value);
               setPage(0);
             }}
-            className="text-sm border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer shadow-sm"
+            className="text-sm border border-white/10 bg-surface/50 text-white px-4 py-2.5 rounded-xl outline-none focus:border-primary/50 focus:shadow-[0_0_10px_rgba(0,242,254,0.3)] transition-all cursor-pointer shadow-inner"
           >
             {ACTION_TYPES.map((a) => (
-              <option key={a} value={a}>
+              <option className="bg-surface text-white" key={a} value={a}>
                 {a || "All Actions"}
               </option>
             ))}
           </select>
           <button
             onClick={refetch}
-            className="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 px-4 py-2.5 rounded-full transition-all shadow-sm"
+            className="flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-white/10 px-5 py-2.5 rounded-xl transition-all shadow-glass hover:shadow-[0_0_15px_rgba(0,242,254,0.3)]"
           >
             <FiRefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
             Refresh
@@ -117,13 +147,13 @@ const AdminAuditLogsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-wrap items-center gap-4"
         >
-          <div className="bg-white rounded-none border border-gray-100 shadow-sm px-5 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
-              <FiShield className="text-gray-400" size={16} />
+          <div className="glass-panel px-5 py-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+              <FiShield className="text-primary" size={18} />
             </div>
             <div>
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block leading-none mb-1">Total Logs</span>
-              <span className="text-lg font-bold text-gray-800 leading-none block">{total.toLocaleString()}</span>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-1">Total Logs</span>
+              <span className="text-xl font-extrabold text-white leading-none block drop-shadow-md">{total.toLocaleString()}</span>
             </div>
           </div>
           {actionFilter && (
@@ -151,17 +181,17 @@ const AdminAuditLogsPage = () => {
           {isLoading ? (
             <div className="py-20 flex justify-center"><Loader /></div>
           ) : logs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-60 gap-4 bg-white border border-gray-100 shadow-sm">
-              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center">
-                <FiShield className="text-gray-300" size={32} />
+            <div className="flex flex-col items-center justify-center h-60 gap-4 glass-panel">
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <FiShield className="text-slate-500" size={32} />
               </div>
               <div className="text-center">
-                <p className="text-gray-500 font-medium">No audit logs found</p>
-                <p className="text-gray-400 text-sm mt-1">Admin actions will appear here</p>
+                <p className="text-slate-300 font-bold">No audit logs found</p>
+                <p className="text-slate-500 text-sm mt-1">Admin actions will appear here</p>
               </div>
             </div>
           ) : (
-            <Box m="0" className="w-full h-[65vh] bg-white border border-gray-100 shadow-sm rounded-none">
+            <Box className="w-full h-[65vh] min-h-[400px] glass-panel rounded-xl overflow-hidden">
               <DataGrid
                 columns={columns}
                 rows={rows}
@@ -172,19 +202,35 @@ const AdminAuditLogsPage = () => {
                 pageSizeOptions={[20]}
                 disableRowSelectionOnClick
                 rowHeight={64}
+                filterModel={filterModel}
+                onFilterModelChange={(newModel) => setFilterModel(newModel)}
+                slots={{ toolbar: CustomToolbar }}
                 sx={{
                   border: 'none',
-                  borderRadius: 0,
+                  color: '#e2e8f0',
                   '& .MuiDataGrid-cell': {
-                    borderBottom: '1px solid #f3f4f6',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
                   },
                   '& .MuiDataGrid-columnHeaders': {
-                    borderBottom: '1px solid #f3f4f6',
-                    borderRadius: 0,
+                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   },
                   '& .MuiDataGrid-footerContainer': {
-                    borderTop: '1px solid #f3f4f6',
-                    borderRadius: 0,
+                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e2e8f0',
+                  },
+                  '& .MuiTablePagination-root': {
+                    color: '#e2e8f0',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: '#94a3b8',
+                  },
+                  '& .MuiDataGrid-row:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.05)',
                   }
                 }}
               />

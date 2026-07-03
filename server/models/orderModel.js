@@ -14,6 +14,11 @@ const OrderSchema = new mongoose.Schema(
       type: Object,
     required:true,
     },
+    assignedStaffId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );

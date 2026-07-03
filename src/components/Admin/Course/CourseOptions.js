@@ -10,29 +10,34 @@ const CourseOptions = ({ active, setActive }) => {
   ];
 
   return (
-    <div>
+    <div className="w-full flex items-center justify-between glass-panel p-6 rounded-2xl mb-4 relative z-10">
       {options.map((option, index) => (
-        <div key={index} className={`w-full flex 800px:py-5 py-2`}>
+        <div key={index} className="flex flex-col items-center relative flex-1">
+          {/* Connector Line (except for the last item) */}
+          {index !== options.length - 1 && (
+            <div
+              className={`hidden 800px:block absolute top-[17px] left-[50%] w-full h-[3px] z-0 transition-all duration-300 ${
+                active > index ? "bg-primary shadow-[0_0_10px_rgba(0,242,254,0.5)]" : "bg-white/10"
+              }`}
+            />
+          )}
+
+          {/* Step Icon */}
           <div
-            className={`800px:w-[35px] w-[20px] h-[20px] 800px:h-[35px] rounded-full flex items-center justify-center ${
-              active + 1 > index ? "bg-blue-500" : "bg-[#384766]"
-            } relative`}
+            className={`w-[35px] h-[35px] rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
+              active + 1 > index ? "bg-primary shadow-[0_0_15px_rgba(0,242,254,0.8)] text-slate-900 scale-110" : "bg-black/20 border-2 border-white/10 text-slate-500"
+            }`}
           >
-            <IoMdCheckmark className="text-[25px]" />
-            {index !== options.length-1 && (
-              <div
-                className={`absolute 800px:h-[30px] h-[20px] w-1 ${
-                  active + 1 > index ? "bg-blue-500" : "bg-[#384766]"
-                } bottom-[-100%]`}
-              />
-            )}
+            <IoMdCheckmark className="text-[20px]" />
           </div>
+
+          {/* Step Text */}
           <h5
-            className={`pl-3 ${
+            className={`mt-4 text-center transition-all duration-300 ${
               active === index
-                ? " text-black"
-                : " text-black"
-            } 800px:text-[20px] text-[15px]`}
+                ? "text-white font-bold tracking-wide drop-shadow-md"
+                : "text-slate-400 font-medium tracking-wide"
+            } text-[12px] 800px:text-[14px] uppercase`}
           >
             {option}
           </h5>

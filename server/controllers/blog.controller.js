@@ -122,3 +122,54 @@ export const deleteBlog = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 500));
   }
 });
+
+// ── Update Blog Status ─────────────────────────────────────────────────────────
+export const updateBlogStatus = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!["Draft", "Published", "Archived"].includes(status)) {
+      return next(new ErrorHandler("Invalid status", 400));
+    }
+
+    const blog = await Blog.findByIdAndUpdate(id, { status }, { new: true });
+    if (!blog) return next(new ErrorHandler("Blog not found", 404));
+
+    res.status(200).json({
+      success: true,
+      blog
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// ── Get Blog Analytics ─────────────────────────────────────────────────────────
+export const getBlogAnalytics = CatchAsyncError(async (req, res, next) => {
+  try {
+    const blogs = await Blog.find({});
+    
+    const totalBlogs = blogs.length;
+    const publishedBlogs = blogs.filter(b => b.status === "Published").length;
+    
+    const totalViews = blogs.reduce((acc, curr) => acc + (curr.views || 0), 0);
+    const totalLikes = blogs.reduce((acc, curr) => acc + (curr.likes || 0), 0);
+
+    // Top 5 blogs by views
+    const topBlogs = [...blogs].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+
+    res.status(200).json({
+      success: true,
+      analytics: {
+        totalBlogs,
+        publishedBlogs,
+        totalViews,
+        totalLikes,
+        topBlogs
+      }
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});

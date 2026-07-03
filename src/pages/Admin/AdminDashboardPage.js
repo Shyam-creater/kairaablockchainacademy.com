@@ -4,6 +4,7 @@ import KPIGrid from "../../components/Admin/Dashboard/KPIGrid";
 import TrendsChart from "../../components/Admin/Dashboard/TrendsChart";
 import TopCoursesChart from "../../components/Admin/Dashboard/TopCoursesChart";
 import ActivityFeed from "../../components/Admin/Dashboard/ActivityFeed";
+import AdminCalendar from "../../components/Admin/Dashboard/AdminCalendar";
 import { useGetDashboardSummaryQuery, useGetDashboardTrendsQuery, useGetAuditLogsQuery } from "../../redux/features/admin/adminApi";
 import { FiRefreshCw, FiUsers, FiBook, FiShoppingCart, FiFileText, FiImage, FiShield, FiBriefcase } from "react-icons/fi";
 import { motion } from "framer-motion";
@@ -31,29 +32,48 @@ const AdminDashboardPage = () => {
       action={
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 px-4 py-2.5 rounded-full transition-all shadow-sm"
+          className="flex items-center gap-2 text-sm font-bold text-white bg-white/10 border border-white/20 hover:border-primary/50 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(0,242,254,0.3)] backdrop-blur-md"
         >
           <FiRefreshCw size={14} className={summaryLoading ? "animate-spin" : ""} />
           Sync Data
         </button>
       }
     >
-      <div className="space-y-8 pb-10">
+      <div className="space-y-6 pb-10">
         
         {/* KPI Grid Section */}
         <section>
           <KPIGrid summary={summary} loading={summaryLoading} />
         </section>
 
-        {/* Charts removed per user request */}
-
-        {/* Bottom Row */}
+        {/* Charts & Calendar Section */}
         <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          
-          {/* Activity Feed */}
+          {/* Main Chart */}
+          <div className="xl:col-span-2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="h-[400px] w-full"
+            >
+              <TrendsChart trends={trends} loading={trendsLoading} />
+            </motion.div>
+          </div>
+
+          {/* Calendar */}
+          <div className="xl:col-span-1 h-[400px]">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="h-full"
+            >
+              <AdminCalendar />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Activity Feed Full Width */}
+        <section>
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="xl:col-span-3 bg-white rounded-none border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden"
+            className="w-full"
           >
             <ActivityFeed orders={summary?.recentOrders || []} registrations={summary?.recentRegistrations || []} logs={logs} loading={summaryLoading} />
           </motion.div>

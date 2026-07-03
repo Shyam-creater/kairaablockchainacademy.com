@@ -47,6 +47,22 @@ export const uploadCourse = CatchAsyncError(async (req, res, next) => {
       };
       console.log("Thumbnail uploaded:", data.thumbnail);
     }
+    
+    // Assign the course to the current user (staff or admin)
+    data.instructorId = req.user._id;
+
+    // Auto-calculate stats
+    if (data.courseContentData && Array.isArray(data.courseContentData)) {
+        data.totalVideos = data.courseContentData.length;
+        data.lessonsCount = data.courseContentData.length;
+        const sections = new Set(data.courseContentData.map(c => c.videoSection).filter(Boolean));
+        data.modulesCount = sections.size;
+    }
+
+    if (!data.slug && data.name) {
+        data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Math.random().toString(36).substring(2, 7);
+    }
+
     // console.log("Creating course with data:", data);
     createCourse(data, res, next);
   } catch (error) {
@@ -62,7 +78,16 @@ export const editCourse = CatchAsyncError(async (req, res, next) => {
     const thumbnail = data.thumbnail;
 
     const courseId=req.params.id;
-const courseData= await Course.findById(courseId);
+    const courseData= await Course.findById(courseId);
+
+    if (!courseData) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    // Check ownership
+    if (req.user.role !== "admin" && courseData.instructorId.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to edit this course", 403));
+    }
 
     if (thumbnail && !thumbnail.startsWith("https")) {
       await cloudinary.v2.uploader.destroy(courseData.thumbnail.public_id);
@@ -84,6 +109,17 @@ const courseData= await Course.findById(courseId);
       }
     }
    
+    if (data.courseContentData && Array.isArray(data.courseContentData)) {
+        data.totalVideos = data.courseContentData.length;
+        data.lessonsCount = data.courseContentData.length;
+        const sections = new Set(data.courseContentData.map(c => c.videoSection).filter(Boolean));
+        data.modulesCount = sections.size;
+    }
+
+    if (!data.slug && data.name) {
+        data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Math.random().toString(36).substring(2, 7);
+    }
+
     const course = await Course.findByIdAndUpdate(
       courseId,
       { $set: data },
@@ -329,7 +365,7 @@ export const addReview = CatchAsyncError(async (req, res, next) => {
     });
 
     if (course) {
-      course.ratings = avg / course.reviews.length;
+      course.averageRating = avg / course.reviews.length;
     }
     await course?.save();
     const notification = {
@@ -354,6 +390,11 @@ export const addReplyToReview = CatchAsyncError(async (req, res, next) => {
   const course = await Course.findById(courseId);
   if (!course) {
     return next(new ErrorHandler("Course not found", 400));
+  }
+
+  // Check if user is authorized to reply (must be admin or the course instructor)
+  if (req.user.role !== "admin" && course.instructorId?.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("You are not authorized to reply to reviews for this course", 403));
   }
 
   const review = course?.reviews?.find(
@@ -404,10 +445,16 @@ export const generateVideoUrl = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-// get all courses --- only for admins
+// get all courses --- only for admins/staff
 export const getAdminAllCourse = CatchAsyncError(async (req, res, next) => {
   try {
-    getAllCoursesService(res);
+    const query = req.user.role === "admin" ? {} : { instructorId: req.user._id };
+    const courses = await Course.find(query).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      courses,
+    });
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
@@ -423,6 +470,11 @@ if(!course){
   return next(new ErrorHandler("Course not found",404))
 }
 
+// Check ownership
+if (req.user.role !== "admin" && course.instructorId.toString() !== req.user._id.toString()) {
+  return next(new ErrorHandler("You are not authorized to delete this course", 403));
+}
+
 await course.deleteOne({id});
 await redis.del(id);
 res.status(200).json({
@@ -433,3 +485,97 @@ res.status(200).json({
     return next(new ErrorHandler(error.message, 500))
   }
 })
+
+// add live session to course
+export const addLiveSession = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId } = req.params;
+    const { title, description, scheduledAt, meetingUrl, maxParticipants } = req.body;
+    
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    if (req.user.role !== "admin" && course.instructorId?.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to add a live session to this course", 403));
+    }
+
+    const newSession = {
+      title,
+      description,
+      scheduledAt,
+      meetingUrl,
+      maxParticipants,
+    };
+
+    course.liveSessions.push(newSession);
+    await course.save();
+
+    res.status(201).json({
+      success: true,
+      course,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// update live session
+export const updateLiveSession = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId, sessionId } = req.params;
+    const data = req.body;
+    
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    if (req.user.role !== "admin" && course.instructorId?.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to update a live session in this course", 403));
+    }
+
+    const session = course.liveSessions.find(s => s._id.toString() === sessionId);
+    if (!session) {
+      return next(new ErrorHandler("Live session not found", 404));
+    }
+
+    Object.assign(session, data);
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      course,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// delete live session
+export const deleteLiveSession = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId, sessionId } = req.params;
+    
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    if (req.user.role !== "admin" && course.instructorId?.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to delete a live session in this course", 403));
+    }
+
+    course.liveSessions = course.liveSessions.filter(s => s._id.toString() !== sessionId);
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Live session deleted successfully"
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+

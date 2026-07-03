@@ -22,6 +22,11 @@ lastName:{
     course:{
         type:String,
         required:true,
+    },
+    assignedStaffId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
     }
 },{timestamps:true})
 

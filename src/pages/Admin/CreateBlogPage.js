@@ -8,8 +8,8 @@ const CreateBlogPage = () => {
   return (
     <AdminProtected>
       <Heading title="Create Blog - Admin" description="Write a new blog post" keywords="create blog, admin" />
-      <AdminLayout title="Create New Blog" subtitle="Write and publish a new blog post">
-        <div className="bg-white p-8 rounded-none border border-gray-100 shadow-sm">
+      <AdminLayout title="Create New Blog" subtitle="Publish a new article to the platform">
+        <div className="w-full">
           <CreateBlog />
         </div>
       </AdminLayout>

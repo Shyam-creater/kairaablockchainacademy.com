@@ -5,8 +5,8 @@ import { format } from "timeago.js";
 const ActivityFeed = ({ orders = [], registrations = [], logs = [], loading }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-        <div className="h-6 w-40 bg-gray-100 rounded animate-pulse mb-4" />
+      <div className="glass-panel p-6">
+        <div className="h-6 w-40 bg-white/10 rounded animate-pulse mb-4" />
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="flex gap-3 items-center mb-3">
             <div className="w-9 h-9 bg-gray-100 rounded-full animate-pulse flex-shrink-0" />
@@ -25,7 +25,7 @@ const ActivityFeed = ({ orders = [], registrations = [], logs = [], loading }) =
     ...orders.slice(0, 5).map((o) => ({
       type: "order",
       id: o._id,
-      label: `Order placed`,
+      label: `Purchase made`,
       sub: `Course ID: ${o.courseId?.slice(-6) ?? "—"}`,
       time: o.createdAt,
     })),
@@ -43,12 +43,13 @@ const ActivityFeed = ({ orders = [], registrations = [], logs = [], loading }) =
       sub: l.action || "System action",
       time: l.createdAt,
     }))
-  ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 8);
+  ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-      <h3 className="text-base font-semibold text-gray-700 mb-4">
-        Recent Activity
+    <div className="glass-panel p-6 w-full">
+      <h3 className="text-base font-bold text-white mb-4 flex items-center justify-between">
+        Recent Activity 
+        <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-slate-300">Last 5 Actions</span>
       </h3>
       {activities.length === 0 ? (
         <p className="text-gray-400 text-sm text-center py-8">
@@ -61,31 +62,31 @@ const ActivityFeed = ({ orders = [], registrations = [], logs = [], loading }) =
             const isLog = item.type === "log";
             
             let Icon = FiFileText;
-            let bgColor = "bg-violet-50 text-violet-600";
+            let bgColor = "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_10px_rgba(0,242,254,0.3)]";
             
             if (isOrder) {
               Icon = FiShoppingBag;
-              bgColor = "bg-emerald-50 text-emerald-600";
+              bgColor = "bg-success/20 text-success border border-success/30 shadow-[0_0_10px_rgba(0,230,118,0.3)]";
             } else if (isLog) {
               Icon = FiShield;
-              bgColor = "bg-blue-50 text-blue-600";
+              bgColor = "bg-accent/20 text-accent border border-accent/30 shadow-[0_0_10px_rgba(139,92,246,0.3)]";
             }
             
             return (
-              <li key={item.id || i} className="flex items-start gap-3">
+              <li key={item.id || i} className="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
                 <div
-                  className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${bgColor}`}
+                  className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${bgColor}`}
                 >
-                  <Icon size={15} />
+                  <Icon size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-700 truncate">
+                  <p className="text-sm font-semibold text-slate-200 truncate">
                     {item.label}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+                  <p className="text-[11px] text-slate-400 truncate">{item.sub}</p>
                 </div>
-                <div className="flex-shrink-0 flex items-center gap-1 text-gray-300 text-xs">
-                  <FiClock size={11} />
+                <div className="flex-shrink-0 flex items-center gap-1 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
+                  <FiClock size={12} />
                   {item.time ? format(new Date(item.time)) : ""}
                 </div>
               </li>

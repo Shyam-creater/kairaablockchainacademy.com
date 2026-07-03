@@ -26,11 +26,18 @@ const galleryImageSchema=new mongoose.Schema({
     uploadedBy:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
+        // type: String, // removed conflicting type
+    },
+    album: {
         type: String,
-        // required: true,
+        default: "General",
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false,
     }
-},{timestamps:true})
+},{timestamps:true, collection: "s"})
 
-const GalleryImage= mongoose.model("",galleryImageSchema);
+const GalleryImage = mongoose.model("GalleryImage", galleryImageSchema);
 
 export default GalleryImage;

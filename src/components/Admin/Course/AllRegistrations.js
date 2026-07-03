@@ -51,18 +51,18 @@ const AllRegistrations = () => {
 
   const CustomToolbar = () => {
     return (
-      <GridToolbarContainer sx={{ display: 'flex', justifyContent: 'space-between', padding: 2, borderBottom: '1px solid #f3f4f6' }}>
+      <GridToolbarContainer sx={{ display: 'flex', justifyContent: 'space-between', padding: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <Box sx={{ display: 'flex', gap: 3 }}>
-          <GridToolbarColumnsButton sx={{ color: '#374151' }} />
-          <GridToolbarFilterButton sx={{ color: '#374151' }} />
-          <GridToolbarDensitySelector sx={{ color: '#374151' }} />
-          <GridToolbarExport sx={{ color: '#374151' }} />
+          <GridToolbarColumnsButton sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarFilterButton sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarDensitySelector sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
+          <GridToolbarExport sx={{ color: '#94A3B8', fontWeight: '500', '&:hover': { color: '#E2E8F0' } }} />
         </Box>
         <Button 
           size="small" 
           variant="outlined" 
           onClick={() => setFilterModel({ items: [] })}
-          sx={{ borderRadius: 0, textTransform: 'none', borderColor: '#e5e7eb', color: '#dc2626', '&:hover': { backgroundColor: '#fee2e2', borderColor: '#ef4444' } }}
+          sx={{ borderRadius: '8px', textTransform: 'none', borderColor: 'rgba(255,255,255,0.1)', color: '#94A3B8', '&:hover': { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: '#E2E8F0', color: '#E2E8F0' } }}
         >
           Clear Filters
         </Button>
@@ -71,27 +71,27 @@ const AllRegistrations = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col space-y-6">
+    <div className="w-full h-full flex flex-col space-y-6 pb-10">
       {/* Stats bar */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-wrap items-center justify-between gap-4"
       >
-        <div className="bg-white rounded-none border border-gray-100 shadow-sm px-5 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-none bg-gray-50 flex items-center justify-center">
-            <FiFileText className="text-gray-400" size={16} />
+        <div className="glass-panel px-5 py-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+            <FiFileText className="text-primary" size={18} />
           </div>
           <div>
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block leading-none mb-1">Total Registrations</span>
-            <span className="text-lg font-bold text-gray-800 leading-none block">{total.toLocaleString()}</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-1">Total Registrations</span>
+            <span className="text-xl font-extrabold text-white leading-none block drop-shadow-md">{total.toLocaleString()}</span>
           </div>
         </div>
         
         {/* Refresh Action */}
         <button
           onClick={refetch}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 px-4 py-2.5 rounded-full transition-all shadow-sm"
+          className="flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-slate-600 hover:border-primary/50 hover:bg-white/10 px-5 py-2.5 rounded-xl transition-all shadow-glass hover:shadow-[0_0_15px_rgba(0,242,254,0.3)]"
         >
           <FiRefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
           Refresh
@@ -106,7 +106,7 @@ const AllRegistrations = () => {
         {isLoading ? (
           <div className="py-20 flex justify-center flex-1"><Loader /></div>
         ) : (
-          <Box className="w-full h-[calc(100vh-280px)] min-h-[400px]">
+          <Box className="w-full h-[65vh] min-h-[400px] glass-panel rounded-xl overflow-hidden mt-6">
             <DataGrid 
               checkboxSelection 
               columns={columns} 
@@ -118,17 +118,30 @@ const AllRegistrations = () => {
               slots={{ toolbar: CustomToolbar }}
               sx={{
                 border: 'none',
-                borderRadius: 0,
+                color: '#e2e8f0',
                 '& .MuiDataGrid-cell': {
-                  borderBottom: '1px solid #f3f4f6',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
                 },
                 '& .MuiDataGrid-columnHeaders': {
-                  borderBottom: '1px solid #f3f4f6',
-                  borderRadius: 0,
+                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 },
                 '& .MuiDataGrid-footerContainer': {
-                  borderTop: '1px solid #f3f4f6',
-                  borderRadius: 0,
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  color: '#e2e8f0',
+                },
+                '& .MuiTablePagination-root': {
+                  color: '#e2e8f0',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: '#94a3b8',
+                },
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.05)',
                 }
               }}
             />

@@ -14,13 +14,15 @@ const CourseAccessPage = () => {
   // console.log(`jhgvbj ${data}`)
 
   useEffect(() => {
-    if (data) {
+    if (data?.user) {
       const isPurchased = data.user.courses.find((item) => item._id === id);
       if (!isPurchased || error) {
         setRedirect(true);
       }
+    } else if (error || (!isLoading && !data)) {
+      setRedirect(true);
     }
-  }, [data, error, id]);
+  }, [data, error, id, isLoading]);
 
   if (redirect) {
     return <Navigate to="/" />;
@@ -30,11 +32,11 @@ const CourseAccessPage = () => {
     <div>
       {isLoading ? (
         <Loader />
-      ) : (
+      ) : data?.user ? (
         <div>
           <CourseContent id={id} user={data.user}/>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

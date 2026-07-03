@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Arial', sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .header { background-color: #4f46e5; color: #ffffff; padding: 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    .content { padding: 32px 24px; color: #374151; line-height: 1.6; }
+    .title { font-size: 20px; font-weight: bold; margin-bottom: 16px; color: #111827; }
+    .message-box { background-color: #f9fafb; border-left: 4px solid #4f46e5; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .footer { background-color: #f9fafb; padding: 24px; text-align: center; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb; }
+    .btn { display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Kairaa Academy Notification</h1>
+    </div>
+    <div class="content">
+      <p>Hello <%= user.name %>,</p>
+      <div class="title"><%= title %></div>
+      <p>You have a new update in your Kairaa Academy dashboard:</p>
+      
+      <div class="message-box">
+        <%= message %>
+      </div>
+      
+      <p>Please log in to your dashboard to view more details.</p>
+      
+      <div style="text-align: center;">
+        <a href="<%= dashboardUrl %>" class="btn" style="color: white;">Go to Dashboard</a>
+      </div>
+    </div>
+    <div class="footer">
+      &copy; 2026 Kairaa Blockchain Academy. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import Course from "../models/courseModel.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
+import ErrorHandler from "../utils/ErrorHandler.js";
 
 export const createCourse = CatchAsyncError(async (data, res, next) => {
   try {

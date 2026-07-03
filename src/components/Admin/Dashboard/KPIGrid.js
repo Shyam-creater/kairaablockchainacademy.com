@@ -3,33 +3,69 @@ import { FiUsers, FiShoppingCart, FiDollarSign, FiBookOpen, FiActivity, FiClipbo
 import { motion } from "framer-motion";
 
 const icons = {
-  users: { icon: FiUsers, color: "text-primary", bg: "bg-primary-50", border: "border-primary/10" },
-  active: { icon: FiActivity, color: "text-success", bg: "bg-success-50", border: "border-success/10" },
-  courses: { icon: FiBookOpen, color: "text-accent", bg: "bg-accent-50", border: "border-accent/10" },
-  orders: { icon: FiShoppingCart, color: "text-warning", bg: "bg-warning-50", border: "border-warning/10" },
-  revenue: { icon: FiDollarSign, color: "text-danger", bg: "bg-danger-50", border: "border-danger/10" },
-  registrations: { icon: FiClipboard, color: "text-secondary", bg: "bg-secondary-50", border: "border-secondary/10" },
+  users: { icon: FiUsers, color: "text-primary", hex: "#00f2fe", glow: "hover:shadow-[0_0_20px_rgba(0,242,254,0.3)]" },
+  active: { icon: FiActivity, color: "text-success", hex: "#00e676", glow: "hover:shadow-[0_0_20px_rgba(0,230,118,0.3)]" },
+  courses: { icon: FiBookOpen, color: "text-accent", hex: "#8b5cf6", glow: "hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]" },
+  orders: { icon: FiShoppingCart, color: "text-warning", hex: "#ffb300", glow: "hover:shadow-[0_0_20px_rgba(255,179,0,0.3)]" },
+  revenue: { icon: FiDollarSign, color: "text-secondary", hex: "#fe0979", glow: "hover:shadow-[0_0_20px_rgba(254,9,121,0.3)]" },
+  registrations: { icon: FiClipboard, color: "text-info", hex: "#2979ff", glow: "hover:shadow-[0_0_20px_rgba(41,121,255,0.3)]" },
 };
 
 const KPICard = ({ label, value, sub, iconKey, delay }) => {
-  const { icon: Icon, color, bg, border } = icons[iconKey] || icons.users;
+  const { icon: Icon, color, hex, glow } = icons[iconKey] || icons.users;
+  
+  // Calculate a deterministic percentage based on the label for visual purposes
+  const percentage = Math.min(Math.max((label.length * 10) % 100, 40), 90);
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, delay: delay }}
-      className="bg-white border border-gray-100 p-5 flex flex-col justify-between hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group"
+      className={`glass-panel p-6 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group ${glow}`}
     >
-      <div className="flex justify-between items-start mb-4">
-        <span className="text-[13px] font-semibold text-gray-500 uppercase tracking-wider">{label}</span>
-        <div className={`p-2 rounded-none ${bg} ${color} ${border} border flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-          <Icon size={18} strokeWidth={2.5} />
+      {/* Subtle Premium Shimmer */}
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)`,
+          transform: "skewX(-20deg)",
+        }}
+        animate={{ 
+          left: ["-100%", "200%"],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 5 }}
+      />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:bg-white/10 transition-all duration-500"></div>
+      
+      <div className="relative w-20 h-20 flex-shrink-0 flex items-center justify-center">
+        <svg className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-lg" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r={radius} stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="none" />
+          <motion.circle 
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset }}
+            transition={{ duration: 1.5, delay: delay + 0.2, ease: "easeOut" }}
+            cx="40" cy="40" r={radius} 
+            stroke={hex} 
+            strokeWidth="6" 
+            fill="none" 
+            strokeDasharray={circumference} 
+            strokeLinecap="round" 
+            style={{ filter: `drop-shadow(0 0 6px ${hex}80)` }}
+          />
+        </svg>
+        <div className={`p-3 rounded-full bg-white/5 border border-slate-600 flex items-center justify-center ${color} shadow-inner`}>
+          <Icon size={20} strokeWidth={2.5} />
         </div>
       </div>
-      <div>
-        <h3 className="text-3xl font-bold text-gray-900 tracking-tight leading-none mb-2">{value ?? "—"}</h3>
-        <p className="text-[13px] font-medium text-gray-400">{sub}</p>
+
+      <div className="flex-1 relative z-10">
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">{label}</span>
+        <h3 className="text-2xl font-extrabold text-white tracking-tight leading-none mb-1 drop-shadow-md">{value ?? "—"}</h3>
+        <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{sub}</p>
       </div>
     </motion.div>
   );
@@ -38,9 +74,9 @@ const KPICard = ({ label, value, sub, iconKey, delay }) => {
 const KPIGrid = ({ summary, loading }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-gray-50 h-[140px] animate-pulse border border-gray-100" />
+          <div key={i} className="glass-panel h-[140px] animate-pulse border border-white/5" />
         ))}
       </div>
     );
@@ -72,7 +108,7 @@ const KPIGrid = ({ summary, loading }) => {
       iconKey: "registrations",
     },
     {
-      label: "Course Purchases",
+      label: "Purchases",
       value: summary?.orders?.total?.toLocaleString(),
       sub: "Enrolled learners",
       iconKey: "orders",
@@ -87,7 +123,7 @@ const KPIGrid = ({ summary, loading }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 xl:gap-6">
       {cards.map((card, idx) => (
         <KPICard key={card.label} {...card} delay={idx * 0.05} />
       ))}

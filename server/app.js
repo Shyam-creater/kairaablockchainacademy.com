@@ -1,7 +1,15 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import rateLimit from "express-rate-limit";
 import { ErrorMiddleware } from "./middleware/error.js";
 import userRouter from "./routes/user.route.js";
 import courseRouter from "./routes/course.route.js";
@@ -13,7 +21,31 @@ import bodyParser from "body-parser";
 import galleryRoute from "./routes/gallery.route.js";
 import blogRoute from "./routes/blog.route.js";
 import adminRouter from "./routes/admin.route.js";
+import progressRouter from "./routes/progress.route.js";
+import quizRouter from "./routes/quiz.route.js";
+import certificateRouter from "./routes/certificate.route.js";
+import staffRouter from "./routes/staff.route.js";
+import studentRouter from "./routes/student.route.js";
+import dashboardRouter from "./routes/dashboard.route.js";
+
 export const app = express();
+
+// Serve static files from the public directory
+app.use("/public", express.static(path.join(__dirname, "public")));
+
+// Security Middleware
+app.use(helmet()); // Secure HTTP headers
+app.use(mongoSanitize()); // Prevent NoSQL injection attacks
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // limit each IP to 150 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api", limiter);
+
 // cookie parser
 app.use(cookieParser());
 
@@ -54,7 +86,7 @@ const corsOptions = {
     "http://localhost:3000",
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  preflightContinue: true,
+  preflightContinue: false,
   optionsSuccessStatus: 204,
 };
 
@@ -66,13 +98,19 @@ app.use("/api/v1/", courseRouter);
 app.use(
   "/api/v1/",
   orderRouter,
-  notificationRoute,
   analyticsRouter,
-  layoutRouter
+  layoutRouter,
+  quizRouter,
+  certificateRouter
 );
+app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/", galleryRoute);
 app.use("/api/v1/", blogRoute);
+app.use("/api/v1/", progressRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/staff", staffRouter);
+app.use("/api/v1/student", studentRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 
 app.get("/test", (req, res, next) => {
   res.status(200).json({

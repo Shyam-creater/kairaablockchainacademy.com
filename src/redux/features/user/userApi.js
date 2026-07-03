@@ -66,6 +66,14 @@ export const userApi = apiSlice.injectEndpoints({
           credentials: "include",
         }),
       }),
+      toggleFavorite: builder.mutation({
+        query: (courseId) => ({
+          url: "toggle-favorite",
+          method: "PUT",
+          body: { courseId },
+          credentials: "include",
+        }),
+      }),
   }),
 });
 
@@ -77,5 +85,6 @@ export const {
   useUpdateUserRoleMutation,
   useDeleteUserMutation,
   useRegisterCourseMutation,
-  useGetAllRegistrationsQuery
+  useGetAllRegistrationsQuery,
+  useToggleFavoriteMutation
 } = userApi;

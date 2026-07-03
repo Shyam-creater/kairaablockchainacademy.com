@@ -4,16 +4,21 @@ import { createBrowserRouter, RouterProvider, Outlet, useLocation } from "react-
 import CoursePage from "./pages/CoursePage";
 import {Custom} from "./"
 
-import ProfilePage from "./pages/ProfilePage";
+import StudentLayout from "./components/Student/StudentLayout";
+import StudentDashboardPage from "./pages/Student/StudentDashboardPage";
+import StudentCoursesPage from "./pages/Student/StudentCoursesPage";
+import StudentSettingsPage from "./pages/Student/StudentSettingsPage";
 import AdminPage from "./pages/Admin/AdminPage";
 import CreateCoursePage from "./pages/Admin/createCoursePage";
 import Courses from "./pages/Admin/Courses";
 import Users from "./pages/Admin/Users";
+import Staff from "./pages/Admin/Staff";
 import Team from "./pages/Admin/team.js";
 
 import EditCoursePage from "./pages/Admin/EditCoursePage.js";
 import CourseAccessPage from "./pages/CourseAccessPage.js";
 import UserCoursePage from "./pages/UserCoursePage.js";
+import InstructorProfile from "./pages/InstructorProfile.js";
 
 import AboutPage from "./pages/AboutPage.js";
 import SelfPacedCourses from "./pages/SelfPacedCourses";
@@ -47,18 +52,41 @@ import AdminBlogPage from "./pages/Admin/AdminBlogPage.js";
 import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.js";
 import AdminOrdersPage from "./pages/Admin/AdminOrdersPage.js";
 import AdminAuditLogsPage from "./pages/Admin/AdminAuditLogsPage.js";
+import AdminBatches from "./pages/Admin/AdminBatches";
+import StaffDashboardPage from "./pages/StaffDashboardPage.js";
+import StaffAssignmentsPage from "./pages/Staff/StaffAssignmentsPage.js";
+import StaffProjectsPage from "./pages/Staff/StaffProjectsPage.js";
+import StaffDoubtCenterPage from "./pages/Staff/StaffDoubtCenterPage.js";
+import StaffAttendancePage from "./pages/Staff/StaffAttendancePage.js";
+import StaffCertificatesPage from "./pages/Staff/StaffCertificatesPage.js";
+import StaffMeetingsPage from "./pages/Staff/StaffMeetingsPage.js";
+import StaffQuizPage from "./pages/Staff/StaffQuizPage.js";
+import AdminCertificateApprovalsPage from "./pages/Admin/AdminCertificateApprovalsPage.js";
+import AdminCertificatePage from "./pages/Admin/AdminCertificatePage.js";
+import StudentCertificatesPage from "./pages/Student/StudentCertificatesPage.js";
+import VerifyCertificatePage from "./pages/VerifyCertificatePage.js";
+
+// New Auth Pages
+import AuthLayout from "./components/Auth/AuthLayout.js";
+import Login from "./components/Auth/Login.js";
+import ForgotPassword from "./components/Auth/ForgotPassword.js";
+import ResetPassword from "./components/Auth/ResetPassword.js";
+import Signup from "./components/Auth/Signup.js";
+import Verification from "./components/Auth/Verification.js";
+import Onboarding from "./components/Auth/Onboarding.js";
 // import ErrorPage from "./pages/ErrorPage.js";
 
 
 const AppLayout = () => {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
+  const isDashboardRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/staff") || location.pathname === "/profile" || location.pathname === "/profile/dashboard";
+  const isAuthRoute = ["/login", "/signup", "/verify", "/onboarding", "/forgot-password", "/reset-password"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-surface font-poppins text-primary">
       <Custom>
         <ScrollToTop />
-        <main className={`flex-grow ${isAdmin ? "" : "pt-[80px]"}`}>
+        <main className={`flex-grow ${isDashboardRoute || isAuthRoute ? "" : "pt-[80px]"}`}>
           <Outlet />
         </main>
       </Custom>
@@ -76,6 +104,30 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
+        path: "/login",
+        element: <AuthLayout title="Welcome Back" subtitle="Sign in to continue your learning journey."><Login /></AuthLayout>,
+      },
+      {
+        path: "/forgot-password",
+        element: <AuthLayout title="Reset Password" subtitle="Regain access to your academy account."><ForgotPassword /></AuthLayout>,
+      },
+      {
+        path: "/reset-password",
+        element: <AuthLayout title="Set New Password" subtitle="Secure your academy account."><ResetPassword /></AuthLayout>,
+      },
+      {
+        path: "/signup",
+        element: <AuthLayout title="Join the Academy" subtitle="Start your Web3 journey today."><Signup /></AuthLayout>,
+      },
+      {
+        path: "/verify",
+        element: <AuthLayout title="Account Security" subtitle="Protecting your digital learning environment."><Verification /></AuthLayout>,
+      },
+      {
+        path: "/onboarding",
+        element: <AuthLayout title="Personalize your path" subtitle="Help us tailor the academy to your goals."><Onboarding /></AuthLayout>,
+      },
+      {
         path: "/courses",
         element: <UserCoursePage />,
       },
@@ -84,10 +136,24 @@ const router = createBrowserRouter([
         element: <CoursePage />,
       },
       {
-        path:"/profile",
-        element:<ProfilePage/>
+        path: "/profile",
+        element: <StudentDashboardPage />,
+      },
+      {
+        path: "/profile/dashboard",
+        element: <StudentDashboardPage />,
+      },
+      {
+        path: "/profile",
+        element: <StudentLayout />,
+        children: [
+          { path: "courses", element: <StudentCoursesPage /> },
+          { path: "settings", element: <StudentSettingsPage /> },
+          { path: "certificates", element: <StudentCertificatesPage /> }
+        ]
       },
       { path: "profile/course-access/:id", element: <CourseAccessPage /> },
+      { path: "/instructor/:id", element: <InstructorProfile /> },
      
           {
             path:"/admin",
@@ -116,6 +182,14 @@ const router = createBrowserRouter([
           {
             path:"/admin/users",
             element:<Users/>
+          },
+          {
+            path: "/admin/staff",
+            element: <Staff />
+          },
+          {
+            path: "/admin/certificate-approvals",
+            element: <AdminCertificateApprovalsPage />
           },
           {
             path:"/admin/team",
@@ -230,6 +304,54 @@ const router = createBrowserRouter([
           {
             path: "/admin/audit-logs",
             element: <AdminAuditLogsPage />
+          },
+          {
+            path: "/admin/batches",
+            element: <AdminBatches />
+          },
+          {
+            path: "/admin/approvals/certificates",
+            element: <StaffDashboardPage />
+          },
+          {
+            path: "/staff/dashboard",
+            element: <StaffDashboardPage />
+          },
+          {
+            path: "/staff/assignments",
+            element: <StaffAssignmentsPage />
+          },
+          {
+            path: "/staff/projects",
+            element: <StaffProjectsPage />
+          },
+          {
+            path: "/staff/doubts",
+            element: <StaffDoubtCenterPage />
+          },
+          {
+            path: "/staff/attendance",
+            element: <StaffAttendancePage />
+          },
+          {
+            path: "/staff/certificates",
+            element: <StaffCertificatesPage />
+          },
+          {
+            path: "/staff/meetings",
+            element: <StaffMeetingsPage />
+          },
+          {
+            path: "/staff/quizzes",
+            element: <StaffQuizPage />
+          },
+          {
+            path: "/admin/certificates",
+            element: <AdminCertificatePage />
+          },
+          {
+            path: "/verify-certificate/:certificateNumber",
+            element: <VerifyCertificatePage />
           }
       
     
@@ -246,3 +368,4 @@ function App() {
 }
 
 export default App;
+

@@ -6,57 +6,44 @@ import { updateAccessToken } from "../controllers/user.controller.js";
 import { User } from "../models/userModel.js";
 
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
-  
-  
-  // const access_token = req.headers.Authorization;
-  const access_token=req.cookies.access_token
-  // const access_token =localStorage.getItem('token');
+  const access_token = req.cookies.access_token;
 
-  console.log(`jhfgjk ${access_token}`)
+  if (!access_token) {
+    return next(new ErrorHandler("Please login to access this resource", 400));
+  }
 
-  // if (!access_token) {
-  //   return next(new ErrorHandler("Please login to access this resource", 400));
-  // }
-console.log(`update accesToken called`)
+  try {
+    const decoded = jwt.verify(access_token, process.env.ACCESS_TOKEN);
 
-const decoded= jwt.decode(access_token)
-if(!decoded){
-  return next(new ErrorHandler("access token is not valid",400))
-}
+    let userSession = await redis.get(decoded.id);
+    let userObj;
 
-    if (decoded.exp && decoded.exp <= Date.now() / 1000) {
+    if (!userSession) {
+      const dbUser = await User.findById(decoded.id);
+      if (!dbUser) {
+        return next(new ErrorHandler("Please login", 400));
+      }
+      userObj = dbUser;
+    } else {
+      userObj = JSON.parse(userSession);
+    }
+
+    req.user = userObj;
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
       try {
-         updateAccessToken(req, res, next);
-      } catch (error) {
-        return next(new ErrorHandler(error.message, 500));
+        return updateAccessToken(req, res, next);
+      } catch (err) {
+        return next(new ErrorHandler("Session expired, please login again", 400));
       }
     } else {
-      console.log("Token not expired, checking redis");
-      let userSession = await redis.get(decoded.id);
-      let userObj;
-
-      if (!userSession) {
-        console.log("Redis session empty, querying DB for user id:", decoded.id);
-        const dbUser = await User.findById(decoded.id);
-        if (!dbUser) {
-          console.log("User not found in DB");
-          return next(new ErrorHandler("Please login ", 400));
-        }
-        console.log("User found in DB, setting req.user");
-        userObj = dbUser;
-      } else {
-        console.log("User found in Redis");
-        userObj = JSON.parse(userSession);
-      }
-
-      req.user = userObj;
-      console.log("Calling next() from auth.js");
-      next();
+      return next(new ErrorHandler("Access token is not valid", 400));
     }
-  });
+  }
+});
 
 // validate user role
-
 export const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user?.role)) {

@@ -40,6 +40,27 @@ export const adminApi = apiSlice.injectEndpoints({
       invalidatesTags: ["AdminUsers"],
     }),
 
+    // CRM 360 Profile
+    getUserProfile360: builder.query({
+      query: (userId) => ({
+        url: `admin/users/${userId}/profile`,
+        method: "GET",
+        credentials: "include",
+      }),
+      providesTags: ["UserProfile360"],
+    }),
+
+    // Bulk Actions
+    bulkActionUsers: builder.mutation({
+      query: (data) => ({
+        url: "admin/users/bulk-action",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: ["AdminUsers"],
+    }),
+
     // Orders summary analytics
     getAdminOrdersSummary: builder.query({
       query: () => ({
@@ -66,6 +87,76 @@ export const adminApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+
+    // Assign Staff
+    assignStaff: builder.mutation({
+      query: ({ id, type, staffId }) => ({
+        url: `admin/assign-staff`,
+        method: "POST",
+        body: { id, type, staffId },
+        credentials: "include",
+      }),
+    }),
+
+    // Batches
+    createBatch: builder.mutation({
+      query: (data) => ({
+        url: `admin/batches`,
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: ["Batches"],
+    }),
+    getAllBatches: builder.query({
+      query: () => ({
+        url: `admin/batches`,
+        method: "GET",
+        credentials: "include",
+      }),
+      providesTags: ["Batches"],
+    }),
+    addStudentToBatch: builder.mutation({
+      query: ({ batchId, studentId }) => ({
+        url: `admin/batches/${batchId}/students`,
+        method: "PUT",
+        body: { studentId },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Batches"],
+    }),
+
+    // Notifications
+    getNotifications: builder.query({
+      query: () => ({
+        url: `get-all-notifications`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    updateNotification: builder.mutation({
+      query: (id) => ({
+        url: `update-notification/${id}`,
+        method: "PUT",
+        credentials: "include",
+      }),
+    }),
+
+    // Staff Metrics & 360 Profile
+    getStaffMetrics: builder.query({
+      query: () => ({
+        url: `admin/staff/metrics`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    getStaffProfile360: builder.query({
+      query: (id) => ({
+        url: `admin/staff/${id}/profile360`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -77,4 +168,14 @@ export const {
   useGetAdminOrdersSummaryQuery,
   useGetAdminOrdersQuery,
   useGetAuditLogsQuery,
+  useAssignStaffMutation,
+  useCreateBatchMutation,
+  useGetAllBatchesQuery,
+  useAddStudentToBatchMutation,
+  useGetNotificationsQuery,
+  useUpdateNotificationMutation,
+  useGetUserProfile360Query,
+  useBulkActionUsersMutation,
+  useGetStaffMetricsQuery,
+  useGetStaffProfile360Query
 } = adminApi;

@@ -51,7 +51,7 @@ export const verifyorder = CatchAsyncError(async (req, res) => {
       const sign = `${req.body.response.razorpay_order_id}|${req.body.response.razorpay_payment_id}`;
 
       const expectedSign = crypto
-        .createHmac("sha256", "LhNWI8qsCZpIUsRIMG21EYwK")
+        .createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
         .update(sign)
         .digest("hex");
 
@@ -162,8 +162,59 @@ export const createorder = CatchAsyncError(async (req, res) => {
     })
   }
 }
-
 );
+
+export const simulatePayment = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId } = req.body;
+    const user = await User.findById(req?.user?._id);
+
+    if (!courseId) {
+      return next(new ErrorHandler("Course ID is required", 400));
+    }
+
+    const courseExistInUser = user?.courses?.some(
+      (course) => course._id.toString() === courseId.toString()
+    );
+    if (courseExistInUser) {
+      return next(new ErrorHandler("You have already purchased this course", 400));
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new ErrorHandler("Course not found", 404));
+    }
+
+    // Add course to user
+    user?.courses.push(course?._id);
+    await redis.set(req.user?._id.toString(), JSON.stringify(user));
+    await user?.save();
+
+    // Increment course purchased
+    course.purchased = (course.purchased || 0) + 1;
+    await course.save();
+
+    // Create a dummy order
+    const data = {
+      courseId: courseId,
+      userId: req.user?._id,
+      payment_info: {
+        id: `sim_${Date.now()}`,
+        status: "verified",
+        method: "SIMULATION"
+      },
+    };
+    const orderData = await Order.create(data);
+
+    res.status(201).json({
+      success: true,
+      orderData,
+      message: "Simulation payment successful"
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
 
 export const createManualOrder = CatchAsyncError(async (req, res, next) => {
   try {

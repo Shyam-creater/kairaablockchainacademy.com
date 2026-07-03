@@ -32,6 +32,21 @@ export const blogApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    getBlogAnalytics: builder.query({
+      query: () => ({
+        url: "blog-analytics",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    updateBlogStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `blog-status/${id}`,
+        method: "PATCH",
+        body: { status },
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -40,4 +55,6 @@ export const {
   useCreateBlogMutation,
   useEditBlogMutation,
   useDeleteBlogMutation,
+  useGetBlogAnalyticsQuery,
+  useUpdateBlogStatusMutation,
 } = blogApi;
