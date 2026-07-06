@@ -45,7 +45,7 @@ const NotificationBell = () => {
     }
     if (notif.url) {
       setIsOpen(false);
-      navigate(notif.url);
+      navigate(notif.url, { state: { timestamp: Date.now() } });
     }
   };
 

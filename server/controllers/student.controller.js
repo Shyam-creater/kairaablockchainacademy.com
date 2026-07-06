@@ -40,27 +40,37 @@ export const createDoubt = CatchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("You are not enrolled in this course", 403));
     }
 
+    let targetStaffId = order.assignedStaffId;
+    if (!targetStaffId) {
+      const Course = (await import("../models/courseModel.js")).default;
+      const course = await Course.findById(courseId);
+      if (course && course.instructorId) {
+        targetStaffId = course.instructorId;
+      }
+    }
+
     const doubt = await Doubt.create({
       studentId,
       courseId,
-      staffId: order.assignedStaffId,
+      staffId: targetStaffId,
       title,
       description,
     });
 
-    if (order.assignedStaffId) {
+    if (targetStaffId) {
       const Notification = (await import("../models/notificationModel.js")).default;
       const sendMail = (await import("../utils/sendMail.js")).default;
       const { User } = await import("../models/userModel.js");
 
-      const staff = await User.findById(order.assignedStaffId);
+      const staff = await User.findById(targetStaffId);
       const message = `A new doubt '${title}' has been posted by a student.`;
 
       await Notification.create({
-        userId: order.assignedStaffId,
+        userId: targetStaffId,
         type: "doubt",
         title: "New Doubt Posted",
-        message
+        message,
+        url: "/staff/doubts"
       });
 
       if (staff && staff.email) {
@@ -120,6 +130,17 @@ export const studentReplyDoubt = CatchAsyncError(async (req, res, next) => {
     });
 
     await doubt.save();
+
+    if (doubt.staffId) {
+      const Notification = (await import("../models/notificationModel.js")).default;
+      await Notification.create({
+        userId: doubt.staffId,
+        type: "doubt",
+        title: "Doubt Replied",
+        message: `Student replied to the doubt '${doubt.title}'`,
+        url: "/staff/doubts"
+      });
+    }
 
     res.status(200).json({
       success: true,

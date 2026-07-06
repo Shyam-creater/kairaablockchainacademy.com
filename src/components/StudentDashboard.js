@@ -1593,7 +1593,7 @@ const WorkspaceAskDoubt = () => {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => navigate(`/profile?tab=${item.id}`)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === item.id 
                     ? 'bg-[#F3F4F6] text-[#111827]' 
@@ -1621,13 +1621,13 @@ const WorkspaceAskDoubt = () => {
            
            {/* FLOATING ACTION BAR (Mobile/Tablet Only) */}
            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#111827] text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-6 xl:hidden z-50 border border-white/10">
-              <button onClick={() => setActiveTab('course-viewer')} className="flex flex-col items-center gap-1 text-[#00f2fe] hover:text-white transition-colors">
+              <button onClick={() => navigate('/profile?tab=course-viewer')} className="flex flex-col items-center gap-1 text-[#00f2fe] hover:text-white transition-colors">
                  <FiPlayCircle size={20} /> <span className="text-[10px] font-bold uppercase tracking-wider">Resume</span>
               </button>
-              <button onClick={() => setActiveTab('ai-copilot')} className="flex flex-col items-center gap-1 text-[#9CA3AF] hover:text-white transition-colors">
+              <button onClick={() => navigate('/profile?tab=ai-copilot')} className="flex flex-col items-center gap-1 text-[#9CA3AF] hover:text-white transition-colors">
                  <FiTarget size={20} /> <span className="text-[10px] font-bold uppercase tracking-wider">AI</span>
               </button>
-              <button onClick={() => setActiveTab('ask-doubt')} className="flex flex-col items-center gap-1 text-[#9CA3AF] hover:text-white transition-colors">
+              <button onClick={() => navigate('/profile?tab=ask-doubt')} className="flex flex-col items-center gap-1 text-[#9CA3AF] hover:text-white transition-colors">
                  <FiMessageSquare size={20} /> <span className="text-[10px] font-bold uppercase tracking-wider">Ask</span>
               </button>
            </div>
