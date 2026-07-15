@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ThemeSwitcher from "../../utils/ThemeSwitcher";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FiWifi } from "react-icons/fi";
@@ -13,6 +14,7 @@ const socket = io("https://back.kairaablockchainacademy.com", {
 const DashboardHeader = () => {
   const [open, setOpen] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const navigate = useNavigate();
 
   const { data, refetch } = useGetNotificationsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [updateNotification] = useUpdateNotificationMutation();
@@ -26,8 +28,9 @@ const DashboardHeader = () => {
     };
   }, []);
 
-  const notifications = data?.notifications || [];
-  const unreadCount = notifications.filter((n) => n.status === "unread").length;
+  const allNotifications = data?.notifications || [];
+  const notifications = allNotifications.filter((n) => n.status === "unread");
+  const unreadCount = notifications.length;
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -70,13 +73,23 @@ const DashboardHeader = () => {
             <p className="p-4 text-center text-sm text-gray-500">No notifications yet.</p>
           ) : (
             notifications.map((item) => (
-              <div key={item._id} className={`font-poppins border-b border-gray-100 ${item.status === "unread" ? "bg-blue-50/50" : "bg-white"}`}>
+              <div 
+                key={item._id} 
+                className={`font-poppins border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${item.status === "unread" ? "bg-blue-50/50" : "bg-white"}`}
+                onClick={() => {
+                   if (item.status === "unread") handleMarkAsRead(item._id);
+                   if (item.url) {
+                      setOpen(false);
+                      navigate(item.url);
+                   }
+                }}
+              >
                 <div className="w-full flex items-center justify-between p-3 pb-1">
                   <p className={`text-sm ${item.status === "unread" ? "font-bold text-gray-800" : "font-semibold text-gray-600"}`}>
                     {item.title}
                   </p>
                   {item.status === "unread" && (
-                    <button onClick={() => handleMarkAsRead(item._id)} className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
+                    <button onClick={(e) => { e.stopPropagation(); handleMarkAsRead(item._id); }} className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
                       Mark as read
                     </button>
                   )}

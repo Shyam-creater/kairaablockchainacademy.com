@@ -20,7 +20,7 @@ const AdminLayout = ({ title, subtitle, action, children }) => {
     <AdminProtected>
       <div className="flex h-screen bg-[#0B0F19] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0B0F19] to-black font-sans overflow-hidden text-slate-200">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block z-40">
+        <div className="hidden lg:block z-50 relative">
           <AdminSidebar />
         </div>
 
@@ -49,17 +49,17 @@ const AdminLayout = ({ title, subtitle, action, children }) => {
         </AnimatePresence>
         
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col h-screen overflow-hidden relative w-full lg:w-auto">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden relative w-full lg:w-auto">
           <AdminNavbar onToggleMobileMenu={() => setMobileMenuOpen(true)} />
 
-          <main className="flex-1 overflow-auto pt-3 pb-4 px-4 sm:px-6 bg-transparent scrollbar-hide relative z-0">
+          <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pt-3 pb-4 px-4 sm:px-6 bg-transparent scrollbar-hide relative z-0">
             {/* Subtle glowing orb backgrounds */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] -z-10 pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] rounded-full bg-secondary/10 blur-[100px] -z-10 pointer-events-none"></div>
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="w-full h-full"
             >
               {/* Page Header */}

@@ -119,7 +119,7 @@ const AdminNavbar = ({ onToggleMobileMenu }) => {
       <AnimatePresence>{showBanner && <AnnouncementBanner onClose={() => setShowBanner(false)} />}</AnimatePresence>
       <CommandPalette isOpen={showPalette} onClose={setShowPalette} />
 
-      <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-2xl border-b border-white/5 h-16 flex flex-col justify-center shrink-0">
+      <motion.header initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-2xl border-b border-white/5 h-16 flex flex-col justify-center shrink-0">
         
         {/* Main Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 h-full">

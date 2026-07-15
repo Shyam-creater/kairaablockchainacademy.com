@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiBell, FiCheck, FiMessageSquare, FiFileText, FiVideo, FiInfo } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetNotificationsQuery, useUpdateNotificationStatusMutation } from "../redux/features/notifications/notificationApi";
@@ -21,6 +22,7 @@ const timeAgo = (date) => {
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -38,11 +40,12 @@ const NotificationBell = () => {
     };
   }, [isOpen]);
   
-  const { data, isLoading } = useGetNotificationsQuery(undefined, { pollingInterval: 60000 });
+  const { data, isLoading } = useGetNotificationsQuery(undefined, { pollingInterval: 5000 });
   const [updateNotification] = useUpdateNotificationStatusMutation();
 
-  const notifications = data?.notifications || [];
-  const unreadCount = notifications.filter(n => n.status === "unread").length;
+  const allNotifications = data?.notifications || [];
+  const notifications = allNotifications.filter(n => n.status === "unread");
+  const unreadCount = notifications.length;
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -97,7 +100,14 @@ const NotificationBell = () => {
                     {notifications.map((notif) => (
                       <div 
                         key={notif._id} 
-                        className={`p-4 flex gap-4 transition-all duration-300 hover:bg-white/5 ${notif.status === "unread" ? "bg-white/5" : ""}`}
+                        className={`p-4 flex gap-4 transition-all duration-300 hover:bg-white/5 cursor-pointer ${notif.status === "unread" ? "bg-white/5" : ""}`}
+                        onClick={() => {
+                          if (notif.status === "unread") handleMarkAsRead(notif._id);
+                          if (notif.url) {
+                            setIsOpen(false);
+                            navigate(notif.url);
+                          }
+                        }}
                       >
                         <div className={`mt-1 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${notif.status === "unread" ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-slate-800/50 border border-slate-700/50"}`}>
                           {getIconForType(notif.type)}
@@ -109,7 +119,10 @@ const NotificationBell = () => {
                             </p>
                             {notif.status === "unread" && (
                               <button 
-                                onClick={() => handleMarkAsRead(notif._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMarkAsRead(notif._id);
+                                }}
                                 className="text-slate-500 hover:text-primary transition-colors flex-shrink-0 hover:drop-shadow-[0_0_8px_rgba(0,242,254,0.8)]"
                                 title="Mark as read"
                               >

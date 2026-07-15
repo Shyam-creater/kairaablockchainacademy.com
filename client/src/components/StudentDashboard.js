@@ -156,7 +156,7 @@ const StudentDashboard = ({ user, courses }) => {
         </aside>
 
         {/* CENTER WORKSPACE (Dynamic Content) */}
-        <main className="flex-1 overflow-y-auto bg-white flex flex-col h-full relative">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-white flex flex-col h-full relative">
            
            <Outlet context={{ 
   user, courses, currentCourse, activeCourseId, setActiveCourseId,
