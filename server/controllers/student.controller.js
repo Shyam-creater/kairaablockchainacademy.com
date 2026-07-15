@@ -63,7 +63,8 @@ export const createDoubt = CatchAsyncError(async (req, res, next) => {
         userId: order.assignedStaffId,
         type: "doubt",
         title: "New Doubt Posted",
-        message
+        message,
+        url: "/staff/doubt-center"
       });
 
       if (staff && staff.email) {
@@ -184,7 +185,8 @@ export const submitAssignment = CatchAsyncError(async (req, res, next) => {
         userId: order.assignedStaffId,
         type: "assignment",
         title: "New Assignment Submission",
-        message
+        message,
+        url: "/staff/assignments"
       });
 
       if (staff && staff.email) {
@@ -671,6 +673,17 @@ export const submitProject = CatchAsyncError(async (req, res, next) => {
          status: 'pending',
          replies: message ? [{ sender: 'student', message }] : [],
        });
+    }
+
+    if (task.staffId) {
+      const Notification = (await import("../models/notificationModel.js")).default;
+      await Notification.create({
+        userId: task.staffId,
+        type: "project",
+        title: "New Project Submission",
+        message: `A student has submitted their project.`,
+        url: "/staff/projects"
+      });
     }
 
     res.status(201).json({

@@ -186,8 +186,19 @@ export const assignStaff = CatchAsyncError(async (req, res, next) => {
         userId: staffId,
         type: "system",
         title: "New Student Assignment",
-        message
+        message,
+        url: "/staff"
       });
+
+      if (type === "order" && result.userId && result.userId._id) {
+        await Notification.create({
+          userId: result.userId._id,
+          type: "system",
+          title: "Staff Assigned",
+          message: `A mentor (${staff?.name || 'Staff'}) has been assigned to you for ${typeName}.`,
+          url: "/profile/learning"
+        });
+      }
 
       if (staff && staff.email) {
         try {

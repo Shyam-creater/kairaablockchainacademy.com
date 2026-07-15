@@ -9,7 +9,7 @@ userId: {
 },
 type: {
     type: String,
-    enum: ["doubt", "assignment", "meeting", "system", "general"],
+    enum: ["doubt", "assignment", "project", "quiz", "meeting", "system", "general"],
     default: "general"
 },
 title:{
@@ -25,6 +25,10 @@ status:{
     required:true,
     default:"unread"
 },
+url:{
+    type:String,
+    default:""
+}
 },{timestamps:true})
 
 

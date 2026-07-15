@@ -75,6 +75,19 @@ export const submitQuiz = CatchAsyncError(async (req, res, next) => {
       passed,
     });
 
+    const Order = (await import("../models/orderModel.js")).default;
+    const order = await Order.findOne({ userId, courseId: quiz.courseId });
+    if (order && order.assignedStaffId) {
+      const Notification = (await import("../models/notificationModel.js")).default;
+      await Notification.create({
+        userId: order.assignedStaffId,
+        type: "quiz",
+        title: "New Quiz Submission",
+        message: `A student has submitted the quiz '${quiz.sectionName}'. Score: ${score}%`,
+        url: "/staff/quiz"
+      });
+    }
+
     res.status(200).json({
       success: true,
       score,
@@ -138,6 +151,25 @@ export const createOrUpdateQuiz = CatchAsyncError(async (req, res, next) => {
         shuffleOptions,
         negativeMarking,
         deductionPerWrongAnswer
+      });
+    }
+
+    // Notify enrolled students
+    const Order = (await import("../models/orderModel.js")).default;
+    const Notification = (await import("../models/notificationModel.js")).default;
+    
+    // Find all users enrolled in this course
+    const orders = await Order.find({ courseId }).populate("userId");
+    const targetStudents = orders.map(o => o.userId).filter(u => u != null);
+
+    const message = `A quiz '${sectionName}' has been added or updated in your course.`;
+    for (const student of targetStudents) {
+      await Notification.create({
+        userId: student._id,
+        type: "quiz",
+        title: "Quiz Update",
+        message,
+        url: "/profile/quiz"
       });
     }
 

@@ -283,9 +283,10 @@ export const createManualOrder = CatchAsyncError(async (req, res, next) => {
 
     // Add push notification for admin
     await Notification.create({
-      user: userId,
+      userId: userId,
       title: "New Manual Enrollment Request",
       message: `${user.name} requested manual activation for ${course.name} (UTR: ${transactionId})`,
+      url: "/admin/orders",
     });
 
     res.status(201).json({

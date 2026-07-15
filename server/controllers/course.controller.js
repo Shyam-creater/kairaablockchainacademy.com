@@ -244,7 +244,7 @@ export const addQuestion = CatchAsyncError(
       couseContent.questions.push(newQuestion);
 
       await Notification.create({
-        user: req.user?._id,
+        userId: req.user?._id,
         title: "New Question Received",
         message: `You have a new question in ${couseContent.title}`,
       });
@@ -297,7 +297,7 @@ export const addAnswer = CatchAsyncError(async (req, res, next) => {
     if (req.user?._id === question.user._id) {
       // create a notification
       await Notification.create({
-        user: req.user._id,
+        userId: req.user._id,
         title: "New question reply received",
         message: `You have a new question reply in ${courseContent.title}`,
       });

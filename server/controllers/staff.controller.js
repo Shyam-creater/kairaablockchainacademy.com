@@ -273,7 +273,8 @@ export const scheduleMeeting = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "meeting",
         title: "New Meeting Scheduled",
-        message
+        message,
+        url: "/profile/meetings"
       });
 
       if (student.email) {
@@ -366,7 +367,8 @@ export const uploadMeetingRecording = CatchAsyncError(async (req, res, next) => 
           userId: student._id,
           type: "meeting",
           title: "Meeting Recording Available",
-          message: notifMessage
+          message: notifMessage,
+          url: "/profile/meetings"
         });
 
         if (student.email) {
@@ -442,7 +444,8 @@ export const replyToDoubt = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "doubt",
         title: "Doubt Replied",
-        message: notificationMessage
+        message: notificationMessage,
+        url: "/profile/ask-doubt"
       });
 
       if (student.email) {
@@ -568,7 +571,8 @@ export const reviewAssignment = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "assignment",
         title: "Assignment Reviewed",
-        message: notificationMessage
+        message: notificationMessage,
+        url: "/profile/assignments"
       });
 
       if (student.email) {
@@ -637,7 +641,8 @@ export const createAssignmentTask = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "assignment",
         title: "New Assignment Posted",
-        message
+        message,
+        url: "/profile/assignments"
       });
 
       if (student.email) {
@@ -779,6 +784,7 @@ export const sendAttendanceReminder = CatchAsyncError(async (req, res, next) => 
       userId: studentId,
       title: "Attendance Reminder",
       message,
+      url: "/profile/attendance"
     });
 
     res.status(200).json({ success: true, message: "Reminder sent successfully" });
@@ -1092,7 +1098,8 @@ export const createProjectTask = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "project",
         title: "New Project Posted",
-        message
+        message,
+        url: "/profile/projects"
       });
 
       if (student.email) {
@@ -1165,7 +1172,8 @@ export const staffReviewProject = CatchAsyncError(async (req, res, next) => {
         userId: student._id,
         type: "project",
         title: "Project Reviewed",
-        message: notificationMessage
+        message: notificationMessage,
+        url: "/profile/projects"
       });
 
       if (student.email) {
