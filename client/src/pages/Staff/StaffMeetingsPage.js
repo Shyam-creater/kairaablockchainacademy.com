@@ -148,7 +148,7 @@ const StaffMeetingsPage = () => {
       setIsSchedulerOpen(false);
       refetchMeetings();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to schedule session");
+      toast.error(typeof (error?.data?.message || "Failed to schedule session") === "string" ? (error?.data?.message || "Failed to schedule session") : JSON.stringify(error?.data?.message || "Failed to schedule session") || "An error occurred");
     }
   };
 

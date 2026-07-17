@@ -277,7 +277,7 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
       if (result.passed) toast.success(`✅ Passed! Score: ${result.score}%`);
       else toast.error(`❌ Failed. Score: ${result.score}%. Try again.`);
     } catch (err) {
-      toast.error(err?.data?.message || 'Could not submit quiz.');
+      toast.error(typeof (err?.data?.message || 'Could not submit quiz.') === "string" ? (err?.data?.message || 'Could not submit quiz.') : JSON.stringify(err?.data?.message || 'Could not submit quiz.') || "An error occurred");
     }
   };
 
@@ -345,14 +345,14 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
     if (answerError) {
       if ("data" in answerError) {
         const errorMessage = error;
-        toast.error(errorMessage.data.message)
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred")
       }
     }
     console.log('User in useEffect:', user);
     if (error) {
       if ("data" in error) {
         const errorMessage = error;
-        toast.error(errorMessage.data.message)
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred")
       }
     }
   }, [isSuccess, error, answerError, answerSuccess])
@@ -1076,7 +1076,7 @@ const StudentDoubtCenter = ({ courseId, user }) => {
       setDescription("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to submit doubt");
+      toast.error(typeof (error?.data?.message || "Failed to submit doubt") === "string" ? (error?.data?.message || "Failed to submit doubt") : JSON.stringify(error?.data?.message || "Failed to submit doubt") || "An error occurred");
     }
   };
 
@@ -1092,7 +1092,7 @@ const StudentDoubtCenter = ({ courseId, user }) => {
         replies: [...prev.replies, { sender: "student", message: replyMessage, createdAt: new Date() }]
       }));
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to send reply");
+      toast.error(typeof (error?.data?.message || "Failed to send reply") === "string" ? (error?.data?.message || "Failed to send reply") : JSON.stringify(error?.data?.message || "Failed to send reply") || "An error occurred");
     }
   };
 
@@ -1238,7 +1238,7 @@ const StudentAssignments = ({ courseId }) => {
       setFile("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to submit assignment");
+      toast.error(typeof (error?.data?.message || "Failed to submit assignment") === "string" ? (error?.data?.message || "Failed to submit assignment") : JSON.stringify(error?.data?.message || "Failed to submit assignment") || "An error occurred");
     }
   };
 

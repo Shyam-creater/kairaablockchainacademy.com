@@ -25,7 +25,7 @@ const Signup = ({ setRoute, setOpen }) => {
       navigate("/verify");
     }
     if (error) {
-      toast.error(error?.data?.message || "Registration failed");
+      toast.error(typeof (error?.data?.message || "Registration failed") === "string" ? (error?.data?.message || "Registration failed") : JSON.stringify(error?.data?.message || "Registration failed") || "An error occurred");
     }
   }, [isSuccess, error, data, navigate]);
 

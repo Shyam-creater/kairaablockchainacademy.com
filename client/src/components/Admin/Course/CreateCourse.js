@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const CreateCourse = () => {
   const navigate = useNavigate();
-  const [createCourse, { isSuccess, error, isLoading }] =useCreateCourseMutation();
+  const [createCourse, { isSuccess, error, isLoading }] = useCreateCourseMutation();
 
   useEffect(() => {
     if (isSuccess) {
@@ -22,12 +22,12 @@ const CreateCourse = () => {
     if (error) {
       if ("data" in error) {
         const errorMessage = error;
-        toast.error(errorMessage.data.message);
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred");
       }
     }
   }, [isSuccess, isLoading, error]);
 
-  
+
 
   const [active, setActive] = useState(0);
   const [courseInfo, setCourseInfo] = useState({
@@ -35,6 +35,7 @@ const CreateCourse = () => {
     description: "",
     price: "",
     estimatedPrice: "",
+    category: "blockchain",
     tags: "",
     level: "",
     demoUrl: "",
@@ -108,14 +109,14 @@ const CreateCourse = () => {
     };
     setCourseData(data);
   };
- 
+
   const handleCourseCreate = async () => {
     const data = courseData;
 
-    if(!isLoading){
+    if (!isLoading) {
       await createCourse(data);
     }
-    
+
   };
 
   return (

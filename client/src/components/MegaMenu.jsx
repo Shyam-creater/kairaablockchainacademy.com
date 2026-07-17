@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import toast from 'react-hot-toast';
-import { 
-  HiOutlineCode, 
-  HiOutlineAcademicCap, 
-  HiOutlineChevronDown, 
-  HiOutlineStar, 
-  HiOutlineViewGridAdd, 
+import {
+  HiOutlineCode,
+  HiOutlineAcademicCap,
+  HiOutlineChevronDown,
+  HiOutlineStar,
+  HiOutlineViewGridAdd,
   HiOutlineArrowRight,
   HiOutlineSparkles,
   HiOutlineBriefcase,
@@ -17,15 +17,12 @@ import {
   HiOutlineChartBar
 } from "react-icons/hi";
 
-import { useGetUserAllCoursesQuery } from "../redux/features/courses/coursesApi.js";
 import { useGetAllBlogsQuery } from "../redux/features/blog/blogApi.js";
 
 const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
   const [activeMenu, setActiveMenu] = useState(null);
-  
-  const { data: coursesData, isLoading } = useGetUserAllCoursesQuery({});
-  const featuredCourses = coursesData?.courses?.slice(0, 3) || [];
-  
+
+
   const { data: blogsData, isLoading: blogsLoading } = useGetAllBlogsQuery({});
   const latestBlog = blogsData?.blogs?.[0] || blogsData?.data?.[0] || null;
 
@@ -55,10 +52,10 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
           {/* Animated Background Effects */}
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-          
+
           <div className="max-w-[1400px] mx-auto w-full p-8 md:p-12 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-              
+
               {/* Column 1: Core Paths & Articles */}
               <div className="flex flex-col gap-8">
                 <div>
@@ -79,7 +76,7 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                       </div>
                     </button>
                     {/* Path 2 */}
-                    <Link to="/courses" onClick={() => setActiveMenu(null)} className="group p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#8b5cf6]/30 transition-all duration-300">
+                    <Link to="/course/othercourse" onClick={() => setActiveMenu(null)} className="group p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#8b5cf6]/30 transition-all duration-300">
                       <div className="flex items-start gap-4">
                         <div className="p-2.5 bg-[#0B0F19] rounded-lg border border-white/10 group-hover:border-[#8b5cf6]/50 text-[#8b5cf6] transition-all duration-300">
                           <HiOutlineCode size={20} />
@@ -118,25 +115,20 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
               <div className="flex flex-col gap-8">
                 <div>
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <HiOutlineStar className="w-4 h-4" /> Featured Programs
+                    <HiOutlineStar className="w-4 h-4" /> BLOCKCHAIN COURSES
                   </h3>
                   <div className="flex flex-col gap-1">
-                    {isLoading ? (
-                      <div className="animate-pulse flex flex-col gap-3">
-                        <div className="h-8 bg-white/5 rounded-lg w-full"></div>
-                        <div className="h-8 bg-white/5 rounded-lg w-full"></div>
-                        <div className="h-8 bg-white/5 rounded-lg w-full"></div>
+                    <Link to="/course/blockchain" onClick={() => setActiveMenu(null)} className="group p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/30 transition-all duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="p-2.5 bg-[#0B0F19] rounded-lg border border-white/10 group-hover:border-primary/50 text-primary transition-all duration-300">
+                          <HiOutlineStar size={20} />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">Show all Blockchain Courses</h4>
+                          <p className="text-xs text-slate-400 mt-1">Explore our entire Web3 catalog.</p>
+                        </div>
                       </div>
-                    ) : featuredCourses.length > 0 ? (
-                      featuredCourses.map((course, idx) => (
-                        <Link key={idx} to={`/courses/${course._id}`} onClick={() => setActiveMenu(null)} className="group flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors">
-                          <span className="text-sm font-medium text-slate-300 group-hover:text-white truncate pr-4">{course.name}</span>
-                          <HiOutlineArrowRight className="w-4 h-4 text-slate-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all flex-shrink-0" />
-                        </Link>
-                      ))
-                    ) : (
-                      <span className="text-sm text-slate-500 p-3">No courses available</span>
-                    )}
+                    </Link>
                   </div>
                 </div>
 
@@ -209,7 +201,7 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                   <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                     <HiOutlineChartBar className="w-4 h-4" /> Student Success
                   </h3>
-                  
+
                   <div className="space-y-6">
                     <div className="flex items-end gap-4 border-b border-white/5 pb-4">
                       <div>
@@ -262,27 +254,27 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
           <div key={index} className="py-4">
             {item.isMega ? (
               <div className="flex flex-col">
-                <button 
+                <button
                   onClick={() => setActiveMenu(activeMenu === index ? null : index)}
                   className="flex items-center justify-between py-3 text-base font-bold text-white w-full text-left"
                 >
                   <span>{item.title}</span>
-                  <HiOutlineChevronDown 
-                    className={`transition-transform duration-500 ${activeMenu === index ? "rotate-180 text-primary" : "text-slate-500"}`} 
+                  <HiOutlineChevronDown
+                    className={`transition-transform duration-500 ${activeMenu === index ? "rotate-180 text-primary" : "text-slate-500"}`}
                     size={20}
                   />
                 </button>
-                
+
                 {/* Mobile Accordion */}
                 {activeMenu === index && (
                   <div className="pl-4 border-l-2 border-primary/50 flex flex-col space-y-3 py-4 mt-2">
                     <button onClick={handleComingSoon} className="text-left text-sm text-slate-300 hover:text-primary font-bold transition-colors duration-300">
                       Independent Learning
                     </button>
-                    <Link to="/courses" className="text-sm text-slate-300 hover:text-primary font-bold transition-colors duration-300">
+                    <Link to="/course/othercourse" className="text-sm text-slate-300 hover:text-primary font-bold transition-colors duration-300">
                       Instructor-Led Courses
                     </Link>
-                    
+
                     <div className="pt-3 border-t border-white/10 mt-3">
                       <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-3">Latest Article</p>
                       <Link to={latestBlog ? `/blogs/${latestBlog._id}` : '/blogs'} className="text-sm text-slate-300 hover:text-primary font-bold transition-colors duration-300 line-clamp-1">
@@ -314,8 +306,8 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
   return (
     <ul className="flex items-center space-x-1 xl:space-x-2 mega-menu-container h-full">
       {menuItems.map((item, index) => (
-        <li 
-          key={index} 
+        <li
+          key={index}
           className="h-full flex items-center"
           onMouseEnter={() => item.isMega && setActiveMenu(index)}
           onMouseLeave={() => item.isMega && setActiveMenu(null)}
@@ -323,14 +315,14 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
           {item.isMega ? (
             <button className="flex items-center gap-1.5 text-sm font-bold text-slate-300 hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,242,254,0.5)] transition-all duration-300 h-full px-2 xl:px-4 py-3">
               <span>{item.title}</span>
-              <HiOutlineChevronDown 
-                className={`transition-transform duration-500 ${activeMenu === index ? "rotate-180 text-primary" : "text-slate-500"}`} 
-                size={16} 
+              <HiOutlineChevronDown
+                className={`transition-transform duration-500 ${activeMenu === index ? "rotate-180 text-primary" : "text-slate-500"}`}
+                size={16}
               />
             </button>
           ) : (
-            <Link 
-              to={item.url} 
+            <Link
+              to={item.url}
               className="text-sm font-bold text-slate-300 hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,242,254,0.5)] transition-all duration-300 px-2 xl:px-4 py-3 h-full flex items-center whitespace-nowrap"
             >
               {item.title}
@@ -339,12 +331,11 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
 
           {/* Mega Dropdown Panel with Full-Width Animation */}
           {item.isMega && (
-            <div 
-              className={`absolute top-full left-0 w-full transition-all duration-300 ease-in-out origin-top pointer-events-none z-40 ${
-                activeMenu === index 
-                  ? "opacity-100 translate-y-0 visible pointer-events-auto" 
+            <div
+              className={`absolute top-full left-0 w-full transition-all duration-300 ease-in-out origin-top pointer-events-none z-40 ${activeMenu === index
+                  ? "opacity-100 translate-y-0 visible pointer-events-auto"
                   : "opacity-0 translate-y-8 invisible"
-              }`}
+                }`}
             >
               {item.content}
             </div>

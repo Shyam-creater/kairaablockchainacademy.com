@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useLoadUserQuery } from '../../redux/features/api/apiSlice';
 
 import HeroSection from './CourseDetails/HeroSection';
+import { useSelector } from 'react-redux';
 import SidebarPurchaseCard from './CourseDetails/SidebarPurchaseCard';
 import CourseStats from './CourseDetails/CourseStats';
 import LearningOutcomes from './CourseDetails/LearningOutcomes';
@@ -18,6 +19,7 @@ import { FooterCTA } from './CourseDetails/AdditionalSections';
 const CourseDetails = ({ data, currentUser }) => {
   const [isPurchased, setIsPurchased] = useState(false);
   const { data: userData, refetch } = useLoadUserQuery(undefined, {});
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (userData?.user) {
@@ -27,7 +29,7 @@ const CourseDetails = ({ data, currentUser }) => {
 
   const paymentHandler = async (e) => {
     e.preventDefault();
-    if (!currentUser) { toast.error("Please login"); return; }
+    if (!user) { toast.error("Please login"); return; }
     try {
       const { data: keyData } = await axios.get(`${process.env.REACT_APP_PUBLIC_SERVER_URI}/payment/razorpaypublishablekey`, { withCredentials: true });
       const orderAmount = Math.round(data.price * 100);
@@ -37,12 +39,12 @@ const CourseDetails = ({ data, currentUser }) => {
         key: keyData.publishablekey,
         amount: orderAmount,
         currency: "INR",
-        name: "Kairaa Blockchain Academy",
+        name: "Kairaa Blockchain Academy", 
         description: data.name,
-        order_id: orderResponse.id,
-        handler: async function (response) {
+        order_id: orderResponse.id, 
+        handler: async function (response) { 
           await axios.post(`${process.env.REACT_APP_PUBLIC_SERVER_URI}/verifyorder`, { response, couresId: data._id }, { withCredentials: true });
-          toast.success("Payment successful!");
+          toast.success("Payment successful!"); 
           refetch();
         }
       };
@@ -53,7 +55,7 @@ const CourseDetails = ({ data, currentUser }) => {
 
   const handleEnrollFree = async (e) => {
     e.preventDefault();
-    if (!currentUser) { toast.error("Please login"); return; }
+    if (!user) { toast.error("Please login"); return; }
     try {
       await axios.post(`${process.env.REACT_APP_PUBLIC_SERVER_URI}/createorder`, { couresId: data._id, data: { amount: 0, currency: "INR" } }, { withCredentials: true });
       toast.success("Enrolled successfully!");

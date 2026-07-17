@@ -105,7 +105,7 @@ const AdminOrdersPage = () => {
       refetchOrders();
       setDrawerOpen(false); // Close drawer to reflect change
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to assign staff");
+      toast.error(typeof (error?.data?.message || "Failed to assign staff") === "string" ? (error?.data?.message || "Failed to assign staff") : JSON.stringify(error?.data?.message || "Failed to assign staff") || "An error occurred");
     }
   };
 

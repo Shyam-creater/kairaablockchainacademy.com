@@ -85,7 +85,7 @@ const WorkspaceProjects = ({ activeCourseId, user, globalCourseName }) => {
       setSelectedTask(null);
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Error submitting project");
+      toast.error(typeof (error?.data?.message || "Error submitting project") === "string" ? (error?.data?.message || "Error submitting project") : JSON.stringify(error?.data?.message || "Error submitting project") || "An error occurred");
     }
   };
 
@@ -98,7 +98,7 @@ const WorkspaceProjects = ({ activeCourseId, user, globalCourseName }) => {
       setReplyMessage("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Error sending reply");
+      toast.error(typeof (error?.data?.message || "Error sending reply") === "string" ? (error?.data?.message || "Error sending reply") : JSON.stringify(error?.data?.message || "Error sending reply") || "An error occurred");
     }
   };
 

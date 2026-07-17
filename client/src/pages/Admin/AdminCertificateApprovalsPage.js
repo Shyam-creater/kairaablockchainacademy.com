@@ -22,7 +22,7 @@ const AdminCertificateApprovalsPage = () => {
       toast.success(`Recommendation ${action}d successfully`);
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || `Failed to ${action} recommendation`);
+      toast.error(typeof (error?.data?.message || `Failed to ${action} recommendation`) === "string" ? (error?.data?.message || `Failed to ${action} recommendation`) : JSON.stringify(error?.data?.message || `Failed to ${action} recommendation`) || "An error occurred");
     }
   };
 

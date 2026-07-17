@@ -179,7 +179,7 @@ const StaffDashboardPage = () => {
       setNotes("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to recommend");
+      toast.error(typeof (error?.data?.message || "Failed to recommend") === "string" ? (error?.data?.message || "Failed to recommend") : JSON.stringify(error?.data?.message || "Failed to recommend") || "An error occurred");
     }
   };
 

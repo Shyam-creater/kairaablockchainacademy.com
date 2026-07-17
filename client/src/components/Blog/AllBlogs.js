@@ -49,7 +49,7 @@ const AllBlogs = () => {
       toast.success("Blog deleted successfully!");
     }
     if (deleteError) {
-      toast.error(deleteError?.data?.message || "Delete failed");
+      toast.error(typeof (deleteError?.data?.message || "Delete failed") === "string" ? (deleteError?.data?.message || "Delete failed") : JSON.stringify(deleteError?.data?.message || "Delete failed") || "An error occurred");
     }
   }, [deleteSuccess, deleteError, deleteLoading, refetch, refetchAnalytics]);
 

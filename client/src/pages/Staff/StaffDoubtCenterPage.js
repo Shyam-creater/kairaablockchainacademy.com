@@ -97,7 +97,7 @@ const StaffDoubtCenterPage = () => {
         replies: [...prev.replies, { sender: "staff", message: replyMessage, createdAt: new Date() }]
       }));
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to send reply");
+      toast.error(typeof (error?.data?.message || "Failed to send reply") === "string" ? (error?.data?.message || "Failed to send reply") : JSON.stringify(error?.data?.message || "Failed to send reply") || "An error occurred");
     }
   };
 
@@ -109,7 +109,7 @@ const StaffDoubtCenterPage = () => {
       setActiveDoubt(prev => ({ ...prev, status: "resolved" }));
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to resolve ticket");
+      toast.error(typeof (error?.data?.message || "Failed to resolve ticket") === "string" ? (error?.data?.message || "Failed to resolve ticket") : JSON.stringify(error?.data?.message || "Failed to resolve ticket") || "An error occurred");
     }
   };
 

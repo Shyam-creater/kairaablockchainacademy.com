@@ -849,7 +849,7 @@ export const WorkspaceAssignments = () => {
       setFile("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to submit assignment");
+      toast.error(typeof (error?.data?.message || "Failed to submit assignment") === "string" ? (error?.data?.message || "Failed to submit assignment") : JSON.stringify(error?.data?.message || "Failed to submit assignment") || "An error occurred");
     }
   };
 

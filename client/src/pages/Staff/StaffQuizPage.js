@@ -191,7 +191,7 @@ const StaffQuizPage = () => {
       toast.success("Quiz saved successfully!");
       refetchQuizzes();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to save quiz");
+      toast.error(typeof (error?.data?.message || "Failed to save quiz") === "string" ? (error?.data?.message || "Failed to save quiz") : JSON.stringify(error?.data?.message || "Failed to save quiz") || "An error occurred");
     }
   };
 

@@ -198,7 +198,7 @@ const StaffAssignmentsPage = () => {
       setMarks(""); setFeedback(""); setStatus("approved");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to submit review");
+      toast.error(typeof (error?.data?.message || "Failed to submit review") === "string" ? (error?.data?.message || "Failed to submit review") : JSON.stringify(error?.data?.message || "Failed to submit review") || "An error occurred");
     }
   };
 
@@ -213,7 +213,7 @@ const StaffAssignmentsPage = () => {
       setWizardStep(1);
       refetchTasks();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to create task");
+      toast.error(typeof (error?.data?.message || "Failed to create task") === "string" ? (error?.data?.message || "Failed to create task") : JSON.stringify(error?.data?.message || "Failed to create task") || "An error occurred");
     }
   };
 

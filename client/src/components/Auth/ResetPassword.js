@@ -35,7 +35,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (error && "data" in error) {
-      toast.error(error.data.message);
+      toast.error(typeof (error.data.message) === "string" ? (error.data.message) : JSON.stringify(error.data.message) || "An error occurred");
     }
   }, [error]);
 

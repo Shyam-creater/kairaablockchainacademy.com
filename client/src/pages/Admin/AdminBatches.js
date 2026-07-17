@@ -40,7 +40,7 @@ const AdminBatches = () => {
       setSelectedStaff("");
       refetchBatches();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to create batch");
+      toast.error(typeof (error?.data?.message || "Failed to create batch") === "string" ? (error?.data?.message || "Failed to create batch") : JSON.stringify(error?.data?.message || "Failed to create batch") || "An error occurred");
     }
   };
 
@@ -53,7 +53,7 @@ const AdminBatches = () => {
       setSelectedStudentId("");
       refetchBatches();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to add student to batch");
+      toast.error(typeof (error?.data?.message || "Failed to add student to batch") === "string" ? (error?.data?.message || "Failed to add student to batch") : JSON.stringify(error?.data?.message || "Failed to add student to batch") || "An error occurred");
     }
   };
 

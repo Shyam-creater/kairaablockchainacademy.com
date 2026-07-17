@@ -28,7 +28,7 @@ const AllOrders = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err?.data?.message || "Failed to verify payment.");
+      toast.error(typeof (err?.data?.message || "Failed to verify payment.") === "string" ? (err?.data?.message || "Failed to verify payment.") : JSON.stringify(err?.data?.message || "Failed to verify payment.") || "An error occurred");
     }
   };
 

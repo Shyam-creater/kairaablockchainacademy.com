@@ -265,47 +265,101 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Large Feature */}
-              <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6 }} className="md:col-span-2 relative group rounded-3xl overflow-hidden cursor-pointer" onClick={() => navigate('/courses')}>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-[#050810]/80 to-transparent z-10" />
-                <img src={courseImg} alt="Blockchain" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-primary text-[#050810] text-xs font-bold uppercase px-3 py-1 rounded-full">Flagship</span>
-                    <span className="bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full">Blockchain</span>
-                  </div>
-                  <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 group-hover:text-primary transition-colors">Certified Blockchain Architect</h3>
-                  <div className="flex flex-wrap gap-6 text-sm font-bold text-slate-300">
-                    <span className="flex items-center gap-2"><FiMonitor className="text-slate-500" /> 6 Months</span>
-                    <span className="flex items-center gap-2"><FiUsers className="text-slate-500" /> 450+ Enrolled</span>
-                    <span className="flex items-center gap-2"><FiStar className="text-accent" /> 4.9 Rating</span>
-                  </div>
-                </div>
-              </motion.div>
+              {/* Dynamic Course 1: Large Feature */}
+              {coursesList && coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain").length > 0 ? (
+                <>
+                  {/* Large Feature */}
+                  <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6 }} className="md:col-span-2 relative group rounded-3xl overflow-hidden cursor-pointer bg-[#050810]" onClick={() => navigate(`/courses/${coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]._id}`)}>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-[#050810]/80 to-transparent z-10" />
+                    <img src={coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.thumbnail?.url || courseImg} alt="Blockchain" className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="bg-primary text-[#050810] text-xs font-bold uppercase px-3 py-1 rounded-full">Flagship</span>
+                        <span className="bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full">{coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.category || "Blockchain"}</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 group-hover:text-primary transition-colors">{coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.name}</h3>
+                      <div className="flex flex-wrap gap-6 text-sm font-bold text-slate-300">
+                        <span className="flex items-center gap-2"><FiMonitor className="text-slate-500" /> {coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.duration || "6 Months"}</span>
+                        <span className="flex items-center gap-2"><FiUsers className="text-slate-500" /> {coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.purchased || 0}+ Enrolled</span>
+                        <span className="flex items-center gap-2"><FiStar className="text-accent" /> {coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain")[0]?.ratings || "4.9"} Rating</span>
+                      </div>
+                    </div>
+                  </motion.div>
 
-              {/* Stacked Features */}
-              <div className="flex flex-col gap-6">
-                <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.2 }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate('/courses')}>
-                  <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
-                    <div>
-                      <span className="bg-accent/20 text-accent text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">Full Stack</span>
-                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-accent transition-colors">Web3 Full Stack Dev</h3>
-                      <p className="text-slate-400 text-sm">Master React, Node, and Solidity.</p>
-                    </div>
-                    <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                  {/* Stacked Features */}
+                  <div className="flex flex-col gap-6">
+                    {coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain").slice(1, 3).map((course, idx) => (
+                      <motion.div key={course._id || idx} initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.2 + (idx * 0.2) }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate(`/courses/${course._id}`)}>
+                        <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
+                          <div>
+                            <span className="bg-accent/20 text-accent text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">{course.level || "Intermediate"}</span>
+                            <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-accent transition-colors">{course.name}</h3>
+                            <p className="text-slate-400 text-sm line-clamp-2">{course.description || "Master new skills with this course."}</p>
+                          </div>
+                          <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                        </div>
+                      </motion.div>
+                    ))}
+                    {/* Fill space if only 1 extra course exists */}
+                    {coursesList.filter(c => c?.categories?.toLowerCase() === "blockchain" || c?.category?.toLowerCase() === "blockchain").length === 2 && (
+                       <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate('/courses')}>
+                        <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
+                          <div>
+                            <span className="bg-purple-500/20 text-purple-400 text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">Explore More</span>
+                            <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">View All Courses</h3>
+                            <p className="text-slate-400 text-sm">Discover more blockchain content.</p>
+                          </div>
+                          <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate('/courses')}>
-                  <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
-                    <div>
-                      <span className="bg-purple-500/20 text-purple-400 text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">AI / ML</span>
-                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Applied AI & Agents</h3>
-                      <p className="text-slate-400 text-sm">Build intelligent apps with LLMs.</p>
+                </>
+              ) : (
+                <>
+                  {/* Fallback Large Feature */}
+                  <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6 }} className="md:col-span-2 relative group rounded-3xl overflow-hidden cursor-pointer bg-[#050810]" onClick={() => navigate('/course/blockchain')}>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050810] via-[#050810]/80 to-transparent z-10" />
+                    <img src={courseImg} alt="Blockchain" className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="bg-primary text-[#050810] text-xs font-bold uppercase px-3 py-1 rounded-full">Flagship</span>
+                        <span className="bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full">Blockchain</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 group-hover:text-primary transition-colors">Certified Blockchain Architect</h3>
+                      <div className="flex flex-wrap gap-6 text-sm font-bold text-slate-300">
+                        <span className="flex items-center gap-2"><FiMonitor className="text-slate-500" /> 6 Months</span>
+                        <span className="flex items-center gap-2"><FiUsers className="text-slate-500" /> 450+ Enrolled</span>
+                        <span className="flex items-center gap-2"><FiStar className="text-accent" /> 4.9 Rating</span>
+                      </div>
                     </div>
-                    <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                  </motion.div>
+
+                  {/* Fallback Stacked Features */}
+                  <div className="flex flex-col gap-6">
+                    <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.2 }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate('/course/internship-program')}>
+                      <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
+                        <div>
+                          <span className="bg-accent/20 text-accent text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">Internship</span>
+                          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-accent transition-colors">Blockchain Internship Program</h3>
+                          <p className="text-slate-400 text-sm">Gain hands-on experience with real-world blockchain projects.</p>
+                        </div>
+                        <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                      </div>
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex-1 relative group rounded-3xl overflow-hidden cursor-pointer border border-white/10 bg-[#050810]" onClick={() => navigate('/course/selfpaced-course')}>
+                      <div className="p-8 h-full flex flex-col justify-between z-20 relative hover:bg-white/5 transition-colors">
+                        <div>
+                          <span className="bg-purple-500/20 text-purple-400 text-xs font-bold uppercase px-3 py-1 rounded-full mb-6 inline-block">Self-Paced</span>
+                          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Self-Paced Blockchain Dev</h3>
+                          <p className="text-slate-400 text-sm">Learn at your own pace with structured materials.</p>
+                        </div>
+                        <FiArrowRight className="text-slate-600 group-hover:text-white transition-colors text-2xl self-end" />
+                      </div>
+                    </motion.div>
                   </div>
-                </motion.div>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </section>

@@ -131,7 +131,7 @@ const StaffProjectsPage = () => {
         replies: feedback ? [...prev.replies, { sender: 'staff', message: feedback, createdAt: new Date().toISOString() }] : prev.replies
       }));
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to submit review");
+      toast.error(typeof (error?.data?.message || "Failed to submit review") === "string" ? (error?.data?.message || "Failed to submit review") : JSON.stringify(error?.data?.message || "Failed to submit review") || "An error occurred");
     }
   };
 
@@ -145,7 +145,7 @@ const StaffProjectsPage = () => {
       setTaskCourseId(""); setTaskTitle(""); setTaskDescription(""); setTaskDueDate("");
       setWizardStep(1);
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to assign project");
+      toast.error(typeof (error?.data?.message || "Failed to assign project") === "string" ? (error?.data?.message || "Failed to assign project") : JSON.stringify(error?.data?.message || "Failed to assign project") || "An error occurred");
     }
   };
 

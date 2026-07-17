@@ -23,22 +23,22 @@ const CourseInformation = ({
       !courseInfo.thumbnail
     ) {
       toast.error("Please fill in all required fields.")
-     
-      
-    }else{
+
+
+    } else {
       setActive(active + 1);
     }
-    
+
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     const maxSize = 10 * 1024 * 1024; // 10 MB
 
-  if (file.size > maxSize) {
-    toast.error('File size exceeds 10 MB');
-    return;
-  }
+    if (file.size > maxSize) {
+      toast.error('File size exceeds 10 MB');
+      return;
+    }
 
     if (file) {
       const reader = new FileReader();
@@ -168,8 +168,25 @@ const CourseInformation = ({
           />
         </div>
 
-        {/* Level and Demo URL Grid */}
+        {/* Category and Level Grid */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div>
+            <label htmlFor="category" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
+              Course Category
+            </label>
+            <select
+              id="category"
+              required
+              value={courseInfo.category}
+              className="w-full h-[45px] bg-black/20 border border-slate-600 rounded-lg px-4 text-white text-sm outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all"
+              onChange={(e) =>
+                setCourseInfo({ ...courseInfo, category: e.target.value })
+              }
+            >
+              <option value="blockchain" className="bg-[#0B0F19]">Blockchain Courses</option>
+              <option value="other" className="bg-[#0B0F19]">Other Courses</option>
+            </select>
+          </div>
           <div>
             <label htmlFor="level" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
               Course Level
@@ -186,6 +203,10 @@ const CourseInformation = ({
               }
             />
           </div>
+        </div>
+
+        {/* Demo URL Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <div>
             <label htmlFor="demoUrl" className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">
               Demo Video Url
@@ -284,9 +305,8 @@ const CourseInformation = ({
           />
           <label
             htmlFor="file"
-            className={`w-full min-h-[200px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
-              dragging ? "border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,242,254,0.3)]" : "border-white/20 bg-white/5 hover:border-primary/50 hover:bg-white/10"
-            }`}
+            className={`w-full min-h-[200px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${dragging ? "border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,242,254,0.3)]" : "border-white/20 bg-white/5 hover:border-primary/50 hover:bg-white/10"
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}

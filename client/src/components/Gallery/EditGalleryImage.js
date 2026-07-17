@@ -51,7 +51,7 @@ const EditGalleryImage = () => {
     if (error) {
       if ("data" in error) {
         const errorMessage = error;
-        toast.error(errorMessage.data.message);
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred");
       } else {
         toast.error("Failed to update image");
       }

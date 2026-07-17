@@ -62,7 +62,7 @@ const AdminCertificatePage = () => {
       toast.success(res.message);
       refetch();
     } catch (e) {
-      toast.error(e.data?.message || "Error approving certificate");
+      toast.error(typeof (e.data?.message || "Error approving certificate") === "string" ? (e.data?.message || "Error approving certificate") : JSON.stringify(e.data?.message || "Error approving certificate") || "An error occurred");
     }
   };
 
@@ -74,7 +74,7 @@ const AdminCertificatePage = () => {
       toast.success("Returned to staff for review");
       refetch();
     } catch (e) {
-      toast.error(e.data?.message || "Error returning certificate");
+      toast.error(typeof (e.data?.message || "Error returning certificate") === "string" ? (e.data?.message || "Error returning certificate") : JSON.stringify(e.data?.message || "Error returning certificate") || "An error occurred");
     }
   };
 
@@ -86,7 +86,7 @@ const AdminCertificatePage = () => {
       toast.success("Certificate rejected permanently");
       refetch();
     } catch (e) {
-      toast.error(e.data?.message || "Error rejecting certificate");
+      toast.error(typeof (e.data?.message || "Error rejecting certificate") === "string" ? (e.data?.message || "Error rejecting certificate") : JSON.stringify(e.data?.message || "Error rejecting certificate") || "An error occurred");
     }
   };
 
@@ -97,7 +97,7 @@ const AdminCertificatePage = () => {
       toast.success("Certificate revoked");
       refetch();
     } catch (e) {
-      toast.error(e.data?.message || "Error revoking certificate");
+      toast.error(typeof (e.data?.message || "Error revoking certificate") === "string" ? (e.data?.message || "Error revoking certificate") : JSON.stringify(e.data?.message || "Error revoking certificate") || "An error occurred");
     }
   };
 

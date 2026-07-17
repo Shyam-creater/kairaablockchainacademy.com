@@ -256,11 +256,11 @@ const router = createBrowserRouter([
           },
           {
             path: '/course/blockchain',
-            element: <Blockchain />
+            element: <UserCoursePage defaultCategory="blockchain" />
           },
           {
             path: '/course/othercourse',
-            element: <OtherCourse />
+            element: <UserCoursePage defaultCategory="other" />
           },
           {
             path: '/course/bootcamp',

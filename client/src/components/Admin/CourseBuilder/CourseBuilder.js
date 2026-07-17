@@ -20,7 +20,7 @@ const CourseBuilder = ({ id }) => {
   const [saveProgress, setSaveProgress] = useState(0);
 
   const [courseData, setCourseData] = useState({
-    name: "", subtitle: "", description: "", thumbnail: "", promoVideo: "", category: "", subcategory: "", level: "", language: "English", status: "Draft", courseType: "Self Paced", visibility: "Public", version: "1.0",
+    name: "", subtitle: "", description: "", thumbnail: "", promoVideo: "", category: "blockchain", subcategory: "", level: "", language: "English", status: "Draft", courseType: "Self Paced", visibility: "Public", version: "1.0",
     price: "", estimatedPrice: "", discountPercentage: "", currency: "INR", offerEndDate: "", emiAvailable: false, freePreview: false, refundPolicy: "", lifetimeAccess: true, certificate: { enabled: true, type: "Completion" }, featured: false, bestseller: false, newCourseBadge: false,
     duration: "", projectsCount: 0, assignmentCount: 0, quizCount: 0, downloadableResourcesCount: 0, communityAccess: false, mobileAccess: true, desktopAccess: true, offlineAccess: false, estimatedStudyHours: "", weeklyStudyHours: "",
     learningOutcomes: [{ title: "" }], prerequisites: [{ title: "" }], careerPaths: [{ title: "", expectedSalary: "" }],
@@ -67,12 +67,14 @@ const CourseBuilder = ({ id }) => {
     }
     if (error) {
       if ("data" in error) {
-        toast.error(error.data.message);
+        const msg = error.data.message;
+        toast.error(typeof msg === "string" ? msg : JSON.stringify(msg) || "An error occurred");
       }
     }
     if (editError) {
       if ("data" in editError) {
-        toast.error(editError.data.message);
+        const msg = editError.data.message;
+        toast.error(typeof msg === "string" ? msg : JSON.stringify(msg) || "An error occurred");
       }
     }
   }, [isSuccess, error, isEditSuccess, editError, navigate, id]);

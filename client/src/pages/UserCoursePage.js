@@ -12,12 +12,18 @@ import { MdVerified } from "react-icons/md";
 import toast from "react-hot-toast";
 import topCourseImg from "../assets/topcourseBlockchain.jpg";
 
-const UserCoursePage = () => {
+const UserCoursePage = ({ defaultCategory }) => {
   const { isLoading, data } = useGetUserAllCoursesQuery({});
   const [course, setCourse] = useState([]);
   const [route, setRoute] = useState("Login");
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState(defaultCategory || "All");
+  
+  useEffect(() => {
+    if (defaultCategory) {
+      setActiveTab(defaultCategory);
+    }
+  }, [defaultCategory]);
   
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -28,12 +34,33 @@ const UserCoursePage = () => {
     }
   }, [data]);
 
-  // Dynamically extract unique categories from actual database courses
-  const categories = ["All", ...new Set(course.map(c => c.categories || c.category || "General").filter(Boolean))];
+  // Dynamically extract unique categories and normalize them
+  const rawCategories = course.map(c => c.categories || c.category || "General").filter(Boolean);
+  
+  // Create a normalized list of categories for the tabs
+  const formattedCategories = ["All", ...new Set(rawCategories.map(cat => {
+    const lower = cat.toLowerCase();
+    if (lower === "blockchain") return "Blockchain";
+    if (lower === "other") return "Other";
+    return cat;
+  }))];
+
+  // Helper to normalize the active tab for comparison
+  const getNormalizedTab = (tab) => {
+    if (tab.toLowerCase() === "blockchain") return "blockchain";
+    if (tab.toLowerCase() === "other") return "other";
+    return tab.toLowerCase();
+  };
+
+  const normalizedActiveTab = getNormalizedTab(activeTab);
 
   const filteredCourses = activeTab === "All" 
     ? course 
-    : course.filter(c => c.categories === activeTab || c.category === activeTab || c.tags?.includes(activeTab));
+    : course.filter(c => {
+        const cat = (c.categories || c.category || "General").toLowerCase();
+        // Match normalized category or check tags
+        return cat === normalizedActiveTab || (c.tags && c.tags.some(tag => tag.toLowerCase() === normalizedActiveTab));
+      });
 
   const faqs = [
     { q: "Do I need prior coding experience?", a: "For our beginner bootcamps, no prior experience is required. For advanced tracks like Smart Contract Auditing, basic programming knowledge is recommended." },
@@ -184,12 +211,12 @@ const UserCoursePage = () => {
               </motion.div>
               
               <div className="flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {categories.map((cat) => (
+                {formattedCategories.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setActiveTab(cat)}
                     className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                      activeTab === cat
+                      getNormalizedTab(activeTab) === getNormalizedTab(cat)
                         ? 'bg-white text-[#050810]'
                         : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/10'
                     }`}

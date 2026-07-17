@@ -10,11 +10,11 @@ import {
 } from "../../../redux/features/courses/coursesApi.js";
 import toast from "react-hot-toast";
 // import { useParams } from "react-router-dom";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const EditCourse = ({ id }) => {
 
- 
+
   const navigate = useNavigate();
 
   const [editCourse, { isSuccess, error }] = useEditCourseMutation();
@@ -25,7 +25,7 @@ const EditCourse = ({ id }) => {
   const editCourseData = data && data.courses.find((i) => i._id === id);
 
   // const editCourseData = data && data.courses.find((i) => i._id === id);
-  
+
 
   useEffect(() => {
     if (isSuccess) {
@@ -36,7 +36,7 @@ const EditCourse = ({ id }) => {
     if (error) {
       if ("data" in error) {
         const errorMessage = error;
-        toast.error(errorMessage.data.message);
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred");
       }
     }
   }, [isSuccess, error]);
@@ -50,6 +50,7 @@ const EditCourse = ({ id }) => {
         description: editCourseData.description,
         price: editCourseData.price,
         estimatedPrice: editCourseData.estimatedPrice,
+        category: editCourseData.category || "blockchain",
         tags: editCourseData.tags,
         level: editCourseData.level,
         demoUrl: editCourseData.demoUrl,
@@ -66,6 +67,7 @@ const EditCourse = ({ id }) => {
     description: "",
     price: "",
     estimatedPrice: "",
+    category: "",
     tags: "",
     level: "",
     demoUrl: "",
@@ -121,6 +123,7 @@ const EditCourse = ({ id }) => {
       description: courseInfo.description,
       price: courseInfo.price,
       estimatedPrice: courseInfo.estimatedPrice,
+      category: courseInfo.category,
       tags: courseInfo.tags,
       thumbnail: courseInfo.thumbnail,
       level: courseInfo.level,
@@ -135,7 +138,7 @@ const EditCourse = ({ id }) => {
 
   const handleCourseCreate = async (e) => {
     const data = courseData;
-   
+
     await editCourse({ id, data });
   };
 

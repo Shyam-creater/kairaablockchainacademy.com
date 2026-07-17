@@ -514,7 +514,7 @@ const StaffAttendancePage = () => {
       toast.success("Reminder sent successfully");
       setReminderOpen(false); setReminderStudent(null); setReminderMsg("");
     } catch (e) {
-      toast.error(e?.data?.message || "Failed to send reminder");
+      toast.error(typeof (e?.data?.message || "Failed to send reminder") === "string" ? (e?.data?.message || "Failed to send reminder") : JSON.stringify(e?.data?.message || "Failed to send reminder") || "An error occurred");
     }
   };
 
@@ -523,7 +523,7 @@ const StaffAttendancePage = () => {
       await markAttendance({ meetingId, studentId, courseId, status }).unwrap();
       toast.success(`Marked as ${status}`);
     } catch (e) {
-      toast.error(e?.data?.message || "Failed to mark attendance");
+      toast.error(typeof (e?.data?.message || "Failed to mark attendance") === "string" ? (e?.data?.message || "Failed to mark attendance") : JSON.stringify(e?.data?.message || "Failed to mark attendance") || "An error occurred");
     }
   };
 

@@ -26,7 +26,7 @@ const StaffCertificatesPage = () => {
       refetchEligible();
       refetchCerts();
     } catch (e) {
-      toast.error(e.data?.message || "Error recommending certificate");
+      toast.error(typeof (e.data?.message || "Error recommending certificate") === "string" ? (e.data?.message || "Error recommending certificate") : JSON.stringify(e.data?.message || "Error recommending certificate") || "An error occurred");
     }
   };
 

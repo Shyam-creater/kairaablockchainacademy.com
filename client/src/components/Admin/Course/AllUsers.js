@@ -54,7 +54,7 @@ const AllUsers = ({ isTeam }) => {
     if (updateError) {
       if ("data" in updateError) {
         const errorMessage = updateError;
-        toast.error(errorMessage.data.message);
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred");
       }
     }
 
@@ -72,7 +72,7 @@ const AllUsers = ({ isTeam }) => {
     if (deleteUserError) {
       if ("data" in deleteUserError) {
         const errorMessage = deleteUserError;
-        toast.error(errorMessage.data.message);
+        toast.error(typeof (errorMessage.data.message) === "string" ? (errorMessage.data.message) : JSON.stringify(errorMessage.data.message) || "An error occurred");
       }
     }
     if (suspendSuccess) {
@@ -81,7 +81,7 @@ const AllUsers = ({ isTeam }) => {
     }
     if (suspendError) {
       if ("data" in suspendError) {
-        toast.error(suspendError.data?.message || "Failed to update user status");
+        toast.error(typeof (suspendError.data?.message || "Failed to update user status") === "string" ? (suspendError.data?.message || "Failed to update user status") : JSON.stringify(suspendError.data?.message || "Failed to update user status") || "An error occurred");
       }
     }
   }, [
@@ -213,7 +213,7 @@ const AllUsers = ({ isTeam }) => {
       toast.success(`Bulk ${action} successful`);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || `Bulk ${action} failed`);
+      toast.error(typeof (err?.data?.message || `Bulk ${action} failed`) === "string" ? (err?.data?.message || `Bulk ${action} failed`) : JSON.stringify(err?.data?.message || `Bulk ${action} failed`) || "An error occurred");
     }
   };
 
