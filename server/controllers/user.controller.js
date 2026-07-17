@@ -216,7 +216,7 @@ export const updateAccessToken = CatchAsyncError(async (req, res, next) => {
     const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN);
 
     if (!decoded) {
-      return next(new ErrorHandler(message, 400));
+      return next(new ErrorHandler("Could not refresh token", 400));
     }
 
     let session = await redis.get(decoded.id);

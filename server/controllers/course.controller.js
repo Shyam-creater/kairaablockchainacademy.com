@@ -103,11 +103,13 @@ export const editCourse = CatchAsyncError(async (req, res, next) => {
       };
     }
 
-    if(thumbnail.startsWith("https")){
+    if(typeof thumbnail === 'string' && thumbnail.startsWith("https")){
       data.thumbnail={
-        public_id: courseData?.thumbnail.public_id,
-        url:courseData?.thumbnail.url
+        public_id: courseData?.thumbnail?.public_id,
+        url:courseData?.thumbnail?.url
       }
+    } else if (thumbnail && typeof thumbnail === 'object') {
+      data.thumbnail = thumbnail;
     }
    
     if (data.courseContentData && Array.isArray(data.courseContentData)) {
@@ -171,7 +173,7 @@ export const getSingleCourse = CatchAsyncError(async (req, res, next) => {
 
 export const getAllCourses = CatchAsyncError(async (req, res, next) => {
   try {
-    const courses = await Course.find().select(
+    const courses = await Course.find().sort({ createdAt: -1 }).select(
       "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
     );
 
