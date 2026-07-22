@@ -3,6 +3,7 @@ import { User } from "../models/userModel.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
 import jwt from "jsonwebtoken";
 import ejs from "ejs";
+import axios from "axios";
 import sendMail from "../utils/sendMail.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -270,11 +271,34 @@ export const getUserInfo = CatchAsyncError(async (req, res, next) => {
 // social auth
 export const socialAuth = CatchAsyncError(async (req, res, next) => {
   try {
-    const { email, name, avatar } = req.body;
-    const user = await User.findOne({ email });
+    const { email, name, avatar, access_token, provider } = req.body;
+    
+    let userEmail = email;
+    let userName = name;
+    let userAvatar = avatar;
+
+    if (provider === 'google' && access_token) {
+      try {
+        // Fetch user details from Google
+        const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${access_token}` }
+        });
+        userEmail = googleRes.data.email;
+        userName = googleRes.data.name;
+        userAvatar = googleRes.data.picture;
+      } catch (err) {
+        return next(new ErrorHandler("Invalid Google access token", 400));
+      }
+    }
+
+    if (!userEmail) {
+      return next(new ErrorHandler("Email is required for social login", 400));
+    }
+
+    const user = await User.findOne({ email: userEmail });
 
     if (!user) {
-      const newUser = await User.create({ email, name, avatar, lastLogin: Date.now() });
+      const newUser = await User.create({ email: userEmail, name: userName, avatar: userAvatar, lastLogin: Date.now() });
       sendToken(newUser, 200, res);
     } else {
       user.lastLogin = Date.now();

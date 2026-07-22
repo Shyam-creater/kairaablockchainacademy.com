@@ -5,7 +5,8 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { HiOutlineSparkles } from "react-icons/hi";
-import { useLoginMutation } from "../../redux/features/auth/authApi";
+import { useLoginMutation, useSocialAuthMutation } from "../../redux/features/auth/authApi";
+import { useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -21,6 +22,27 @@ const Login = ({ setRoute, setOpen }) => {
   const [show, setShow] = useState(false);
   const [loginMode, setLoginMode] = useState("password"); // "password" or "magic"
   const [login, { isSuccess, error, isLoading }] = useLoginMutation();
+  const [socialAuth, { isLoading: isSocialLoading }] = useSocialAuthMutation();
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const result = await socialAuth({
+          access_token: tokenResponse.access_token,
+          provider: "google"
+        }).unwrap();
+        toast.success("Login Successful!");
+        let nextPath = "/profile";
+        if (result?.user?.role === "admin" || result?.user?.role === "staff") nextPath = "/admin/dashboard";
+        navigate(nextPath, { replace: true });
+      } catch (err) {
+        toast.error("Google Login failed");
+      }
+    },
+    onError: () => {
+      toast.error("Google Login failed");
+    }
+  });
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
@@ -138,8 +160,13 @@ const Login = ({ setRoute, setOpen }) => {
         <div className="pt-6 border-t border-white/10 mt-6 relative">
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0B0F19] px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Or continue with</span>
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <button type="button" className="flex items-center justify-center gap-2 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
-              <FcGoogle size={20} /> <span className="text-sm font-bold text-white">Google</span>
+            <button 
+              type="button" 
+              onClick={() => handleGoogleLogin()}
+              disabled={isSocialLoading}
+              className="flex items-center justify-center gap-2 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+            >
+              <FcGoogle size={20} /> <span className="text-sm font-bold text-white">{isSocialLoading ? "Loading..." : "Google"}</span>
             </button>
             <button type="button" className="flex items-center justify-center gap-2 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
               <FaGithub size={20} className="text-white" /> <span className="text-sm font-bold text-white">GitHub</span>

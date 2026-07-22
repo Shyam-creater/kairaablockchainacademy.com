@@ -35,21 +35,24 @@ const UserCoursePage = ({ defaultCategory }) => {
   }, [data]);
 
   // Dynamically extract unique categories and normalize them
-  const rawCategories = course.map(c => c.categories || c.category || "General").filter(Boolean);
+  const rawCategories = course.map(c => c.categories || c.category || "Fundamentals").filter(Boolean);
   
   // Create a normalized list of categories for the tabs
   const formattedCategories = ["All", ...new Set(rawCategories.map(cat => {
     const lower = cat.toLowerCase();
     if (lower === "blockchain") return "Blockchain";
-    if (lower === "other") return "Other";
-    return cat;
+    if (lower === "other") return "Specializations";
+    if (lower === "general") return "Fundamentals";
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
   }))];
 
   // Helper to normalize the active tab for comparison
   const getNormalizedTab = (tab) => {
-    if (tab.toLowerCase() === "blockchain") return "blockchain";
-    if (tab.toLowerCase() === "other") return "other";
-    return tab.toLowerCase();
+    const lower = tab.toLowerCase();
+    if (lower === "blockchain") return "blockchain";
+    if (lower === "other" || lower === "specializations") return "specializations";
+    if (lower === "general" || lower === "fundamentals") return "fundamentals";
+    return lower;
   };
 
   const normalizedActiveTab = getNormalizedTab(activeTab);
@@ -57,9 +60,9 @@ const UserCoursePage = ({ defaultCategory }) => {
   const filteredCourses = activeTab === "All" 
     ? course 
     : course.filter(c => {
-        const cat = (c.categories || c.category || "General").toLowerCase();
+        const cat = getNormalizedTab(c.categories || c.category || "Fundamentals");
         // Match normalized category or check tags
-        return cat === normalizedActiveTab || (c.tags && c.tags.some(tag => tag.toLowerCase() === normalizedActiveTab));
+        return cat === normalizedActiveTab || (c.tags && c.tags.some(tag => getNormalizedTab(tag) === normalizedActiveTab));
       });
 
   const faqs = [
@@ -67,6 +70,8 @@ const UserCoursePage = ({ defaultCategory }) => {
     { q: "Are the classes recorded?", a: "Yes, all live instructor-led sessions are recorded and made available in your learning dashboard for lifetime access." },
     { q: "Is there job placement assistance?", a: "Absolutely. Graduates of our career tracks get access to our dedicated placement cell, mock interviews, and direct referrals to our 50+ hiring partners." }
   ];
+
+  const flagshipCourse = course.find(c => (c.name || "").toLowerCase().includes("certified blockchain architect") || (c.name || "").toLowerCase().includes("blockchain")) || course[0];
 
   return (
     <div className="overflow-x-hidden min-h-screen font-poppins text-slate-300 bg-[#050810] selection:bg-primary/30">
@@ -157,41 +162,78 @@ const UserCoursePage = ({ defaultCategory }) => {
               </div>
               
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6 }} className="w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <FiShield className="text-primary" size={24} />
-                  <span className="text-sm font-bold text-slate-300 uppercase tracking-widest">Certified Blockchain Architect</span>
-                </div>
-                <h2 className="text-4xl font-extrabold text-white mb-6 leading-tight">Master Smart Contracts & Protocol Design</h2>
-                <p className="text-slate-400 mb-8 leading-relaxed">
-                  Our most comprehensive 6-month intensive. Go from basics to auditing enterprise-grade smart contracts. Includes 5 production-ready capstone projects.
-                </p>
-                <div className="grid grid-cols-2 gap-6 mb-10">
-                  <div className="flex items-start gap-3">
-                    <FiClock className="text-accent mt-1" />
-                    <div>
-                      <p className="text-white font-bold text-sm">6 Months</p>
-                      <p className="text-xs text-slate-500">Live Weekends</p>
+                {flagshipCourse ? (
+                  <>
+                    <div className="flex items-center gap-3 mb-6">
+                      <FiShield className="text-primary" size={24} />
+                      <span className="text-sm font-bold text-slate-300 uppercase tracking-widest">{flagshipCourse.category || "Flagship Program"}</span>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <FiCalendar className="text-accent mt-1" />
-                    <div>
-                      <p className="text-white font-bold text-sm">Oct 15, 2026</p>
-                      <p className="text-xs text-slate-500">Next Cohort</p>
+                    <h2 className="text-4xl font-extrabold text-white mb-6 leading-tight">{flagshipCourse.name || "Master Smart Contracts & Protocol Design"}</h2>
+                    <p className="text-slate-400 mb-8 leading-relaxed">
+                      {flagshipCourse.subtitle || flagshipCourse.description || "Our most comprehensive 6-month intensive. Go from basics to auditing enterprise-grade smart contracts. Includes 5 production-ready capstone projects."}
+                    </p>
+                    <div className="grid grid-cols-2 gap-6 mb-10">
+                      <div className="flex items-start gap-3">
+                        <FiClock className="text-accent mt-1" />
+                        <div>
+                          <p className="text-white font-bold text-sm">{flagshipCourse.totalDuration || flagshipCourse.duration || "6 Months"}</p>
+                          <p className="text-xs text-slate-500">Duration</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <FiBriefcase className="text-accent mt-1" />
+                        <div>
+                          <p className="text-white font-bold text-sm">{flagshipCourse.projectsCount || 5}</p>
+                          <p className="text-xs text-slate-500">Capstone Projects</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => navigate("/course-registration")}
-                  className="w-fit px-8 py-4 bg-white text-[#050810] font-bold rounded-xl hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                >
-                  Secure Your Seat
-                </button>
+                    <button 
+                      onClick={() => navigate(`/courses/${flagshipCourse._id}`)}
+                      className="w-fit px-8 py-4 bg-white text-[#050810] font-bold rounded-xl hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    >
+                      Secure Your Seat
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3 mb-6">
+                      <FiShield className="text-primary" size={24} />
+                      <span className="text-sm font-bold text-slate-300 uppercase tracking-widest">Certified Blockchain Architect</span>
+                    </div>
+                    <h2 className="text-4xl font-extrabold text-white mb-6 leading-tight">Master Smart Contracts & Protocol Design</h2>
+                    <p className="text-slate-400 mb-8 leading-relaxed">
+                      Our most comprehensive 6-month intensive. Go from basics to auditing enterprise-grade smart contracts. Includes 5 production-ready capstone projects.
+                    </p>
+                    <div className="grid grid-cols-2 gap-6 mb-10">
+                      <div className="flex items-start gap-3">
+                        <FiClock className="text-accent mt-1" />
+                        <div>
+                          <p className="text-white font-bold text-sm">6 Months</p>
+                          <p className="text-xs text-slate-500">Live Weekends</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <FiCalendar className="text-accent mt-1" />
+                        <div>
+                          <p className="text-white font-bold text-sm">Oct 15, 2026</p>
+                          <p className="text-xs text-slate-500">Next Cohort</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => navigate("/course-registration")}
+                      className="w-fit px-8 py-4 bg-white text-[#050810] font-bold rounded-xl hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    >
+                      Secure Your Seat
+                    </button>
+                  </>
+                )}
               </motion.div>
               
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.6 }} className="w-full lg:w-1/2 relative min-h-[400px]">
                 <img 
-                  src={topCourseImg} 
+                  src={flagshipCourse?.thumbnail?.url || topCourseImg} 
                   alt="Flagship Bootcamp" 
                   className="absolute inset-0 w-full h-full object-cover"
                 />
