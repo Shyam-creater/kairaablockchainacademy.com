@@ -300,7 +300,7 @@ const Header = ({
                         <div className="space-y-1">
                           <Link to="/profile" onClick={() => setProfileDropdown(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
                             <HiOutlineUserCircle className="w-5 h-5 text-slate-400" />
-                            My Profile
+                            Dashboard
                           </Link>
                           <div className="h-px bg-white/10 my-1 mx-2" />
                           <button onClick={() => { setProfileDropdown(false); logOutHandler(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">

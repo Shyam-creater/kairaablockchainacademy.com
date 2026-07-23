@@ -401,11 +401,11 @@ const UserCoursePage = ({ defaultCategory }) => {
                           <div className="flex flex-col">
                             {c.estimatedPrice && (
                               <div className="flex items-center gap-2 mb-0.5">
-                                <span className="line-through text-slate-500 text-[11px]">₹{c.estimatedPrice}</span>
+                                <span className="line-through text-slate-500 text-[11px] whitespace-nowrap">₹&nbsp;{c.estimatedPrice}</span>
                                 {discount > 0 && <span className="bg-green-500/20 text-green-400 px-1 py-0.5 rounded text-[8px] font-extrabold uppercase">{discount}% OFF</span>}
                               </div>
                             )}
-                            <span className="text-xl font-extrabold text-white leading-none">{c.price === 0 ? "Free" : `₹${c.price}`}</span>
+                            <span className="text-xl font-extrabold text-white leading-none whitespace-nowrap">{c.price === 0 ? "Free" : `₹\u00A0${c.price}`}</span>
                           </div>
                           
                           <button className="bg-white text-black px-4 py-2 rounded-xl font-bold text-[11px] flex items-center gap-1.5 group/btn hover:bg-slate-200 transition-colors">

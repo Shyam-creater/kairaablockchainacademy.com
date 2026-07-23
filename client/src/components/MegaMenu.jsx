@@ -18,6 +18,7 @@ import {
 } from "react-icons/hi";
 
 import { useGetAllBlogsQuery } from "../redux/features/blog/blogApi.js";
+import { useGetUserAllCoursesQuery } from "../redux/features/courses/coursesApi.js";
 
 const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
   const [activeMenu, setActiveMenu] = useState(null);
@@ -25,6 +26,15 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
 
   const { data: blogsData, isLoading: blogsLoading } = useGetAllBlogsQuery({});
   const latestBlog = blogsData?.blogs?.[0] || blogsData?.data?.[0] || null;
+
+  const { data: coursesData, isLoading: coursesLoading } = useGetUserAllCoursesQuery({});
+  // Try to find courses that might fit "Other" or just take up to 3 non-blockchain courses, fallback to any 3
+  const allCoursesList = coursesData?.courses || coursesData?.data || [];
+  const topCourses = allCoursesList.filter(c => {
+    const cat = (c.categories || c.category || "").toLowerCase();
+    return cat === "other" || cat === "other courses" || cat === "other course";
+  }).slice(0, 3);
+  const displayCourses = topCourses.length > 0 ? topCourses : [];
 
   // If clicking outside, close the mega menu
   useEffect(() => {
@@ -59,7 +69,7 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
               {/* Column 1: Core Paths & Articles */}
               <div className="flex flex-col gap-8">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                     <HiOutlineMap className="w-4 h-4" /> Learning Paths
                   </h3>
                   <div className="flex flex-col gap-3">
@@ -91,7 +101,7 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                 </div>
 
                 <div className="pt-8 border-t border-white/5">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                     <HiOutlineDocumentText className="w-4 h-4" /> Latest Article
                   </h3>
                   {blogsLoading ? (
@@ -111,10 +121,55 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                 </div>
               </div>
 
-              {/* Column 2: Programs & Top Course */}
+              {/* Column 2: Resources & Community */}
               <div className="flex flex-col gap-8">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <HiOutlineStar className="w-4 h-4" /> Top Courses
+                  </h3>
+                  <div className="flex flex-col gap-1">
+                    {coursesLoading ? (
+                      <div className="h-24 bg-white/5 rounded-2xl animate-pulse w-full"></div>
+                    ) : displayCourses.length > 0 ? (
+                      displayCourses.map((course, idx) => (
+                        <Link key={idx} to={`/courses/${course._id}`} onClick={() => setActiveMenu(null)} className="group p-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#8b5cf6]/30 transition-all duration-300">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-[#0B0F19] rounded-lg border border-white/10 group-hover:border-[#8b5cf6]/50 text-[#8b5cf6] transition-all duration-300">
+                              <HiOutlineCode size={16} />
+                            </div>
+                            <div>
+                              <h4 className="text-[13px] font-bold text-white group-hover:text-[#8b5cf6] transition-colors line-clamp-1">{course.name}</h4>
+                            </div>
+                          </div>
+                        </Link>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-500">No courses available</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-white/5">
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <HiOutlineUserGroup className="w-4 h-4" /> Community
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#5865F2]/50 text-center transition-all group">
+                      <HiOutlineChatAlt2 className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-[#5865F2]" />
+                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Discord</span>
+                    </a>
+                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/50 text-center transition-all group">
+                      <HiOutlineUserGroup className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-primary" />
+                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Forums</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 3: Programs & Top Course */}
+              <div className="flex flex-col gap-8">
+                <div>
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                     <HiOutlineStar className="w-4 h-4" /> BLOCKCHAIN COURSES
                   </h3>
                   <div className="flex flex-col gap-1">
@@ -150,47 +205,6 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                         </div>
                       </div>
                     </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: Resources & Community */}
-              <div className="flex flex-col gap-8">
-                <div>
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <HiOutlineDocumentText className="w-4 h-4" /> Resources
-                  </h3>
-                  <div className="flex flex-col gap-1">
-                    <Link to="/blogs" onClick={() => setActiveMenu(null)} className="group flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
-                      <div className="w-8 h-8 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors"><HiOutlineDocumentText size={16} /></div>
-                      <div>
-                        <span className="block text-sm font-medium text-slate-300 group-hover:text-white">Technical Blog</span>
-                        <span className="block text-[10px] text-slate-500">Tutorials & guides</span>
-                      </div>
-                    </Link>
-                    <Link to="/docs" onClick={() => setActiveMenu(null)} className="group flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
-                      <div className="w-8 h-8 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors"><HiOutlineAcademicCap size={16} /></div>
-                      <div>
-                        <span className="block text-sm font-medium text-slate-300 group-hover:text-white">Documentation</span>
-                        <span className="block text-[10px] text-slate-500">API & developer tools</span>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="pt-8 border-t border-white/5">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <HiOutlineUserGroup className="w-4 h-4" /> Community
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#5865F2]/50 text-center transition-all group">
-                      <HiOutlineChatAlt2 className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-[#5865F2]" />
-                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Discord</span>
-                    </a>
-                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/50 text-center transition-all group">
-                      <HiOutlineUserGroup className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-primary" />
-                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Forums</span>
-                    </a>
                   </div>
                 </div>
               </div>

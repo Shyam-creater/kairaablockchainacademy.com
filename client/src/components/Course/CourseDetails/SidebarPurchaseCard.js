@@ -37,10 +37,10 @@ const SidebarPurchaseCard = ({ data, isPurchased, paymentHandler, handleEnrollFr
       )}
       
       <div className="p-8 space-y-8">
-        <div className="flex items-end gap-3">
-          <span className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">₹{data?.price === 0 ? 'Free' : data?.price}</span>
+        <div className="flex items-end gap-3 mb-6">
+          <span className="text-4xl md:text-5xl font-extrabold text-white tracking-tight whitespace-nowrap">₹&nbsp;{data?.price === 0 ? 'Free' : data?.price}</span>
           {data?.estimatedPrice > data?.price && (
-            <span className="text-lg text-slate-500 line-through mb-1.5 font-medium">₹{data.estimatedPrice}</span>
+            <span className="text-lg text-slate-500 line-through mb-1.5 font-medium whitespace-nowrap">₹&nbsp;{data.estimatedPrice}</span>
           )}
           {data?.discountPercentage && (
             <span className="text-xs font-bold text-[#050810] bg-accent px-2 py-1 rounded mb-2 ml-2">SAVE {data.discountPercentage}%</span>
