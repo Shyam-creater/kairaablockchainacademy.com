@@ -117,8 +117,8 @@ const NeetSponsorPage = () => {
               Our comprehensive NEET Question Bank provides thousands of highly curated practice questions, mock exams, and past papers. We believe that access to premium medical preparation materials should be driven by merit, not just financial capability.
             </p>
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
-              <p className="text-primary font-bold">Total Cost: ₹5,000</p>
-              <p className="text-sm text-slate-400 mt-1">Unlock full access in your student dashboard.</p>
+              <p className="text-primary font-bold">Cost: ₹10 per Question Bank</p>
+              <p className="text-sm text-slate-400 mt-1">Select your preferred year and subject in the student dashboard, then pay ₹10 to instantly unlock and download that specific question bank.</p>
             </div>
           </motion.div>
 
