@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineCheckCircle } from "react-icons/hi";
+import toast from "react-hot-toast";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -15,7 +16,8 @@ const Onboarding = () => {
     if (step < 2) {
       setStep(step + 1);
     } else {
-      navigate("/");
+      toast.success("Registered successfully!");
+      navigate("/login");
     }
   };
 
@@ -111,7 +113,7 @@ const Onboarding = () => {
                 : "bg-white/5 text-slate-500 border border-white/10 cursor-not-allowed"
             }`}
           >
-            {step === 2 ? "Go to Dashboard" : "Continue"}
+            {step === 2 ? "Login to Continue" : "Continue"}
           </button>
         </div>
       </form>

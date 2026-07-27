@@ -173,6 +173,7 @@ const AdminSidebar = ({ forceOpen, onMobileClose }) => {
               )}
               <NavItem title="Users" to="/admin/users" icon={FiUsers} isCollapsed={activeCollapsed} />
               <NavItem title="Courses" to="/admin/courses" icon={FiBookOpen} isCollapsed={activeCollapsed} />
+              <NavItem title="NEET Management" to="/admin/neet" icon={FiFolder} isCollapsed={activeCollapsed} />
               <NavItem title="Enquiries" to="/admin/registrations" icon={FiClipboard} isCollapsed={activeCollapsed} />
               <NavItem title="Course Purchases" to="/admin/orders" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
               <NavItem title="Certificates" to="/admin/certificates" icon={FiAward} isCollapsed={activeCollapsed} />

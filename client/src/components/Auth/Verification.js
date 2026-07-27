@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineShieldCheck, HiOutlinePencilAlt, HiOutlineRefresh } from "react-icons/hi";
+import { useSelector } from "react-redux";
+import { useActivationMutation } from "../../redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 const Verification = () => {
   const navigate = useNavigate();
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [countdown, setCountdown] = useState(30);
-  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
+
+  const { token } = useSelector((state) => state.auth || {});
+  const [activation, { isSuccess, error, isLoading }] = useActivationMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate("/onboarding");
+    }
+    if (error) {
+      toast.error(error?.data?.message || "Invalid or expired OTP");
+    }
+  }, [isSuccess, error, navigate]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -24,14 +39,16 @@ const Verification = () => {
     setOtp(newOtp);
 
     // auto focus next
-    if (value !== "" && index < 3) {
+    if (value !== "" && index < 5) {
       inputRefs[index + 1].current.focus();
     }
 
     // auto submit if complete
-    if (index === 3 && value !== "") {
-      // simulate auto submit
-      setTimeout(() => navigate("/onboarding"), 1000);
+    if (index === 5 && value !== "") {
+      activation({
+        activation_token: token,
+        activation_code: newOtp.join(""),
+      });
     }
   };
 
@@ -43,17 +60,22 @@ const Verification = () => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 4).split("");
+    const pastedData = e.clipboardData.getData("text").slice(0, 6).split("");
     if (pastedData.length > 0) {
       const newOtp = [...otp];
       pastedData.forEach((char, i) => {
-        if (!isNaN(char) && i < 4) newOtp[i] = char;
+        if (!isNaN(char) && i < 6) newOtp[i] = char;
       });
       setOtp(newOtp);
       // focus last filled input
-      const lastIndex = Math.min(pastedData.length - 1, 3);
+      const lastIndex = Math.min(pastedData.length - 1, 5);
       inputRefs[lastIndex].current.focus();
-      if (pastedData.length === 4) setTimeout(() => navigate("/onboarding"), 1000);
+      if (pastedData.length === 6) {
+        activation({
+          activation_token: token,
+          activation_code: pastedData.join(""),
+        });
+      }
     }
   };
 
@@ -72,7 +94,7 @@ const Verification = () => {
 
       <h2 className="text-2xl font-extrabold text-white mb-2">Verify your email</h2>
       <p className="text-sm text-slate-400 mb-6">
-        We've sent a 4-digit verification code to
+        We've sent a 6-digit verification code to
         <br />
         <span className="font-bold text-white mt-1 inline-flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10">
           user@example.com 
@@ -99,14 +121,22 @@ const Verification = () => {
 
         <button 
           type="button" 
-          onClick={() => navigate("/onboarding")}
+          disabled={isLoading}
+          onClick={() => {
+            if (otp.join("").length === 6) {
+              activation({
+                activation_token: token,
+                activation_code: otp.join(""),
+              });
+            }
+          }}
           className={`w-full py-4 font-extrabold rounded-xl transition-all duration-300 ${
-            otp.join("").length === 4 
+            otp.join("").length === 6 
               ? "bg-primary text-[#0B0F19] shadow-[0_0_20px_rgba(0,242,254,0.3)] hover:shadow-[0_0_30px_rgba(0,242,254,0.5)]" 
               : "bg-white/5 text-slate-500 border border-white/10 cursor-not-allowed"
           }`}
         >
-          {otp.join("").length === 4 ? "Verifying..." : "Enter Code"}
+          {isLoading ? "Verifying..." : (otp.join("").length === 6 ? "Verify Code" : "Enter Code")}
         </button>
       </form>
 

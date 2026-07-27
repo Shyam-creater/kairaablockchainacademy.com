@@ -106,6 +106,7 @@ const StudentDashboard = ({ user, courses }) => {
     { id: 'attendance', name: 'Attendance', icon: <FiCalendar /> },
     { id: 'certificates', name: 'Certificates', icon: <FiAward /> },
     { id: 'placement', name: 'Placement', icon: <FiTrendingUp /> },
+    { id: 'neet', name: 'NEET Prep', icon: <FiTarget /> },
   ];
 
   return (

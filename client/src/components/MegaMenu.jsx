@@ -63,8 +63,8 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-          <div className="max-w-[1400px] mx-auto w-full p-8 md:p-12 relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="max-w-[1400px] mx-auto w-full p-4 md:p-6 lg:p-8 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-8">
 
               {/* Column 1: Core Paths & Articles */}
               <div className="flex flex-col gap-8">
@@ -101,23 +101,20 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                 </div>
 
                 <div className="pt-8 border-t border-white/5">
-                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <HiOutlineDocumentText className="w-4 h-4" /> Latest Article
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <HiOutlineSparkles className="w-4 h-4" /> Exclusive Opportunities
                   </h3>
-                  {blogsLoading ? (
-                    <div className="h-24 bg-white/5 rounded-2xl animate-pulse w-full"></div>
-                  ) : latestBlog ? (
-                    <Link to={`/blogs/${latestBlog._id}`} onClick={() => setActiveMenu(null)} className="group relative block p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 hover:border-primary/50 transition-all overflow-hidden">
-                      <div className="absolute right-0 top-0 w-24 h-24 bg-primary/20 blur-[30px] rounded-full group-hover:bg-primary/40 transition-colors"></div>
-                      <div className="relative z-10">
-                        <h4 className="text-sm font-bold text-white mb-1 line-clamp-1">{latestBlog.title || latestBlog.name || 'Latest Article'}</h4>
-                        <p className="text-xs text-slate-300 mb-3 line-clamp-2">{latestBlog.description || latestBlog.excerpt || 'Read our latest insights.'}</p>
-                        <span className="text-xs font-bold text-primary group-hover:underline">Read More &rarr;</span>
+                  <div className="grid grid-cols-1 gap-3">
+                    <Link to="/neet-sponsors" onClick={() => setActiveMenu(null)} className="relative p-4 rounded-xl border border-primary/50 bg-gradient-to-br from-primary/10 via-[#8b5cf6]/10 to-transparent hover:from-primary/20 hover:via-[#8b5cf6]/20 hover:border-primary shadow-[0_0_15px_rgba(0,242,254,0.2)] hover:shadow-[0_0_25px_rgba(0,242,254,0.4)] text-center transition-all duration-300 group overflow-hidden">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 blur-[30px] rounded-full group-hover:bg-primary/40 transition-colors pointer-events-none"></div>
+                      <div className="relative z-10 flex flex-row items-center justify-center gap-3">
+                        <div className="p-2 bg-[#0B0F19]/50 rounded-full border border-primary/30 group-hover:border-primary/80 group-hover:scale-110 transition-all duration-300">
+                          <HiOutlineStar className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(0,242,254,0.8)]" />
+                        </div>
+                        <span className="text-xs sm:text-sm font-extrabold text-white tracking-wider group-hover:text-primary transition-colors drop-shadow-md">NEET & Sponsors</span>
                       </div>
                     </Link>
-                  ) : (
-                    <span className="text-xs text-slate-500">No articles available</span>
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -150,19 +147,23 @@ const MegaMenu = ({ isMobile, isScrolled, showQuickBar = true }) => {
                 </div>
 
                 <div className="pt-8 border-t border-white/5">
-                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                    <HiOutlineUserGroup className="w-4 h-4" /> Community
+                  <h3 className="text-sm font-extrabold text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <HiOutlineDocumentText className="w-4 h-4" /> Latest Article
                   </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#5865F2]/50 text-center transition-all group">
-                      <HiOutlineChatAlt2 className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-[#5865F2]" />
-                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Discord</span>
-                    </a>
-                    <a href="#" className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/50 text-center transition-all group">
-                      <HiOutlineUserGroup className="w-6 h-6 mx-auto mb-2 text-slate-400 group-hover:text-primary" />
-                      <span className="text-xs font-bold text-slate-300 group-hover:text-white">Forums</span>
-                    </a>
-                  </div>
+                  {blogsLoading ? (
+                    <div className="h-24 bg-white/5 rounded-2xl animate-pulse w-full"></div>
+                  ) : latestBlog ? (
+                    <Link to={`/blogs/${latestBlog._id}`} onClick={() => setActiveMenu(null)} className="group relative block p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 hover:border-primary/50 transition-all overflow-hidden">
+                      <div className="absolute right-0 top-0 w-24 h-24 bg-primary/20 blur-[30px] rounded-full group-hover:bg-primary/40 transition-colors"></div>
+                      <div className="relative z-10">
+                        <h4 className="text-sm font-bold text-white mb-1 line-clamp-1">{latestBlog.title || latestBlog.name || 'Latest Article'}</h4>
+                        <p className="text-xs text-slate-300 mb-3 line-clamp-2">{latestBlog.description || latestBlog.excerpt || 'Read our latest insights.'}</p>
+                        <span className="text-xs font-bold text-primary group-hover:underline">Read More &rarr;</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-slate-500">No articles available</span>
+                  )}
                 </div>
               </div>
 

@@ -50,6 +50,21 @@ const SideBarProfile = ({ user, active, avatar, setActive, logOutHandler }) => {
           </h5>
         </Link>
 
+        {/* NEET Question Banks */}
+        <Link
+          to="/profile/neet"
+          className={`w-full flex items-center px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-300 group ${
+            active === 5 
+              ? "bg-primary/10 border border-primary/30 shadow-[0_0_15px_rgba(0,242,254,0.1)]" 
+              : "bg-transparent border border-transparent hover:bg-white/5 hover:border-white/10"
+          }`} 
+        >
+          <SiCoursera size={20} className={`transition-colors duration-300 ${active === 5 ? "text-primary drop-shadow-[0_0_8px_rgba(0,242,254,0.8)]" : "text-slate-400 group-hover:text-white"}`} />
+          <h5 className={`pl-4 hidden md:block font-bold text-[15px] transition-colors duration-300 ${active === 5 ? "text-primary" : "text-slate-400 group-hover:text-white"}`}>
+            NEET Prep
+          </h5>
+        </Link>
+
         <div className="my-4 h-px bg-white/5 mx-2 hidden md:block"></div>
 
         {/* Settings Hub */}
