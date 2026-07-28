@@ -367,6 +367,10 @@ const router = createBrowserRouter([
             element: <AdminCertificatePage />
           },
           {
+            path: "/verify-certificate",
+            element: <VerifyCertificatePage />
+          },
+          {
             path: "/verify-certificate/:certificateNumber",
             element: <VerifyCertificatePage />
           }
