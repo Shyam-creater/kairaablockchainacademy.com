@@ -28,6 +28,8 @@ import certificateRouter from "./routes/certificate.route.js";
 import staffRouter from "./routes/staff.route.js";
 import studentRouter from "./routes/student.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
+import neetRouter from "./routes/neetRoutes.js";
+import sponsorRequestRouter from "./routes/sponsorRequestRoutes.js";
 
 export const app = express();
 
@@ -108,11 +110,13 @@ app.use(
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/", galleryRoute);
 app.use("/api/v1/", blogRoute);
+app.use("/api/v1/neet", neetRouter);
 app.use("/api/v1/", progressRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/staff", staffRouter);
 app.use("/api/v1/student", studentRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/sponsor-requests", sponsorRequestRouter);
 
 app.get("/test", (req, res, next) => {
   res.status(200).json({

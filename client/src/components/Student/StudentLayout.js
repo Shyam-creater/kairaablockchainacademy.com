@@ -19,6 +19,7 @@ const StudentLayout = () => {
   if (path.includes("settings")) active = 1;
   if (path.includes("courses")) active = 3;
   if (path.includes("favorites")) active = 4;
+  if (path.includes("neet")) active = 5;
 
   return (
     <Protected>

@@ -7,6 +7,7 @@ import {
 import { Navigate } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
+import NeetSponsorPage from "./pages/NeetSponsorPage.js";
 import { createBrowserRouter, RouterProvider, Outlet, useLocation } from "react-router-dom";
 
 import CoursePage from "./pages/CoursePage";
@@ -16,12 +17,14 @@ import StudentLayout from "./components/Student/StudentLayout";
 import StudentDashboardPage from "./pages/Student/StudentDashboardPage";
 import StudentCoursesPage from "./pages/Student/StudentCoursesPage";
 import StudentSettingsPage from "./pages/Student/StudentSettingsPage";
+import StudentNeetManagement from "./pages/Student/StudentNeetManagement";
 import AdminPage from "./pages/Admin/AdminPage";
 import CreateCoursePage from "./pages/Admin/createCoursePage";
 import Courses from "./pages/Admin/Courses";
 import Users from "./pages/Admin/Users";
 import Staff from "./pages/Admin/Staff";
 import Team from "./pages/Admin/team.js";
+import AdminNeetManagement from "./pages/Admin/AdminNeetManagement";
 
 import EditCoursePage from "./pages/Admin/EditCoursePage.js";
 import CourseAccessPage from "./pages/CourseAccessPage.js";
@@ -117,6 +120,10 @@ const router = createBrowserRouter([
         element: <EnquiryPage />,
       },
       {
+        path: "/neet-sponsors",
+        element: <NeetSponsorPage />,
+      },
+      {
         path: "/login",
         element: <AuthLayout title="Welcome Back" subtitle="Sign in to continue your learning journey."><Login /></AuthLayout>,
       },
@@ -166,7 +173,8 @@ const router = createBrowserRouter([
           { path: "placement", element: <WorkspacePlacement /> },
           { path: "settings", element: <WorkspacePlaceholder title="Settings & Preferences" icon="Settings" /> },
           { path: "course-viewer", element: <CourseViewerWrapper /> },
-          { path: "ai-copilot", element: <WorkspaceMentor /> }
+          { path: "ai-copilot", element: <WorkspaceMentor /> },
+          { path: "neet", element: <StudentNeetManagement /> }
         ]
       },
       { path: "profile/course-access/:id", element: <CourseAccessPage /> },
@@ -175,6 +183,10 @@ const router = createBrowserRouter([
           {
             path:"/admin",
             element:<AdminPage/>
+          },
+          {
+            path:"/admin/neet",
+            element:<AdminNeetManagement/>
           },
           {
             path:"/admin/create-course",

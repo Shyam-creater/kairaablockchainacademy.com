@@ -154,28 +154,28 @@ const Header = ({
             : `${showQuickBar ? "top-[33px]" : "top-0"} bg-[#0B0F19] border-white/5 h-[80px]`
         } ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
       >
-        <div className="max-w-[1600px] mx-auto px-4 lg:px-8 h-full flex items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-8 xl:px-16 h-full flex items-center justify-between gap-2 lg:gap-4">
           
           {/* ================= LEFT SECTION ================= */}
-          <div className="flex items-center gap-6 xl:gap-8 flex-shrink-0">
+          <div className="flex items-center gap-2 xl:gap-4 flex-shrink-0">
             <Link to={"/"} className="block hover:opacity-80 transition-opacity">
               <img src={logo2} alt="Logo" className="w-[140px] xl:w-[160px] object-contain drop-shadow-[0_0_10px_rgba(0,242,254,0.3)]" />
             </Link>
             
             {/* Mode Switcher */}
-            <div className="hidden md:flex bg-[#111827] border border-white/10 rounded-full p-1.5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] relative">
+            <div className="hidden lg:flex bg-[#111827] border border-white/10 rounded-full p-1.5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] relative">
               <button 
                 onClick={() => {
                   setHeaderMode("Academy");
                   navigate("/");
                 }}
-                className={`relative z-10 w-32 flex items-center justify-center py-2 rounded-full text-sm font-bold transition-all duration-300 ${headerMode === "Academy" ? "text-slate-900" : "text-slate-400 hover:text-white"}`}
+                className={`relative z-10 w-24 xl:w-32 flex items-center justify-center py-2 rounded-full text-xs xl:text-sm font-bold transition-all duration-300 ${headerMode === "Academy" ? "text-slate-900" : "text-slate-400 hover:text-white"}`}
               >
                 Academy
               </button>
               <button 
                 onClick={() => setHeaderMode("Learning Hub")}
-                className={`relative z-10 w-32 flex items-center justify-center py-2 rounded-full text-sm font-bold transition-all duration-300 ${headerMode === "Learning Hub" ? "text-white" : "text-slate-400 hover:text-white"}`}
+                className={`relative z-10 w-24 xl:w-32 flex items-center justify-center py-2 rounded-full text-xs xl:text-sm font-bold transition-all duration-300 ${headerMode === "Learning Hub" ? "text-white" : "text-slate-400 hover:text-white"}`}
               >
                 Learning Hub
               </button>
@@ -244,7 +244,6 @@ const Header = ({
               <>
                 {/* Removed Learning Hub widgets from right side (moved to center) */}
 
-               
 
                 <NotificationBell />
                 <QuickActions />
@@ -318,13 +317,13 @@ const Header = ({
                 <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                   <button 
                     onClick={() => navigate("/login")}
-                    className="text-sm font-bold text-slate-300 hover:text-white transition-colors"
+                    className="hidden lg:block text-sm font-bold text-slate-300 hover:text-white transition-colors"
                   >
                     Log In
                   </button>
                   <button 
                     onClick={() => navigate("/signup")}
-                    className="px-4 py-2 rounded-full text-sm font-bold bg-white text-slate-900 hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] whitespace-nowrap"
+                    className="hidden lg:block px-4 py-2 rounded-full text-sm font-bold bg-white text-slate-900 hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] whitespace-nowrap"
                   >
                     Get Started Free
                   </button>
@@ -367,7 +366,15 @@ const Header = ({
               
               <div className="overflow-y-auto px-6 pb-8 custom-scrollbar">
                 {user && (
-                  <div className="mb-6 flex gap-3">
+                  <div className="mb-6 flex flex-col gap-3">
+                    <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <img src={user.avatar ? user.avatar.url : avatar} alt="avatar" className="w-12 h-12 rounded-full border border-primary/30" />
+                      <div className="overflow-hidden">
+                        <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    
                     <div className="flex-1 bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center">
                       <span className="text-2xl mb-1">🔥</span>
                       <p className="text-white font-bold text-lg">{metrics?.currentStreak ?? metrics?.data?.currentStreak ?? 0}</p>
@@ -389,11 +396,12 @@ const Header = ({
                   </Link>
                   <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 border border-transparent transition-colors">
                     <div className="p-2 bg-white/5 rounded-lg text-orange-400"><HiOutlineAcademicCap className="w-5 h-5" /></div>
-                    <span className="font-medium text-slate-200">My Learning</span>
+                    <span className="font-medium text-slate-200">Dashboard</span>
                   </Link>
+
                 </div>
 
-                {!user && (
+                {!user ? (
                   <div className="mt-8 flex flex-col gap-3">
                     <NeonButton variant="ghost" onClick={() => { setIsMobileMenuOpen(false); navigate("/login"); }} className="w-full justify-center">
                       Log In
@@ -401,6 +409,16 @@ const Header = ({
                     <NeonButton variant="primary" onClick={() => { setIsMobileMenuOpen(false); navigate("/signup"); }} className="w-full justify-center">
                       Get Started Free
                     </NeonButton>
+                  </div>
+                ) : (
+                  <div className="mt-8 flex flex-col gap-3">
+                    <button 
+                      onClick={() => { setIsMobileMenuOpen(false); logOutHandler(); }} 
+                      className="flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-colors border border-red-500/20"
+                    >
+                      <HiOutlineLogout className="w-5 h-5" />
+                      Log Out
+                    </button>
                   </div>
                 )}
               </div>
