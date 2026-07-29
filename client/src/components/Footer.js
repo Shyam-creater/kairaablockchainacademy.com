@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import {
   FaInstagramSquare,
@@ -27,7 +27,8 @@ const columnVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
-const Footer = () => {
+const Footer = ({ hideQuickAccess = false }) => {
+  const [email, setEmail] = useState("");
   const { user } = useSelector((state) => state.auth);
 
   return (
@@ -205,29 +206,31 @@ const Footer = () => {
       </div>
 
       {/* QUICK ACCESS BAR (FLOATING PILL) */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#0B1120]/80 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 shadow-[0_10px_40px_rgba(0,0,0,0.8)] w-max max-w-[95vw] overflow-x-auto hide-scrollbar">
-        <div className="flex items-center justify-center gap-4 sm:gap-6 whitespace-nowrap">
-          <Link to="/courses" className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
-            Explore Programs
-          </Link>
-          <span className="w-1 h-1 rounded-full bg-white/20 shrink-0"></span>
-          <Link to={user ? "/profile" : "/login"} className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
-            Student Portal
-          </Link>
-          <span className="w-1 h-1 rounded-full bg-white/20 shrink-0"></span>
-          <Link to="/profile/certificates" className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
-            Verify Certificate
-          </Link>
-          <span className="w-1 h-1 rounded-full bg-white/20 shrink-0 hidden xs:block"></span>
-          <Link to="/contact" className="hidden xs:flex text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors items-center gap-1.5 shrink-0">
-            Contact Advisor
-          </Link>
-          <span className="w-1 h-1 rounded-full bg-white/20 shrink-0 hidden sm:block"></span>
-          <Link to="/contact" className="hidden sm:flex text-xs font-bold text-[#050810] bg-white px-5 py-2 rounded-lg hover:bg-slate-200 transition-colors items-center gap-2 shrink-0 border border-white">
-            Book Demo
-          </Link>
+      {!hideQuickAccess && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#0B1120]/80 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 shadow-[0_10px_40px_rgba(0,0,0,0.8)] w-max max-w-[95vw] overflow-x-auto hide-scrollbar">
+          <div className="flex items-center justify-center gap-4 sm:gap-6 whitespace-nowrap">
+            <Link to="/courses" className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
+              Explore Programs
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-white/20 shrink-0"></span>
+            <Link to={user ? "/profile" : "/login"} className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
+              Student Portal
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-white/20 shrink-0"></span>
+            <Link to="/verify-certificate" className="text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5 shrink-0">
+              Verify Certificate
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-white/20 shrink-0 hidden xs:block"></span>
+            <Link to="/contact" className="hidden xs:flex text-[11px] sm:text-sm font-bold text-white hover:text-cyan-400 transition-colors items-center gap-1.5 shrink-0">
+              Contact Advisor
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-white/20 shrink-0 hidden sm:block"></span>
+            <Link to="/contact" className="hidden sm:flex text-xs font-bold text-[#050810] bg-white px-5 py-2 rounded-lg hover:bg-slate-200 transition-colors items-center gap-2 shrink-0 border border-white">
+              Book Demo
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
     </footer>
   );

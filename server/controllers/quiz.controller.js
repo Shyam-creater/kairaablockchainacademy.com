@@ -28,8 +28,58 @@ export const getQuizForSection = CatchAsyncError(async (req, res, next) => {
         passMark: quiz.passMark,
         timeLimit: quiz.timeLimit,
         maxAttempts: quiz.maxAttempts,
+        availableFrom: quiz.availableFrom,
+        availableUntil: quiz.availableUntil,
         questions: safeQuestions,
       },
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+// For students to get all published quizzes and their attempts
+export const getStudentQuizzes = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { courseId } = req.params;
+    const userId = req.user?._id;
+
+    // Fetch all published quizzes for the course
+    const quizzes = await Quiz.find({ courseId, status: "published" });
+
+    // Fetch all attempts by this student for these quizzes
+    const quizIds = quizzes.map((q) => q._id);
+    const attempts = await QuizAttempt.find({ userId, quizId: { $in: quizIds } });
+
+    // Hide correct answers
+    const safeQuizzes = quizzes.map((quiz) => {
+      const safeQuestions = quiz.questions.map((q) => ({
+        _id: q._id,
+        question: q.question,
+        options: q.options,
+      }));
+
+      // Find best attempt or previous attempts for this quiz
+      const studentAttempts = attempts.filter((a) => a.quizId.toString() === quiz._id.toString());
+      const maxScore = studentAttempts.length > 0 ? Math.max(...studentAttempts.map(a => a.score)) : null;
+
+      return {
+        _id: quiz._id,
+        sectionName: quiz.sectionName,
+        passMark: quiz.passMark,
+        timeLimit: quiz.timeLimit,
+        maxAttempts: quiz.maxAttempts,
+        questions: safeQuestions,
+        studentAttempts: studentAttempts.length,
+        bestScore: maxScore,
+        availableFrom: quiz.availableFrom,
+        availableUntil: quiz.availableUntil,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      quizzes: safeQuizzes,
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
@@ -39,7 +89,7 @@ export const getQuizForSection = CatchAsyncError(async (req, res, next) => {
 // For students to submit quiz
 export const submitQuiz = CatchAsyncError(async (req, res, next) => {
   try {
-    const { quizId, answers } = req.body;
+    const { quizId, answers, timeTaken } = req.body;
     const userId = req.user?._id;
 
     const quiz = await Quiz.findById(quizId);
@@ -50,6 +100,13 @@ export const submitQuiz = CatchAsyncError(async (req, res, next) => {
     const previousAttemptsCount = await QuizAttempt.countDocuments({ userId, quizId });
     if (previousAttemptsCount >= quiz.maxAttempts) {
       return next(new ErrorHandler("Maximum attempts reached for this quiz", 400));
+    }
+
+    if (quiz.availableUntil && new Date(quiz.availableUntil) < new Date()) {
+      return next(new ErrorHandler("This quiz is no longer available.", 400));
+    }
+    if (quiz.availableFrom && new Date(quiz.availableFrom) > new Date()) {
+      return next(new ErrorHandler("This quiz is not available yet.", 400));
     }
 
     let correctCount = 0;
@@ -73,6 +130,7 @@ export const submitQuiz = CatchAsyncError(async (req, res, next) => {
       courseId: quiz.courseId,
       score,
       passed,
+      timeTaken: timeTaken || 0,
     });
 
     const Order = (await import("../models/orderModel.js")).default;

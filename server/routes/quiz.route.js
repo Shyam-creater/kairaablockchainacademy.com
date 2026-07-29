@@ -7,7 +7,8 @@ import {
   getQuizzesByCourse,
   getQuizAnalytics,
   getQuizLeaderboard,
-  getStudentResults
+  getStudentResults,
+  getStudentQuizzes
 } from "../controllers/quiz.controller.js";
 
 const quizRouter = express.Router();
@@ -21,6 +22,7 @@ quizRouter.get("/quiz/admin/leaderboard", isAuthenticated, authorizeRoles("admin
 quizRouter.get("/quiz/admin/results", isAuthenticated, authorizeRoles("admin", "staff"), getStudentResults);
 
 // Wildcard route LAST — must not conflict with any above
+quizRouter.get("/quiz/student/:courseId", isAuthenticated, getStudentQuizzes);
 quizRouter.get("/quiz/:courseId/:sectionName", isAuthenticated, getQuizForSection);
 
 export default quizRouter;

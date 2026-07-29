@@ -21,8 +21,7 @@ export const calculateComprehensiveProgress = async (userId, courseId) => {
     if (!course) return 0;
     
     const totalLessons = course.courseData?.length || course.courseContentData?.length || 0;
-    const progressRecord = await Progress.findOne({ userId, courseId });
-    const completedLessons = progressRecord?.completedLessons?.length || 0;
+    const completedLessons = await Progress.countDocuments({ userId, courseId, isCompleted: true });
     const videoProgress = totalLessons > 0 ? (completedLessons / totalLessons) : null;
 
     // Determine the student's batch for this course (if any)

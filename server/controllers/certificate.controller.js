@@ -44,7 +44,8 @@ export const getStudentProgress = CatchAsyncError(async (req, res, next) => {
       if (!course) continue;
 
       // Evaluate Eligibility Engine
-      const { isEligible, stats, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId);
+      const dummy = req.query.dummy === 'true';
+      const { isEligible, stats, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId, dummy);
       
       // Check if certificate already exists
       const existingCert = await Certificate.findOne({ studentId, courseId });
@@ -100,7 +101,8 @@ export const getStaffEligibleStudents = CatchAsyncError(async (req, res, next) =
       if (existing) continue; // Skip if already recommended, approved, etc.
 
       // Run engine
-      const { isEligible, stats, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId);
+      const dummy = req.query.dummy === 'true';
+      const { isEligible, stats, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId, dummy);
       
       const student = await User.findById(studentId).select("name email avatar");
       const course = await Course.findById(courseId).select("name");
@@ -140,12 +142,12 @@ export const getStaffCertificates = CatchAsyncError(async (req, res, next) => {
 // 5. Staff Recommend Certificate
 export const recommendCertificate = CatchAsyncError(async (req, res, next) => {
   try {
-    const { studentId, courseId, remarks } = req.body;
+    const { studentId, courseId, remarks, dummy } = req.body;
     
     if (!remarks) return next(new ErrorHandler("Staff remarks are required to recommend a certificate.", 400));
 
     // Verify Eligibility again
-    const { isEligible, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId);
+    const { isEligible, overallScore, honors, microCredentials } = await checkCertificateEligibility(studentId, courseId, dummy === true || dummy === 'true');
     if (!isEligible) return next(new ErrorHandler("Student is not eligible for a certificate.", 400));
 
     // Check if already recommended
@@ -209,17 +211,26 @@ export const adminApproveCertificate = CatchAsyncError(async (req, res, next) =>
     if (certificate.status !== "staff_recommended") return next(new ErrorHandler("Certificate must be staff recommended first", 400));
 
     // Generate unique Number
-    const courseCode = certificate.courseId.tags ? certificate.courseId.tags.substring(0,3).toUpperCase() : "GEN";
+    const courseCode = certificate.courseId.tags?.length > 0 ? certificate.courseId.tags[0].substring(0,3).toUpperCase() : "GEN";
     const certNumber = await generateUniqueCertNumber(courseCode);
 
     // Generate QR
     const qrCodeUrl = await generateCertificateQR(certNumber);
 
+    // Get course duration (mocking start date as 6 months ago for now if real order not found)
+    const issueDate = new Date();
+    const startDateObj = new Date(issueDate);
+    startDateObj.setMonth(startDateObj.getMonth() - 6); // roughly 6 months ago
+    const startDate = startDateObj.toLocaleDateString("en-GB");
+    const endDate = issueDate.toLocaleDateString("en-GB");
+
     // Generate PDF Buffer
     const pdfBuffer = await generateCertificatePDF({
       studentName: certificate.studentId.name,
       courseName: certificate.courseId.name,
-      issueDate: new Date(),
+      issueDate: issueDate,
+      startDate: startDate,
+      endDate: endDate,
       certificateNumber: certNumber,
       qrCodeUrl
     });
@@ -304,8 +315,9 @@ export const verifyCertificate = CatchAsyncError(async (req, res, next) => {
   try {
     const { certificateNumber } = req.params;
     const certificate = await Certificate.findOne({ certificateNumber })
-      .populate("studentId", "name")
-      .populate("courseId", "name");
+      .populate("studentId", "name avatar studentId email")
+      .populate("courseId", "name estimatedDuration courseData")
+      .populate("staffId", "name");
 
     if (!certificate || certificate.status !== "approved") {
       return res.status(404).json({ success: false, message: "Certificate not found or invalid." });

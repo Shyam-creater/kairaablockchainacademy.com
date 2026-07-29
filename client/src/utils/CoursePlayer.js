@@ -30,7 +30,7 @@ const CoursePlayer = ({ videoUrl, title, resumeTime = 0, onTimeUpdate }) => {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
         if (data && (data.event === 'timeupdate' || data.type === 'timeupdate')) {
           if (onTimeUpdate) {
-            onTimeUpdate(data.time || data.currentTime);
+            onTimeUpdate(data.time || data.currentTime, data.duration || 0);
           }
         }
       } catch (e) {

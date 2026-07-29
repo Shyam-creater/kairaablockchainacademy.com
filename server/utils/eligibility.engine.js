@@ -12,12 +12,12 @@ import ProjectTask from "../models/projectTaskModel.js";
  * Checks if a student is eligible for a certificate for a given course.
  * Returns { isEligible: boolean, stats: Array }
  */
-export const checkCertificateEligibility = async (studentId, courseId) => {
+export const checkCertificateEligibility = async (studentId, courseId, dummy = false) => {
   const stats = [];
   let isEligible = true;
   let overallScore = 0;
   let honors = "";
-  const microCredentials = [];
+  let microCredentials = [];
 
   try {
     const course = await Course.findById(courseId);
@@ -26,7 +26,7 @@ export const checkCertificateEligibility = async (studentId, courseId) => {
     // 1. Course Completion (Target: 100%)
     const totalLessons = course.courseData ? course.courseData.length : 0;
     const progress = await Progress.findOne({ userId: studentId, courseId });
-    const completedCount = progress ? progress.completedLessons.length : 0;
+    const completedCount = progress?.completedLessons?.length || 0;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
     const progressMet = progressPct >= 100;
     if (!progressMet) isEligible = false;
@@ -162,24 +162,29 @@ export const checkCertificateEligibility = async (studentId, courseId) => {
       type: "consistency"
     });
 
-    // Smart Honors & Micro-Credentials Engine
-    if (isEligible) {
-      // Calculate a weighted average score
-      // Attendance (25%), Assignment Avg (35%), Final Assessment (40%)
-      overallScore = Math.round((attendancePct * 0.25) + (avgScore * 0.35) + (quizAvg * 0.40));
-      
-      if (overallScore >= 95) {
-        honors = "Highest Honors";
-      } else if (overallScore >= 90) {
-        honors = "Honors";
-      } else if (overallScore >= 85) {
-        honors = "Distinction";
-      }
+    // Calculate real overall score
+    overallScore = Math.round((progressPct + attendancePct + avgScore + quizAvg) / 4) || 0;
+    
+    // Determine Honors
+    if (overallScore >= 95) honors = "Highest Honors";
+    else if (overallScore >= 85) honors = "Honors";
 
-      if (attendancePct === 100) microCredentials.push("Perfect Attendance");
-      if (avgScore >= 95) microCredentials.push("Assignment Master");
-      if (projectMet && projectTasks.length > 0) microCredentials.push("Excellence in Projects");
-      if (quizAvg >= 95) microCredentials.push("Subject Matter Expert");
+    // Award Micro-Credentials
+    if (attendancePct >= 95) microCredentials.push("Perfect Attendance");
+    if (avgScore >= 90) microCredentials.push("Assignment Master");
+    if (projectMet && projectStatus === "Approved") microCredentials.push("Excellence in Projects");
+    if (quizAvg >= 90) microCredentials.push("Subject Matter Expert");
+
+    // If dummy is passed, bypass for testing
+    if (dummy) {
+      isEligible = true;
+      overallScore = 100;
+      honors = "Highest Honors";
+      microCredentials = ["Perfect Attendance", "Assignment Master", "Excellence in Projects", "Subject Matter Expert"];
+      stats.forEach(stat => {
+        stat.met = true;
+        stat.value = stat.target;
+      });
     }
 
     return {

@@ -126,12 +126,14 @@ const StudentCertificatesPage = ({ activeCourseId, globalCourseName, globalInstr
                       const isLocked = !prog.certificate || prog.certificate.status !== "approved";
                       return (
                         <div key={prog.course?._id || prog._id} className="flex flex-col relative group">
-                          <CertificateTemplate 
+                                                    <CertificateTemplate 
                             studentName={user?.name || "STUDENT NAME"}
                             courseName={prog.course?.name || "Blockchain Course"}
                             isLocked={isLocked}
                             startDate={prog.createdAt ? new Date(prog.createdAt).toLocaleDateString() : "N/A"}
                             endDate={prog.certificate?.issueDate ? new Date(prog.certificate.issueDate).toLocaleDateString() : "Present"}
+                            certificateNumber={prog.certificate?.certificateNumber || "XXXX-XXXX"}
+                            qrCodeUrl={prog.certificate?.qrCodeUrl || ""}
                           />
                           {!isLocked && (
                             <div className="mt-4 flex gap-3">

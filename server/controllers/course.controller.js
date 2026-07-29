@@ -4,6 +4,7 @@ import { createCourse } from "../services/course.service.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import cloudinary from "cloudinary";
 import Course from "../models/courseModel.js";
+import Progress from "../models/progressModel.js";
 import { redis } from "../utils/redis.js";
 import mongoose from "mongoose";
 import path from "path";
@@ -204,7 +205,36 @@ export const getCourseByUser = CatchAsyncError(async (req, res, next) => {
     }
 
     const course = await Course.findById(courseId);
-    const content = course?.courseContentData;
+    let content = course?.courseContentData || [];
+
+    const progresses = await Progress.find({ userId: req.user._id, courseId });
+    const completedLessonIds = new Set(progresses.filter(p => p.isCompleted).map(p => p.lessonId.toString()));
+
+    // Enforce sequential unlocking
+    let isPreviousCompleted = true; // First lesson always unlocked
+
+    content = content.map((lesson) => {
+      const isCompleted = completedLessonIds.has(lesson._id.toString());
+      const isUnlocked = isPreviousCompleted;
+
+      // If it's not unlocked, strip the videoUrl and links to prevent unauthorized access
+      const securedLesson = {
+        ...lesson.toObject(),
+        isUnlocked,
+        isCompleted
+      };
+
+      if (!isUnlocked) {
+        delete securedLesson.videoUrl;
+        delete securedLesson.links;
+      }
+
+      // Prepare for next iteration: the next lesson is unlocked only if THIS lesson is completed
+      isPreviousCompleted = isCompleted;
+
+      return securedLesson;
+    });
+
     res.status(200).json({
       success: true,
       content,

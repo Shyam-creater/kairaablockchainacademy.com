@@ -89,20 +89,21 @@ export const courseApi = apiSlice.injectEndpoints({
       query: (courseId) => ({
         url: `progress/${courseId}`,
         method: "GET",
+        credentials: "include",
       }),
     }),
     
     // Resume Learning
     getResumeProgress: builder.query({
       query: (courseId) => ({
-        url: `resume/${courseId}`,
+        url: `progress/${courseId}`,
         method: "GET",
         credentials: "include",
       }),
     }),
     saveResumeProgress: builder.mutation({
       query: (data) => ({
-        url: `resume/save`,
+        url: `progress/save`,
         method: "POST",
         body: data,
         credentials: "include",
@@ -121,6 +122,13 @@ export const courseApi = apiSlice.injectEndpoints({
     getQuizForSection: builder.query({
       query: ({ courseId, sectionName }) => ({
         url: `quiz/${courseId}/${encodeURIComponent(sectionName)}`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    getStudentQuizzes: builder.query({
+      query: (courseId) => ({
+        url: `quiz/student/${courseId}`,
         method: "GET",
         credentials: "include",
       }),
@@ -301,6 +309,7 @@ export const { useGetPublicProjectsQuery,
   useSaveResumeProgressMutation,
   useMarkLessonWatchedMutation,
   useGetQuizForSectionQuery,
+  useGetStudentQuizzesQuery,
   useSubmitQuizMutation,
   useGenerateCertificateMutation,
   useGetMyCertificatesQuery,

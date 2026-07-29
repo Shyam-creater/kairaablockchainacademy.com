@@ -28,7 +28,8 @@ import {
   useGetStudentMeetingsQuery,
   useMarkAttendanceMutation,
   useGetQuizForSectionQuery,
-  useSubmitQuizMutation
+  useSubmitQuizMutation,
+  useGetStudentQuizzesQuery
 } from "../redux/features/courses/coursesApi.js";
 import { toast } from "react-hot-toast";
 import StudentCertificatesPage from "../pages/Student/StudentCertificatesPage";
@@ -91,13 +92,36 @@ export const WorkspaceHome = () => {
         <h2 className="text-3xl font-extrabold text-[#111827] mb-2">Good Morning, {user?.name?.split(' ')[0] || 'Student'}</h2>
         <p className="text-lg text-[#6B7280] mb-8">Here is your daily briefing.</p>
         <div className="bg-white border border-[#E5E7EB] rounded-xl p-8 shadow-sm">
-          <div className="flex justify-between items-start mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Continue Learning</h3>
               <p className="text-2xl font-bold text-[#111827] line-clamp-1" title={lastWatched?.videoTitle || ""}>{lastWatched ? lastWatched.videoTitle : "Start Learning"}</p>
               <p className="text-[#6B7280] font-medium mt-1 line-clamp-1">{lastWatched ? lastWatched.courseName : ""}</p>
+              
+              {lastWatched?.formattedResumeAt && (
+                <div className="flex flex-wrap items-center gap-4 mt-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-semibold uppercase">Progress</span>
+                    <span className="text-sm font-bold text-gray-900">{lastWatched.watchPercentage || 0}%</span>
+                  </div>
+                  <div className="w-px h-4 bg-gray-300"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-semibold uppercase">Resume at</span>
+                    <span className="text-sm font-bold text-blue-600">{lastWatched.formattedResumeAt}</span>
+                  </div>
+                  {lastWatched.remainingTime > 0 && (
+                    <>
+                      <div className="w-px h-4 bg-gray-300"></div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 font-semibold uppercase">Remaining</span>
+                        <span className="text-sm font-bold text-gray-900">{lastWatched.remainingTime} min</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="w-16 h-16 rounded-full border-4 border-[#10B981] flex items-center justify-center">
+            <div className="w-16 h-16 shrink-0 rounded-full border-4 border-[#10B981] flex items-center justify-center">
               <span className="font-bold text-[#10B981]"><FiPlayCircle size={24} /></span>
             </div>
           </div>
@@ -2238,30 +2262,61 @@ export const WorkspaceAskDoubt = () => {
 
 export const WorkspaceQuiz = () => {
   const {
-    user, courses, currentCourse, activeCourseId, setActiveCourseId,
-    activeCourseTab, setActiveCourseTab, pendingRecordingUrl, setPendingRecordingUrl,
-    pendingRecordingTitle, setPendingRecordingTitle, heatmap, digitalTwin,
-    activityFeed, pendingAssignments, upcomingMeetings: globalUpcomingMeetings, placement, achievements,
-    xpData, globalCourseName, globalInstructorName, formatDateSafe, formatTimeSafe,
-    navigate
+    user, activeCourseId, globalCourseName, globalInstructorName
   } = useOutletContext();
-  const { data: contentData } = useGetCourseContentQuery(activeCourseId, { skip: !activeCourseId });
-  const sections = React.useMemo(() => {
-    const s = new Set();
-    if (contentData?.content) contentData.content.forEach(l => s.add(l.videoSection));
-    return Array.from(s);
-  }, [contentData]);
 
-  const [selectedSection, setSelectedSection] = useState("");
-  const { data: quizData, isLoading } = useGetQuizForSectionQuery(
-    { courseId: activeCourseId, sectionName: selectedSection },
-    { skip: !selectedSection }
-  );
-  const quiz = quizData?.quiz;
+  const { data: quizzesData, isLoading } = useGetStudentQuizzesQuery(activeCourseId, { skip: !activeCourseId });
+  const quizzes = quizzesData?.quizzes || [];
 
-  const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [quizState, setQuizState] = useState("idle"); // idle, confirming, running, submitted
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
+
+  useEffect(() => {
+    let timer;
+    if (quizState === "running" && timeLeft > 0) {
+      timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    } else if (quizState === "running" && timeLeft === 0) {
+      handleSubmit(); // Auto-submit when time is up
+    }
+    return () => clearInterval(timer);
+  }, [quizState, timeLeft]);
+
+  // Anti-cheat: prevent tab switching
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && quizState === "running") {
+        toast.error("You left the quiz tab! Quiz auto-submitted.", { duration: 5000 });
+        handleSubmit();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [quizState, answers]);
+
+  const handleSubmit = async () => {
+    if (!selectedQuiz) return;
+    setQuizState("submitted");
+    const ansArray = selectedQuiz.questions.map((_, i) => answers[i] ?? -1);
+    const timeLimitInSeconds = selectedQuiz.timeLimit ? selectedQuiz.timeLimit * 60 : 30 * 60;
+    const timeTaken = timeLimitInSeconds - timeLeft;
+    try {
+      const res = await submitQuiz({ quizId: selectedQuiz._id, answers: ansArray, timeTaken }).unwrap();
+      setResult(res);
+    } catch (err) { 
+      toast.error("Failed to submit quiz"); 
+    }
+  };
+
+  const startQuiz = () => {
+    setQuizState("running");
+    setAnswers({});
+    setTimeLeft(selectedQuiz.timeLimit ? selectedQuiz.timeLimit * 60 : 30 * 60); // Default 30 min if not set
+  };
 
   if (!activeCourseId) {
     return (
@@ -2273,27 +2328,59 @@ export const WorkspaceQuiz = () => {
     );
   }
 
-  const handleSubmit = async () => {
-    if (!quiz) return;
-    const ansArray = quiz.questions.map((_, i) => answers[i] ?? -1);
-    try {
-      const res = await submitQuiz({ quizId: quiz._id, answers: ansArray }).unwrap();
-      setResult(res);
-    } catch (err) { toast.error("Failed to submit quiz"); }
-  };
+  // Running Quiz Mode (Full Screen Modal)
+  if (quizState === "running") {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] bg-[#F9FAFB] flex flex-col font-sans">
+        {/* Sticky Header with Timer */}
+        <div className="bg-white border-b border-[#E5E7EB] px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
+          <div>
+            <h1 className="text-xl font-bold text-[#111827]">{selectedQuiz.sectionName}</h1>
+            <p className="text-sm text-[#6B7280]">{selectedQuiz.questions.length} Questions</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-lg border ${timeLeft < 60 ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+              <FiClock /> {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+            </div>
+            <button onClick={handleSubmit} disabled={isSubmitting} className="bg-[#111827] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#374151]">
+              {isSubmitting ? "Submitting..." : "Submit Quiz"}
+            </button>
+          </div>
+        </div>
+
+        {/* Questions */}
+        <div className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-3xl mx-auto space-y-10 pb-20">
+            {selectedQuiz.questions.map((q, qIndex) => (
+              <div key={qIndex} className="bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm">
+                <h4 className="font-bold text-[#111827] mb-4 text-lg flex gap-3">
+                  <span className="text-[#9CA3AF] flex-shrink-0">{qIndex + 1}.</span> {q.question}
+                </h4>
+                <div className="space-y-3 pl-8">
+                  {q.options.map((opt, oIndex) => (
+                    <label key={oIndex} className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${answers[qIndex] === oIndex ? 'border-[#3B82F6] bg-[#EFF6FF] shadow-inner' : 'border-[#E5E7EB] hover:border-[#9CA3AF]'}`}>
+                      <input type="radio" name={`q-${qIndex}`} checked={answers[qIndex] === oIndex} onChange={() => setAnswers(prev => ({ ...prev, [qIndex]: oIndex }))} className="w-5 h-5 text-[#3B82F6] focus:ring-[#3B82F6]" />
+                      <span className="text-[15px] font-medium text-[#374151]">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden w-full bg-[#FAFAFA] font-sans relative">
       <div className="bg-white border-b border-[#E5E7EB] sticky top-0 z-10 shrink-0">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 h-16 flex items-center justify-between gap-6">
           <div className="flex items-center gap-3 min-w-0">
-            <h1 className="text-[19px] font-bold text-[#0F172A] tracking-tight leading-none whitespace-nowrap">
-              Knowledge Check
-            </h1>
+            <h1 className="text-[19px] font-bold text-[#0F172A] tracking-tight leading-none whitespace-nowrap">Knowledge Check</h1>
             <div className="hidden sm:flex items-center gap-2 min-w-0 pl-3 border-l border-[#E2E8F0]">
-              <span className="text-[13px] font-semibold text-[#334155] truncate max-w-[220px]">
-                {globalCourseName || "Your Course"}
-              </span>
+              <span className="text-[13px] font-semibold text-[#334155] truncate max-w-[220px]">{globalCourseName || "Your Course"}</span>
               <FiChevronRight size={13} className="text-[#CBD5E1] shrink-0" />
               <div className="flex items-center gap-1.5 text-[#64748B] text-[13px] whitespace-nowrap">
                 <FiUsers size={13} className="text-[#94A3B8]" />
@@ -2307,65 +2394,131 @@ export const WorkspaceQuiz = () => {
       <div className="flex-1 overflow-y-auto w-full">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-8 lg:py-10 space-y-8 pb-16">
           <div className="max-w-4xl mx-auto w-full">
-        {!selectedSection ? (
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center shadow-sm">
-            <div className="w-16 h-16 bg-[#EFF6FF] text-[#3B82F6] rounded-full flex items-center justify-center mx-auto mb-6"><FiCheckCircle size={32} /></div>
-            <h3 className="text-xl font-bold text-[#111827] mb-4">Select a Module</h3>
-            <p className="text-[#6B7280] mb-8">Choose a module to test your knowledge.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-              {sections.map(sec => (
-                <button key={sec} onClick={() => { setSelectedSection(sec); setResult(null); setAnswers({}); }} className="p-4 border border-[#E5E7EB] rounded-xl hover:border-[#111827] font-bold text-[#374151] hover:text-[#111827] transition-colors shadow-sm">{sec}</button>
-              ))}
-            </div>
-          </div>
-        ) : isLoading ? (
-          <p className="text-center text-[#6B7280]">Loading quiz...</p>
-        ) : !quiz ? (
-          <div className="text-center bg-white border border-[#E5E7EB] rounded-2xl p-12">
-            <p className="text-[#6B7280] mb-6">No quiz available for {selectedSection}.</p>
-            <button onClick={() => setSelectedSection("")} className="text-[#3B82F6] font-bold">← Back to Modules</button>
-          </div>
-        ) : result ? (
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-sm">
-            <div className="w-24 h-24 bg-[#F0FDF4] text-[#10B981] rounded-full flex items-center justify-center mx-auto mb-6"><FiAward size={48} /></div>
-            <h2 className="text-3xl font-black text-[#111827] mb-2">Quiz Completed!</h2>
-            <p className="text-xl font-bold text-[#374151] mb-8">You scored: <span className="text-[#10B981]">{result.score}</span> / {quiz.questions.length}</p>
-            <button onClick={() => { setSelectedSection(""); setResult(null); setAnswers({}); }} className="bg-[#111827] text-white px-8 py-3 rounded-xl font-bold">Take Another Quiz</button>
-          </div>
-        ) : (
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-8 border-b border-[#F3F4F6] pb-6">
-              <h2 className="text-xl font-bold text-[#111827]">{quiz.title}</h2>
-              <button onClick={() => setSelectedSection("")} className="text-sm font-bold text-[#9CA3AF] hover:text-[#111827]">Cancel</button>
-            </div>
-            <div className="space-y-10 overflow-y-auto max-h-[50vh] pr-4">
-              {quiz.questions.map((q, qIndex) => (
-                <div key={qIndex}>
-                  <h4 className="font-bold text-[#111827] mb-4 flex gap-2"><span className="text-[#9CA3AF]">{qIndex + 1}.</span> {q.question}</h4>
-                  <div className="space-y-3 pl-6">
-                    {q.options.map((opt, oIndex) => (
-                      <label key={oIndex} className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${answers[qIndex] === oIndex ? 'border-[#111827] bg-[#F9FAFB] shadow-inner' : 'border-[#E5E7EB] hover:border-[#9CA3AF]'}`}>
-                        <input type="radio" name={`q-${qIndex}`} checked={answers[qIndex] === oIndex} onChange={() => setAnswers(prev => ({ ...prev, [qIndex]: oIndex }))} className="w-4 h-4 text-[#111827] focus:ring-[#111827]" />
-                        <span className="text-sm font-medium text-[#374151]">{opt}</span>
-                      </label>
-                    ))}
+            {quizState === "idle" ? (
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 shadow-sm">
+                <div className="flex items-center gap-4 mb-8 border-b border-[#F3F4F6] pb-6">
+                  <div className="w-12 h-12 bg-[#EFF6FF] text-[#3B82F6] rounded-full flex items-center justify-center"><FiCheckCircle size={24} /></div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#111827]">Available Quizzes</h3>
+                    <p className="text-[#6B7280]">Select a quiz to test your knowledge.</p>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="mt-8 pt-6 border-t border-[#F3F4F6]">
-              <button onClick={handleSubmit} disabled={isSubmitting || Object.keys(answers).length < quiz.questions.length} className={`w-full py-4 rounded-xl font-bold text-lg transition-colors ${Object.keys(answers).length === quiz.questions.length ? 'bg-[#111827] text-white hover:bg-[#374151]' : 'bg-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}>
-                {isSubmitting ? 'Grading...' : 'Submit Answers'}
-              </button>
-            </div>
-          </div>
-        )}
+
+                {isLoading ? (
+                  <p className="text-center text-[#6B7280] py-10">Loading quizzes...</p>
+                ) : quizzes.length === 0 ? (
+                  <p className="text-center text-[#6B7280] py-10">No quizzes available for this course.</p>
+                ) : (
+                  <div className="flex flex-col gap-5">
+                    {quizzes.map(q => {
+                      const maxAttemptsReached = q.studentAttempts >= q.maxAttempts;
+                      const isClosed = q.availableUntil && new Date(q.availableUntil) < new Date();
+                      const isNotYetOpen = q.availableFrom && new Date(q.availableFrom) > new Date();
+                      const isDisabled = maxAttemptsReached || isClosed || isNotYetOpen;
+                      return (
+                        <div key={q._id} className={`bg-white border ${isClosed ? 'border-red-100 opacity-80' : 'border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-md'} rounded-2xl p-6 lg:p-8 shadow-[0_1px_2px_0_rgb(0,0,0,0.02)] transition-all duration-200 group flex flex-col lg:flex-row gap-6 lg:gap-10 justify-between items-start lg:items-center relative overflow-hidden`}>
+                          {maxAttemptsReached && <div className="absolute top-0 right-0 bg-[#F0FDF4] text-[#10B981] text-[10px] font-bold px-3 py-1 rounded-bl-lg">COMPLETED</div>}
+                          {isClosed && !maxAttemptsReached && <div className="absolute top-0 right-0 bg-red-50 text-red-600 text-[10px] font-bold px-3 py-1 rounded-bl-lg">CLOSED</div>}
+                          
+                          <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <h3 className="text-lg lg:text-[19px] font-bold text-[#0F172A] leading-tight tracking-tight">{q.sectionName}</h3>
+                              {q.bestScore !== null && (
+                                <span className={`text-[11px] uppercase font-bold px-2.5 py-1 rounded-md border flex-shrink-0 ${q.bestScore >= q.passMark ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                  Best Score: {q.bestScore}%
+                                </span>
+                              )}
+                              <span className="text-[11px] uppercase font-bold px-2.5 py-1 rounded-md border flex-shrink-0 bg-blue-50 text-blue-700 border-blue-200">
+                                Pass Mark: {q.passMark}%
+                              </span>
+                            </div>
+                            
+                            <p className="text-[14px] text-[#475569] leading-relaxed max-w-4xl break-words">Test your knowledge on this module. Complete the assessment to measure your understanding and progress.</p>
+                            
+                            <div className="flex flex-wrap items-center gap-5 text-[13px] font-semibold mt-1">
+                              <div className="flex items-center gap-1.5 text-[#D97706] bg-[#FEF3C7]/50 px-2.5 py-1 rounded-lg border border-[#FDE68A]/60">
+                                <FiClock className="text-sm" /> {q.timeLimit || 30} Minutes
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[#94A3B8] font-medium">Attempts:</span>
+                                <span className="bg-[#F8FAFC] text-[#475569] px-2.5 py-1 rounded-md border border-[#E2E8F0] font-medium text-[12px]">
+                                  {q.studentAttempts} / {q.maxAttempts}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[#94A3B8] font-medium">Deadline:</span>
+                                {q.availableUntil ? (
+                                  <span className={`px-2.5 py-1 rounded-md border font-medium text-[12px] ${isClosed ? 'bg-red-50 text-red-600 border-red-100' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                                    {isClosed ? "Closed " : "Closes "} {new Date(q.availableUntil).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true })}
+                                  </span>
+                                ) : (
+                                  <span className="px-2.5 py-1 rounded-md border font-medium text-[12px] bg-slate-50 text-slate-500 border-slate-200">
+                                    No Deadline
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <button 
+                            onClick={() => { setSelectedQuiz(q); setQuizState("confirming"); }} 
+                            disabled={isDisabled}
+                            className={`w-full lg:w-auto px-7 py-3 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 shrink-0 transition-all shadow-[0_2px_4px_rgb(0,0,0,0.1)] hover:shadow-[0_4px_8px_rgb(0,0,0,0.12)] ${isDisabled ? 'bg-[#F1F5F9] text-[#94A3B8] cursor-not-allowed shadow-none hover:shadow-none' : 'bg-[#0F172A] text-white hover:bg-[#1E293B] hover:-translate-y-0.5 active:translate-y-0'}`}
+                          >
+                            {maxAttemptsReached ? <FiCheckCircle className="text-base" /> : isClosed ? <FiXCircle className="text-base" /> : isNotYetOpen ? <FiClock className="text-base" /> : <FiPlayCircle className="text-base" />}
+                            {maxAttemptsReached ? "Completed" : isClosed ? "Closed" : isNotYetOpen ? "Not Opened Yet" : "Start Assessment"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : quizState === "confirming" ? (
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-sm">
+                <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6"><FiAlertCircle size={40} /></div>
+                <h2 className="text-2xl font-black text-[#111827] mb-2">{selectedQuiz.sectionName}</h2>
+                <p className="text-[#6B7280] mb-8">Please read the instructions carefully before starting.</p>
+                
+                <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-6 text-left max-w-md mx-auto mb-8 space-y-4">
+                  <div className="flex justify-between border-b border-[#E5E7EB] pb-3">
+                    <span className="text-[#6B7280] font-semibold">Total Questions:</span>
+                    <span className="font-bold text-[#111827]">{selectedQuiz.questions.length}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E5E7EB] pb-3">
+                    <span className="text-[#6B7280] font-semibold">Time Limit:</span>
+                    <span className="font-bold text-[#111827]">{selectedQuiz.timeLimit || 30} Minutes</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#E5E7EB] pb-3">
+                    <span className="text-[#6B7280] font-semibold">Passing Score:</span>
+                    <span className="font-bold text-[#111827]">{selectedQuiz.passMark}%</span>
+                  </div>
+                  <div className="flex gap-3 text-red-600 text-sm font-semibold mt-4">
+                    <FiMonitor className="shrink-0 mt-0.5" />
+                    <p>This quiz will run in full screen. Navigating away or closing the tab will automatically submit your quiz.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-4">
+                  <button onClick={() => { setQuizState("idle"); setSelectedQuiz(null); }} className="px-6 py-3 rounded-xl font-bold text-[#374151] border border-[#E5E7EB] hover:bg-[#F3F4F6]">Cancel</button>
+                  <button onClick={startQuiz} className="bg-[#111827] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#374151]">Start Quiz Now</button>
+                </div>
+              </div>
+            ) : quizState === "submitted" && result ? (
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-sm">
+                <div className="w-24 h-24 bg-[#F0FDF4] text-[#10B981] rounded-full flex items-center justify-center mx-auto mb-6"><FiAward size={48} /></div>
+                <h2 className="text-3xl font-black text-[#111827] mb-2">Quiz Completed!</h2>
+                <p className="text-xl font-bold text-[#374151] mb-8">You scored: <span className="text-[#10B981]">{result.score}%</span></p>
+                <button onClick={() => { setQuizState("idle"); setSelectedQuiz(null); setResult(null); }} className="bg-[#111827] text-white px-8 py-3 rounded-xl font-bold">Back to Quizzes</button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export const WorkspaceMentor = () => {
   const { user, courses, currentCourse, activeCourseId, setActiveCourseId, activeCourseTab, setActiveCourseTab, pendingRecordingUrl, setPendingRecordingUrl, pendingRecordingTitle, setPendingRecordingTitle, heatmap, digitalTwin, activityFeed, pendingAssignments, upcomingMeetings: globalUpcomingMeetings, placement, achievements, xpData, globalCourseName, globalInstructorName, formatDateSafe, formatTimeSafe, navigate } = useOutletContext();

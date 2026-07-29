@@ -215,7 +215,7 @@ const WorkspaceProjects = ({ activeCourseId, user, globalCourseName }) => {
                         <p className="text-[14px] text-[#475569] leading-relaxed line-clamp-2 max-w-4xl break-words">{task.description}</p>
                         <div className="flex flex-wrap items-center gap-5 text-[13px] font-semibold mt-1">
                           <div className="flex items-center gap-1.5 text-[#D97706] bg-[#FEF3C7]/50 px-2.5 py-1 rounded-lg border border-[#FDE68A]/60">
-                            <FiClock className="text-sm" /> Due: {fmtDate(task.dueDate)}
+                            <FiClock className="text-sm" /> Due: {fmtDateTime(task.dueDate)}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-[#94A3B8] font-medium">Stack:</span>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import CoursePlayer from "../../utils/CoursePlayer.js";
+import YouTubePlayer from "../../utils/YouTubePlayer.js";
 import { styles } from "../../styles/style"
 import { VscVerifiedFilled } from "react-icons/vsc";
 import { format } from "timeago.js";
@@ -7,11 +8,13 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight, } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useAddNewQuestionMutation, useAddAnswerInQuestionMutation, useGetQuizForSectionQuery, useSubmitQuizMutation, useCreateDoubtMutation, useGetStudentDoubtsQuery, useStudentReplyDoubtMutation, useSubmitAssignmentMutation, useGetStudentAssignmentsQuery, useGetStudentMeetingsQuery, useGetCourseAssignmentTasksQuery, useMarkAttendanceMutation, useMarkLessonWatchedMutation, useSaveResumeProgressMutation } from '../../redux/features/courses/coursesApi.js';
 import { BiMessage } from 'react-icons/bi';
-import { FaCheckCircle, FaRegCircle, FaClock, FaRedo, FaUpload, FaVideo, FaMedal, FaExternalLinkAlt, FaFilePdf, FaDownload, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaCheckCircle, FaRegCircle, FaClock, FaRedo, FaUpload, FaVideo, FaMedal, FaExternalLinkAlt, FaFilePdf, FaDownload, FaExpand, FaCompress, FaRegTimesCircle } from 'react-icons/fa';
 import { MdQuiz } from 'react-icons/md';
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import { FiCompass } from "react-icons/fi";
 import { motion, AnimatePresence } from 'framer-motion';
+import AICoPilot from './AICoPilot';
+import Notepad from './Notepad';
 
 const SectionHeading = ({ colorClass, title }) => (
   <h2 className={`text-base sm:text-lg font-extrabold text-[#111827] mb-5 flex items-center gap-3`}>
@@ -20,7 +23,7 @@ const SectionHeading = ({ colorClass, title }) => (
   </h2>
 );
 
-const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refetch, resumePlaybackTime = 0, completedLessons = [], onMarkWatched, isCurrentLessonCompleted, courseDetails, meetings, activeCourseTab = 6, isEmbedded = false, hideVideo = false, pendingRecordingUrl = null, pendingRecordingTitle = null, onRecordingPlayed, selectedRecordingUrl, setSelectedRecordingUrl, selectedRecordingTitle, setSelectedRecordingTitle }) => {
+const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refetch, resumePlaybackTime = 0, completedLessons = [], onMarkWatched, isCurrentLessonCompleted, courseDetails, meetings, activeCourseTab = 6, isEmbedded = false, hideVideo = false, pendingRecordingUrl = null, pendingRecordingTitle = null, onRecordingPlayed, selectedRecordingUrl, setSelectedRecordingUrl, selectedRecordingTitle, setSelectedRecordingTitle, isFullScreen, setIsFullScreen }) => {
 
   const [markLessonWatched] = useMarkLessonWatchedMutation();
   const [saveResumeProgress] = useSaveResumeProgressMutation();
@@ -33,52 +36,96 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
   };
 
   const currentPlaybackTimeRef = React.useRef(resumePlaybackTime);
+  const currentDurationRef = React.useRef(0);
   const lastSavedTimeRef = React.useRef(resumePlaybackTime);
   
-  const handleTimeUpdate = (time) => {
+  const handleTimeUpdate = (time, duration) => {
     currentPlaybackTimeRef.current = time;
+    if (duration) {
+      currentDurationRef.current = duration;
+    }
   };
 
   const saveProgress = async (time) => {
-    // Do not save progress if we are watching a live session recording instead of the curriculum video
-    if (selectedRecordingUrl) return;
+    // We still save to localStorage if it's a live session recording, just not to the backend
 
     if (!data || !data[activeVideo]) return;
     const lectureId = data[activeVideo]._id;
     const sectionId = data[activeVideo].videoSection;
 
-    let completionPercentage = 0;
-    const lengthStr = data[activeVideo].videoLength;
-    if (lengthStr && !isNaN(parseFloat(lengthStr))) {
-       const durationSeconds = parseFloat(lengthStr) * 60;
-       if (durationSeconds > 0) {
-          completionPercentage = Math.min(100, (time / durationSeconds) * 100);
-       }
+    // Use reported duration or fallback to configured length
+    let duration = currentDurationRef.current;
+    if (duration === 0) {
+      const lengthStr = data[activeVideo].videoLength;
+      if (lengthStr && !isNaN(parseFloat(lengthStr))) {
+        duration = parseFloat(lengthStr) * 60;
+      }
     }
 
     try {
-      await saveResumeProgress({
-        courseId: id,
-        lectureId,
-        sectionId,
-        playbackTime: time,
-        completionPercentage: completionPercentage
-      });
-      lastSavedTimeRef.current = time;
+      if (!selectedRecordingUrl) {
+        await saveResumeProgress({
+          courseId: id,
+          lessonId: lectureId,
+          sectionId: sectionId,
+          currentTime: time,
+          duration: duration
+        });
+        lastSavedTimeRef.current = time;
+
+        const completionPercentage = duration > 0 ? (time / duration) * 100 : 0;
+        if (completionPercentage >= 80 && !completedLessons.includes(lectureId)) {
+          markLessonWatched({
+            courseId: id,
+            lessonId: lectureId
+          });
+        }
+      }
+
+      // Update dashboard local storage state with latest time
+      if (user && user._id) {
+        const progressObj = {
+          courseId: id,
+          videoId: lectureId,
+          videoTitle: selectedRecordingTitle || data[activeVideo].title,
+          courseName: courseDetails?.name || "My Course",
+          activeVideo: activeVideo,
+          recordingUrl: selectedRecordingUrl || null,
+          timestamp: Date.now(),
+          currentTime: time,
+          duration: duration,
+        };
+        
+        if (duration > 0) {
+          progressObj.watchPercentage = Math.round((time / duration) * 100);
+          progressObj.remainingTime = Math.round((duration - time) / 60);
+          
+          const m = Math.floor(time / 60);
+          const s = Math.floor(time % 60);
+          progressObj.formattedResumeAt = `${m}:${s < 10 ? '0' : ''}${s}`;
+        } else {
+          progressObj.watchPercentage = 0;
+          progressObj.remainingTime = 0;
+          progressObj.formattedResumeAt = "0:00";
+        }
+
+        localStorage.setItem(`lastWatched_${user._id}`, JSON.stringify(progressObj));
+        localStorage.setItem(`courseProgress_${user._id}_${id}`, JSON.stringify(progressObj));
+      }
     } catch (e) {
       console.error("Failed to save resume progress");
     }
   };
 
-  // Autosave interval and page unload handler
+  // Autosave interval and page unload handler  // Auto-save progress every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // Throttle: Only save if time changed by more than 2 seconds
-      if (Math.abs(currentPlaybackTimeRef.current - lastSavedTimeRef.current) >= 2) {
-        saveProgress(currentPlaybackTimeRef.current);
+      const currentTime = currentPlaybackTimeRef.current;
+      if (currentTime > 0 && Math.abs(currentTime - lastSavedTimeRef.current) > 2) {
+        saveProgress(currentTime);
       }
-    }, 10000);
-
+    }, 5000);
+    
     const handleBeforeUnload = () => {
       if (Math.abs(currentPlaybackTimeRef.current - lastSavedTimeRef.current) >= 2) {
         saveProgress(currentPlaybackTimeRef.current);
@@ -94,7 +141,7 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
          saveProgress(currentPlaybackTimeRef.current);
       }
     };
-  }, [activeVideo, id, data]);
+  }, [activeVideo, id, data, selectedRecordingUrl, selectedRecordingTitle]);
 
   // On mount: check if a recording was queued from WorkspaceResources via localStorage
   useEffect(() => {
@@ -183,7 +230,6 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
 
 
   const [activeBar, setactiveBar] = useState(activeCourseTab || 6);
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     if (isEmbedded && activeCourseTab !== undefined) {
@@ -215,21 +261,27 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
   const [submitQuiz, { isLoading: submittingQuiz }] = useSubmitQuizMutation();
 
   // Reset quiz state on video change (skip initial mount so recording URL is preserved)
+  const isFirstActiveVideoMount = React.useRef(true);
   useEffect(() => {
-    if (isInitialVideoMount.current) {
-      isInitialVideoMount.current = false;
-      return;
-    }
     setQuizAnswers({});
     setQuizResult(null);
     setQuizSubmitted(false);
-    setSelectedRecordingUrl(null);
-    setSelectedRecordingTitle(null);
-  }, [activeVideo]);
+    
+    // Only clear the live session recording if the user MANUALLY clicked a new video
+    // (We skip this on the initial mount so we don't wipe out a restored live session)
+    if (isFirstActiveVideoMount.current) {
+      isFirstActiveVideoMount.current = false;
+    } else {
+      setSelectedRecordingUrl(null);
+      setSelectedRecordingTitle(null);
+    }
+  }, [activeVideo, setSelectedRecordingUrl, setSelectedRecordingTitle]);
 
   // Track last watched video for dashboard resume functionality
+  // Track last watched video for dashboard resume functionality initially on load
   useEffect(() => {
     if (data && data[activeVideo] && user && user._id) {
+      const duration = currentDurationRef.current || (data[activeVideo].videoLength ? parseFloat(data[activeVideo].videoLength) * 60 : 0);
       const progressObj = {
         courseId: id,
         videoId: data[activeVideo]._id,
@@ -237,20 +289,28 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
         courseName: courseDetails?.name || "My Course",
         activeVideo: activeVideo,
         recordingUrl: selectedRecordingUrl || null,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        currentTime: currentPlaybackTimeRef.current,
+        duration: duration,
       };
+      
+      if (progressObj.duration > 0) {
+        progressObj.watchPercentage = Math.round((progressObj.currentTime / progressObj.duration) * 100);
+        progressObj.remainingTime = Math.round((progressObj.duration - progressObj.currentTime) / 60);
+        
+        const m = Math.floor(progressObj.currentTime / 60);
+        const s = Math.floor(progressObj.currentTime % 60);
+        progressObj.formattedResumeAt = `${m}:${s < 10 ? '0' : ''}${s}`;
+      } else {
+        progressObj.watchPercentage = 0;
+        progressObj.remainingTime = 0;
+        progressObj.formattedResumeAt = "0:00";
+      }
+
       localStorage.setItem(`lastWatched_${user._id}`, JSON.stringify(progressObj));
       localStorage.setItem(`courseProgress_${user._id}_${id}`, JSON.stringify(progressObj));
-      
-      // Save progress to the backend (only for actual course videos)
-      if (data[activeVideo]._id && !selectedRecordingUrl) {
-        markLessonWatched({
-          courseId: id,
-          lessonId: data[activeVideo]._id
-        });
-      }
     }
-  }, [activeVideo, data, id, user, courseDetails, markLessonWatched, selectedRecordingUrl, selectedRecordingTitle]);
+  }, [activeVideo, user, data, id, selectedRecordingTitle, selectedRecordingUrl, courseDetails]);
 
   // Quiz timer
   useEffect(() => {
@@ -270,8 +330,10 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
   const handleSubmitQuiz = async () => {
     if (!quiz) return;
     const answers = quiz.questions.map((_, i) => quizAnswers[i] ?? -1);
+    const timeLimitInSeconds = quiz.timeLimit ? quiz.timeLimit * 60 : 30 * 60;
+    const timeTaken = timeLimitInSeconds - quizTimeLeft;
     try {
-      const result = await submitQuiz({ quizId: quiz._id, answers }).unwrap();
+      const result = await submitQuiz({ quizId: quiz._id, answers, timeTaken }).unwrap();
       setQuizResult(result);
       setQuizSubmitted(true);
       if (result.passed) toast.success(`✅ Passed! Score: ${result.score}%`);
@@ -358,8 +420,8 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
   }, [isSuccess, error, answerError, answerSuccess])
 
   return (
-    <div className='w-full flex flex-col xl:flex-row gap-6'>
-      <div className={`transition-all duration-300 ${isFullScreen ? 'w-full' : 'w-full xl:w-[70%]'}`}>
+    <div className='w-full flex flex-col gap-6'>
+      <div className="w-full transition-all duration-300">
         {!hideVideo && (
           <>
             <div className="relative overflow-hidden shadow-sm mb-6 bg-black border border-[#E5E7EB]">
@@ -371,7 +433,14 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
                 {isFullScreen ? <FaCompress /> : <FaExpand />}
               </button>
               {(selectedRecordingUrl || data[activeVideo]?.videoUrl)?.startsWith('http') ? (
-              isEmbeddableVideo(selectedRecordingUrl || data[activeVideo]?.videoUrl) ? (
+              (selectedRecordingUrl || data[activeVideo]?.videoUrl)?.includes('youtu') ? (
+                  <YouTubePlayer
+                    key={selectedRecordingUrl || data[activeVideo]?.videoUrl}
+                    videoUrl={selectedRecordingUrl || data[activeVideo]?.videoUrl}
+                    resumeTime={isInitialVideoMount.current ? resumePlaybackTime : 0}
+                    onTimeUpdate={handleTimeUpdate}
+                  />
+                ) : isEmbeddableVideo(selectedRecordingUrl || data[activeVideo]?.videoUrl) ? (
                 <div style={{ position: "relative", paddingTop: "56.25%", overflow: "hidden" }}>
                   <iframe
                     key={selectedRecordingUrl || data[activeVideo]?.videoUrl}
@@ -448,6 +517,12 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
                   if (selectedRecordingUrl && currentRecordingIndex < playableRecordings.length - 1) {
                     handlePlayRecording(playableRecordings[currentRecordingIndex + 1].url, playableRecordings[currentRecordingIndex + 1].title);
                   } else if (!selectedRecordingUrl) {
+                    // Check if current video is watched 80%
+                    const currentLesson = data[activeVideo];
+                    if (currentLesson && !completedLessons.includes(currentLesson._id)) {
+                      toast.error("You must watch at least 80% of this video to unlock the next one!");
+                      return;
+                    }
                     setActiveVideo(activeVideo === data.length - 1 ? activeVideo : activeVideo + 1);
                   }
                 }}
@@ -467,7 +542,7 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
             </div>
           </div>
 
-          <div className="w-full p-2 flex items-center bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl flex-wrap gap-2 mb-8">
+          <div className="w-full p-2 flex items-center bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl flex-wrap gap-2">
             {[
               { id: 6, label: 'AI Co-Pilot' },
               { id: 7, label: 'Notepad' }
@@ -501,7 +576,37 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
       )}
 
       {/* Quiz Tab (Index 5) */}
-      {activeBar === 5 && quiz && (
+      {activeBar === 5 && quiz && (() => {
+        const isClosed = quiz.availableUntil && new Date(quiz.availableUntil) < new Date();
+        const isNotYetOpen = quiz.availableFrom && new Date(quiz.availableFrom) > new Date();
+
+        if (isClosed || isNotYetOpen) {
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="w-full mt-4"
+            >
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-12 text-center shadow-sm">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  {isClosed ? <FaRegTimesCircle className="text-4xl text-gray-400" /> : <FaClock className="text-4xl text-gray-400" />}
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {isClosed ? "Quiz Closed" : "Quiz Not Open Yet"}
+                </h3>
+                <p className="text-gray-500">
+                  {isClosed 
+                    ? `This assessment was closed on ${new Date(quiz.availableUntil).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true })}. You can no longer submit attempts.` 
+                    : `This assessment will be available starting ${new Date(quiz.availableFrom).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true })}.`}
+                </p>
+              </div>
+            </motion.div>
+          );
+        }
+
+        return (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -664,29 +769,26 @@ const CourseContentMedia = ({ data, id, activeVideo, setActiveVideo, user, refet
             </AnimatePresence>
           </div>
         </motion.div>
-      )}
+      );
+      })()}
 
       {/* AI Co-Pilot Tab (Index 6) */}
       {activeBar === 6 && (
-        <div className="w-full mt-4 animate-fade-in">
+        <div className="w-full animate-fade-in">
           <AICoPilot lessonTitle={selectedRecordingTitle || data[activeVideo]?.title || "this lesson"} />
         </div>
       )}
 
       {/* Notepad Tab (Index 7) */}
       {activeBar === 7 && (
-        <div className="w-full mt-4 animate-fade-in">
-          <Notepad lessonId={data[activeVideo]?._id || id} />
+        <div className="w-full animate-fade-in">
+          <Notepad lessonId={data[activeVideo]?._id || id} lessonTitle={selectedRecordingTitle || data[activeVideo]?.title} />
         </div>
       )}
       </div>
 
       {!isFullScreen && (
-        <div className="w-full xl:w-[30%] flex flex-col gap-4">
-          <StudentMeetings courseId={id} onPlayRecording={handlePlayRecording} />
-
-
-
+        <div className="w-full flex flex-col gap-4 mt-6">
           {/* Live Session Materials */}
           {meetings && meetings.some(m => m.materials && m.materials.length > 0) && (
             <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm mb-6">
@@ -1331,280 +1433,4 @@ const StudentAssignments = ({ courseId }) => {
     </div>
   );
 };
-
-// ==========================================
-// STUDENT MEETINGS COMPONENT
-// ==========================================
-const StudentMeetings = ({ courseId, onPlayRecording }) => {
-  const { data, isLoading } = useGetStudentMeetingsQuery(courseId);
-  const meetings = data?.meetings || [];
-  const [markAttendance] = useMarkAttendanceMutation();
-
-  const handleJoinMeeting = async (meeting) => {
-    try {
-      await markAttendance({ meetingId: meeting._id, courseId }).unwrap();
-    } catch (error) {
-      console.error("Failed to mark attendance", error);
-    }
-    // Open zoom link regardless of attendance API success
-    window.open(meeting.zoomLink, "_blank");
-  };
-
-  return (
-    <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 mb-6">
-      <h2 className="text-lg font-bold mb-5 flex items-center gap-2 text-[#111827]">
-        Live Sessions
-      </h2>
-
-      {isLoading ? (
-        <p className="text-[#6B7280] text-sm">Loading sessions...</p>
-      ) : meetings.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {meetings.map((meeting) => {
-            const isEnded = meeting.status === "completed" || new Date() > new Date(meeting.endDate);
-            
-            return (
-              <div key={meeting._id} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-[#F8FAFC] border border-[#F1F5F9] hover:bg-white hover:border-[#E2E8F0] hover:shadow-sm transition-all duration-200 w-full overflow-hidden">
-                <div className="flex items-center gap-4 min-w-0 flex-1">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white border border-[#E2E8F0] flex items-center justify-center text-[#111827] shadow-sm">
-                    <FaVideo size={14} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {meeting.recordingUrl ? (
-                      <h3 
-                        className="text-sm font-bold text-[#111827] truncate cursor-pointer hover:text-[#10B981] hover:underline transition-colors"
-                        onClick={() => onPlayRecording(meeting.recordingUrl, meeting.topic || "Meeting Recording")}
-                      >
-                        {meeting.title || meeting.topic}
-                      </h3>
-                    ) : (
-                      <h3 className="text-sm font-bold text-[#111827] truncate">{meeting.title || meeting.topic}</h3>
-                    )}
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748B] mt-1 truncate">
-                      <FaClock size={12} className="flex-shrink-0" />
-                      <span className="truncate">{new Date(meeting.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  {meeting.recordingUrl ? null : !isEnded ? (
-                    <button
-                      onClick={() => handleJoinMeeting(meeting)}
-                      className="text-xs font-bold bg-[#0F172A] text-white px-4 py-2 rounded-lg hover:bg-[#1E293B] transition-colors shadow-sm whitespace-nowrap"
-                    >
-                      Join Session
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="text-[#64748B] text-sm">No scheduled sessions at this time.</p>
-      )}
-    </div>
-  );
-};
-
-// ==========================================
-// AI CO-PILOT COMPONENT
-// ==========================================
-const AICoPilot = ({ lessonTitle }) => {
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: `Hello! I'm your AI Learning Assistant. Do you have any questions about "${lessonTitle}"?` }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = React.useRef(null);
-
-  useEffect(() => {
-    setMessages([
-      { role: 'ai', text: `Hello! I'm your AI Learning Assistant. Do you have any questions about "${lessonTitle}"?` }
-    ]);
-  }, [lessonTitle]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  const generateAIResponse = (userText) => {
-    const text = userText.toLowerCase();
-    if (text.includes('summary') || text.includes('summarize')) {
-      return `Here is a summary of "${lessonTitle}": This lesson covers the core principles and syntax required to master the topic. Key takeaways include understanding the architecture, setting up your environment correctly, and following best practices to avoid common pitfalls.`;
-    } else if (text.includes('explain') || text.includes('how')) {
-      return `I can explain that! In the context of "${lessonTitle}", the mechanism works by breaking down complex operations into smaller, manageable functions. This modular approach ensures that your code is reusable and easier to debug.`;
-    } else if (text.includes('error') || text.includes('bug')) {
-      return `Errors are a normal part of learning! Make sure to check your syntax and verify that all dependencies are installed. In "${lessonTitle}", a common mistake is forgetting to initialize variables correctly before using them.`;
-    } else if (text.includes('quiz') || text.includes('test')) {
-      return `Sure, let's test your knowledge! Question: What is the primary purpose of the main concept discussed in "${lessonTitle}"? (Reply with your answer and I'll grade it!)`;
-    } else {
-      return `That's a great question. While I don't have the exact answer right now, I recommend re-watching the middle section of "${lessonTitle}" where the instructor dives deep into this specific scenario. Do you want me to summarize the lesson instead?`;
-    }
-  };
-
-  const handleSend = (textToProcess = input) => {
-    if (!textToProcess.trim()) return;
-    const userMsg = { role: 'user', text: textToProcess };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
-    // Simulated AI Processing Delay
-    setTimeout(() => {
-      const responseText = generateAIResponse(textToProcess);
-      setMessages(prev => [...prev, { role: 'ai', text: responseText }]);
-      setIsTyping(false);
-    }, 1500 + Math.random() * 1000); // Random delay between 1.5s and 2.5s
-  };
-
-  const suggestions = [
-    "Summarize this lesson",
-    "Explain the core concepts",
-    "Give me a quick quiz"
-  ];
-
-  return (
-    <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 h-[500px] flex flex-col relative overflow-hidden shadow-sm">
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[#F3F4F6] relative z-10">
-        <div className="w-10 h-10 rounded-full bg-[#EFF6FF] flex items-center justify-center border border-[#BFDBFE]">
-          <span className="text-[#3B82F6] font-bold text-sm">AI</span>
-        </div>
-        <div>
-          <h3 className="text-[#111827] font-bold text-lg">AI Co-Pilot</h3>
-          <p className="text-xs text-[#3B82F6] animate-pulse">Online & Ready</p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto scrollbar-hide mb-4 space-y-4 relative z-10 px-1">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-[#3B82F6] text-white rounded-tr-sm font-medium shadow-sm' : 'bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151] rounded-tl-sm'}`}>
-              {msg.text}
-            </div>
-          </div>
-        ))}
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151] rounded-2xl rounded-tl-sm p-4 flex gap-1 items-center">
-              <div className="w-2 h-2 bg-[#3B82F6] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-[#3B82F6] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-[#3B82F6] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="relative z-10 mt-auto">
-        {/* Suggested Prompts */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
-          {suggestions.map((sug, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSend(sug)}
-              className="whitespace-nowrap text-[10px] bg-[#EFF6FF] text-[#3B82F6] border border-[#BFDBFE] px-3 py-1.5 rounded-full hover:bg-[#DBEAFE] transition-colors uppercase tracking-wider font-bold"
-            >
-              {sug}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask a question about this lesson..."
-            disabled={isTyping}
-            className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 text-sm text-[#111827] focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors disabled:opacity-50"
-          />
-          <button onClick={() => handleSend()} disabled={isTyping} className="bg-[#111827] text-white py-3 px-6 rounded-xl font-bold hover:bg-[#374151] shadow-sm disabled:opacity-50 transition-colors">
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ==========================================
-// NOTEPAD COMPONENT
-// ==========================================
-const Notepad = ({ lessonId }) => {
-  const [note, setNote] = useState('');
-  const [saveStatus, setSaveStatus] = useState('All changes saved');
-
-  // Load saved note
-  useEffect(() => {
-    const saved = localStorage.getItem(`note_${lessonId}`);
-    if (saved) setNote(saved);
-  }, [lessonId]);
-
-  // Auto-save debounced
-  useEffect(() => {
-    setSaveStatus('Saving...');
-    const timer = setTimeout(() => {
-      localStorage.setItem(`note_${lessonId}`, note);
-      setSaveStatus('All changes saved');
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [note, lessonId]);
-
-  const handleDownload = () => {
-    if (!note.trim()) {
-      toast.error("Notepad is empty!");
-      return;
-    }
-    const element = document.createElement("a");
-    const file = new Blob([note], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = `notes_lesson_${lessonId}.txt`;
-    document.body.appendChild(element); // Required for this to work in FireFox
-    element.click();
-    toast.success("Notes downloaded successfully!");
-  };
-
-  const handleClear = () => {
-    if (window.confirm("Are you sure you want to clear your notes? This cannot be undone.")) {
-      setNote('');
-      localStorage.removeItem(`note_${lessonId}`);
-      toast.success("Notes cleared!");
-    }
-  };
-
-  return (
-    <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl p-6 h-[500px] flex flex-col relative shadow-sm">
-      <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#FDE68A]">
-        <div>
-          <h3 className="text-[#92400E] font-bold text-lg flex items-center gap-2">
-            <span>📝</span> Personal Notepad
-          </h3>
-          <p className="text-[10px] text-[#B45309] font-bold uppercase tracking-widest mt-1">{saveStatus}</p>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={handleClear} className="text-xs text-[#EF4444] font-bold hover:bg-[#FEF2F2] px-3 py-1.5 rounded-lg transition-colors">
-            Clear
-          </button>
-          <button onClick={handleDownload} className="text-xs flex items-center gap-2 bg-[#FEF3C7] text-[#92400E] px-3 py-1.5 rounded-lg font-bold hover:bg-[#FDE68A] transition-colors border border-[#FDE68A]">
-            <FaDownload /> Download
-          </button>
-        </div>
-      </div>
-
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Type your markdown notes here... (Auto-saves as you type)"
-        className="flex-1 w-full bg-white/50 border border-[#FDE68A] rounded-xl p-5 text-[#374151] text-sm focus:outline-none focus:border-[#F59E0B] focus:bg-white transition-colors custom-scrollbar resize-none leading-relaxed"
-      />
-    </div>
-  );
-};
-
 export default CourseContentMedia;

@@ -198,7 +198,7 @@ const StaffQuizPage = () => {
   const exportCSV = () => {
     if (!results.length) { toast.error("No data to export"); return; }
     const headers = "Student Name,Email,Quiz Name,Score,Passed,Time Taken (s),Date\n";
-    const rows = results.map(r => `${r.userId?.name},${r.userId?.email},${r.quizId?.sectionName},${r.score},${r.passed ? 'Yes':'No'},${r.timeTaken||0},${fmtDate(r.completionDate)}`).join("\n");
+    const rows = results.map(r => `${r.userId?.name},${r.userId?.email},${r.quizId?.sectionName},${r.score},${r.passed ? 'Yes':'No'},${r.timeTaken != null ? r.timeTaken : 0},${fmtDate(r.completionDate)}`).join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -387,7 +387,7 @@ const StaffQuizPage = () => {
                   <td className="p-4 font-bold text-white">{entry.userId?.name}</td>
                   <td className="p-4 text-xs">{entry.quizId?.sectionName}</td>
                   <td className="p-4 font-bold text-success">{entry.score}%</td>
-                  <td className="p-4 text-xs font-mono">{entry.timeTaken ? `${entry.timeTaken}s` : 'N/A'}</td>
+                  <td className="p-4 text-xs font-mono">{entry.timeTaken != null ? `${entry.timeTaken}s` : 'N/A'}</td>
                 </tr>
               ))}
             </tbody>
