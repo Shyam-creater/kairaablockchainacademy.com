@@ -36,9 +36,35 @@ const StudentNeetManagement = () => {
       currency: 'INR',
       name: 'Kairaa Blockchain Academy',
       description: `Unlock NEET Paper: ${file.title}`,
-      handler: function (response) {
-        setUnlockedFiles(prev => [...prev, file._id]);
-        toast.success('Payment successful! Paper unlocked.');
+      handler: async function (response) {
+        try {
+          const purchaseRes = await fetch(`${SERVER_URI}/neet/purchase`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              yearId: selectedYearObj._id,
+              year: selectedYearObj.year,
+              fileId: file._id,
+              fileTitle: file.title,
+              subject: file.subject || 'General',
+              amount: 10 * 100,
+              paymentId: response.razorpay_payment_id
+            })
+          });
+          const purchaseData = await purchaseRes.json();
+          if(purchaseData.success) {
+            setUnlockedFiles(prev => [...prev, file._id]);
+            toast.success('Payment successful! Paper unlocked.');
+          } else {
+            toast.error(purchaseData.message || 'Failed to record purchase. Contact support.');
+          }
+        } catch(err) {
+          console.error("Purchase error", err);
+          toast.error("Failed to verify purchase. Contact support.");
+        }
       },
       prefill: {
         name: user?.name || "Student",
@@ -56,7 +82,21 @@ const StudentNeetManagement = () => {
 
   useEffect(() => {
     fetchYears();
+    fetchMyPurchases();
   }, []);
+
+  const fetchMyPurchases = async () => {
+    try {
+      const res = await fetch(`${SERVER_URI}/neet/my-purchases`, { credentials: 'include' });
+      const data = await res.json();
+      if (data.success) {
+        const fileIds = data.purchases.map(p => p.fileId);
+        setUnlockedFiles(fileIds);
+      }
+    } catch (err) {
+      console.error('Failed to fetch my purchases', err);
+    }
+  };
 
   const fetchYears = async () => {
     try {

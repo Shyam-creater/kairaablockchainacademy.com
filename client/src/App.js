@@ -63,6 +63,7 @@ import EditBlogPage from "./pages/Admin/EditBlogPage.js";
 import AdminBlogPage from "./pages/Admin/AdminBlogPage.js";
 import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.js";
 import AdminOrdersPage from "./pages/Admin/AdminOrdersPage.js";
+import AdminNeetOrdersPage from "./pages/Admin/AdminNeetOrdersPage.js";
 import AdminAuditLogsPage from "./pages/Admin/AdminAuditLogsPage.js";
 import AdminBatches from "./pages/Admin/AdminBatches";
 import StaffDashboardPage from "./pages/StaffDashboardPage.js";
@@ -329,6 +330,10 @@ const router = createBrowserRouter([
           {
             path: "/admin/orders",
             element: <AdminOrdersPage />
+          },
+          {
+            path: "/admin/neet-purchases",
+            element: <AdminNeetOrdersPage />
           },
           {
             path: "/admin/audit-logs",

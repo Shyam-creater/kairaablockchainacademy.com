@@ -79,6 +79,24 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
     }),
 
+    // Admin NEET Orders Summary
+    getAdminNeetOrdersSummary: builder.query({
+      query: () => ({
+        url: "neet/admin/purchases/summary",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+
+    // Admin Paginated NEET Orders
+    getAdminNeetOrders: builder.query({
+      query: ({ page = 1, limit = 15 } = {}) => ({
+        url: `neet/admin/purchases?page=${page}&limit=${limit}`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+
     // Audit logs
     getAuditLogs: builder.query({
       query: ({ page = 1, limit = 20, action = "" } = {}) => ({
@@ -167,6 +185,8 @@ export const {
   useSuspendUserMutation,
   useGetAdminOrdersSummaryQuery,
   useGetAdminOrdersQuery,
+  useGetAdminNeetOrdersSummaryQuery,
+  useGetAdminNeetOrdersQuery,
   useGetAuditLogsQuery,
   useAssignStaffMutation,
   useCreateBatchMutation,

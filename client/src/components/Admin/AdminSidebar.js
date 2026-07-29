@@ -30,7 +30,7 @@ import logoImg from "../../carouselimages/footerLogo2.png";
 
 const NavItem = ({ title, to, icon: Icon, isCollapsed }) => {
   const location = useLocation();
-  const isActive = location.pathname === to || (to !== '/admin' && location.pathname.startsWith(to));
+  const isActive = location.pathname === to || (to !== '/admin' && location.pathname.startsWith(`${to}/`));
 
   return (
     <Link to={to} className="block w-full">
@@ -176,6 +176,7 @@ const AdminSidebar = ({ forceOpen, onMobileClose }) => {
               <NavItem title="NEET Management" to="/admin/neet" icon={FiFolder} isCollapsed={activeCollapsed} />
               <NavItem title="Enquiries" to="/admin/registrations" icon={FiClipboard} isCollapsed={activeCollapsed} />
               <NavItem title="Course Purchases" to="/admin/orders" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
+              <NavItem title="NEET Purchases" to="/admin/neet-purchases" icon={FiShoppingCart} isCollapsed={activeCollapsed} />
               <NavItem title="Certificates" to="/admin/certificates" icon={FiAward} isCollapsed={activeCollapsed} />
             </div>
 
