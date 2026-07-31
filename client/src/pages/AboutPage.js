@@ -5,6 +5,8 @@ import { FiCheckCircle, FiXCircle, FiPlay, FiBook, FiCode, FiAward, FiBriefcase,
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Heading from "../components/Heading";
+import founderImg from "../assets/founder.png";
+import coFounderImg from "../assets/co-founder.jpeg";
 
 // Reusable animated counter
 const AnimatedCounter = ({ value, suffix = "+" }) => {
@@ -350,37 +352,36 @@ const AboutPage = () => {
         </section>
 
         {/* =========================================
-            SECTION 8: MEET THE MENTORS
+            SECTION 8: MEET THE FOUNDERS
         ========================================= */}
         <section className="py-32 border-b border-white/5">
-          <div className="container mx-auto px-6 max-w-7xl">
+          <div className="container mx-auto px-6 max-w-5xl">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">World-Class Mentorship</h2>
-              <p className="text-slate-400 text-lg">Learn directly from engineers who build the protocols of tomorrow.</p>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">Meet Our Founders</h2>
+              <p className="text-slate-400 text-lg">The visionaries behind Kairaa Academy.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               {[
-                { name: "Dr. Sarah Jenkins", role: "Lead Protocol Architect", exp: "8 Yrs", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" },
-                { name: "David Chen", role: "Smart Contract Auditor", exp: "5 Yrs", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80" },
-                { name: "Priya Sharma", role: "DeFi Engineer", exp: "6 Yrs", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80" }
-              ].map((mentor, i) => (
+                { name: "Ms. Sneka", role: "Founder", exp: "10+ Yrs", img: founderImg, imgFit: "object-cover object-top" },
+                { name: "Mr. Agilan", role: "Co-Founder", exp: "8+ Yrs", img: coFounderImg, imgFit: "object-cover object-top" }
+              ].map((leader, i) => (
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ amount: 0.3 }} transition={{ duration: 0.5, delay: i * 0.1 }} key={i} className="group relative bg-[#0B1120] border border-white/10 rounded-3xl overflow-hidden p-6 hover:bg-[#0f172a] transition-colors cursor-pointer">
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-6 relative">
-                    <img src={mentor.img} alt={mentor.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] to-transparent opacity-80" />
+                  <div className="aspect-square rounded-2xl overflow-hidden mb-6 relative bg-white/5">
+                    <img src={leader.img} alt={leader.name} className={`w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500 ${leader.imgFit || "object-cover"}`} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent opacity-80" />
                     
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                    {/* <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
                       <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-primary transition-colors"><FiGithub /></div>
                       <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-primary transition-colors"><FiTwitter /></div>
                       <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-primary transition-colors"><FiLinkedin /></div>
-                    </div>
+                    </div> */}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-1 text-center">{mentor.name}</h3>
-                  <p className="text-sm text-primary text-center font-medium mb-4">{mentor.role}</p>
-                  <div className="flex justify-center border-t border-white/5 pt-4">
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{mentor.exp} Web3 Experience</span>
-                  </div>
+                  <h3 className="text-xl font-bold text-white mb-1 text-center">{leader.name}</h3>
+                  <p className="text-sm text-primary text-center font-medium mb-4">{leader.role}</p>
+                  {/* <div className="flex justify-center border-t border-white/5 pt-4">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{leader.exp} Web3 Experience</span>
+                  </div> */}
                 </motion.div>
               ))}
             </div>
